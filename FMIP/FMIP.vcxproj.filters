@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="About.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FMIP.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FMIP-TextCtrl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FMIP-TreeCtrl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadingOutputVMContent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VMContentDisplay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wxPreCompile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="About.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FMIP.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FMIP-TextCtrl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FMIP-TreeCtrl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MainWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadingOutputVMContent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VMContentDisplay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="wx\msw\cdrom.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wx\msw\colours.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wx\msw\computer.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wx\msw\csquery.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wx\msw\drive.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wx\msw\file1.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wx\msw\floppy.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wx\msw\folder1.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wx\msw\folder2.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wx\msw\removble.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wx\msw\std.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="wx\msw\blank.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="wx\msw\bullseye.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="wx\msw\cross.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="wx\msw\hand.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="wx\msw\magnif1.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="wx\msw\pbrush.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="wx\msw\pencil.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="wx\msw\pntleft.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="wx\msw\pntright.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="wx\msw\roller.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{bd1c78ac-de60-491e-9ca4-cd5b57255498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{9f16f664-12f0-4320-9c05-7e287f8ad3ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{03834abc-a525-442f-97e0-94f508df0298}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="FMIP.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

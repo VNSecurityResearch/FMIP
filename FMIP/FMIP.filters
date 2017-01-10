@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="wxPreCompile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadingOutputVMContent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VMContentDisplay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FMIP.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FMIP-TextCtrl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FMIP-TreeCtrl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="About.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MainWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadingOutputVMContent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VMContentDisplay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FMIP.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FMIP-TextCtrl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FMIP-TreeCtrl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="About.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="TTTBTMĐ.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="wx\msw\hand.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="wx\msw\bullseye.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="wx\msw\pencil.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="wx\msw\magnif1.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="wx\msw\roller.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="wx\msw\pbrush.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="wx\msw\pntleft.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="wx\msw\pntright.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="wx\msw\blank.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="wx\msw\cross.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="wx\msw\std.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wx\msw\folder1.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wx\msw\folder2.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wx\msw\file1.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wx\msw\computer.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wx\msw\drive.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wx\msw\cdrom.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wx\msw\floppy.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wx\msw\removble.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wx\msw\csquery.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wx\msw\colours.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
