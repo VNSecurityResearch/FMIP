@@ -108,15 +108,16 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 		case VK_RIGHT:
 			/*if (!CanScroll(m_hWndThis, OBJID_HSCROLL))
 			break;*/
-			if (m_blInWindows10)
-				::SendMessage(m_hWndThis, WM_HSCROLL, SB_LINERIGHT, NULL);
-			else
-			{
-				//m_ScrollInfo.fMask = SIF_RANGE | SIF_TRACKPOS | SIF_PAGE | SIF_POS;
-				::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
-				if (m_ScrollInfo.nTrackPos < m_ScrollInfo.nMax - (m_ScrollInfo.nPage - 1))
-					::SendMessage(m_hWndThis, WM_HSCROLL, SB_LINERIGHT, NULL);
-			}
+			//if (m_blInWindows10)
+			//	::SendMessage(m_hWndThis, WM_HSCROLL, SB_LINERIGHT, NULL);
+			//else
+			//{
+			//	//m_ScrollInfo.fMask = SIF_RANGE | SIF_TRACKPOS | SIF_PAGE | SIF_POS;
+			//	::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
+			//	if (m_ScrollInfo.nTrackPos < m_ScrollInfo.nMax - (m_ScrollInfo.nPage - 1))
+			//		::SendMessage(m_hWndThis, WM_HSCROLL, SB_LINERIGHT, NULL);
+			//}
+			::SendMessage(m_hWndThis, WM_HSCROLL, SB_LINERIGHT, NULL);
 			break;
 		case VK_PRIOR:
 			::SendMessage(m_hWndThis, WM_VSCROLL, SB_PAGEUP, NULL);
@@ -142,12 +143,17 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 		//m_ScrollInfo.fMask = SIF_RANGE | SIF_PAGE | SIF_POS;
 		switch (LOWORD(wParam))
 		{
-			//case SB_LINERIGHT:
-			//	//m_ScrollInfo.fMask = SIF_RANGE | SIF_PAGE | SIF_POS;
-			//	::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
-			//	if (m_ScrollInfo.nPos >= m_ScrollInfo.nMax - (m_ScrollInfo.nPage - 1))
-			//		return 0;
-			//	break;
+		case SB_LINERIGHT:
+			if (!m_blInWindows10)
+			{
+				//m_ScrollInfo.fMask = SIF_RANGE | SIF_PAGE | SIF_POS;
+				::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
+				if (m_ScrollInfo.nPos >= m_ScrollInfo.nMax - (m_ScrollInfo.nPage - 1))
+					return 0;
+			}
+			else
+				::SendMessage(m_hWndThis, WM_HSCROLL, SB_LINERIGHT, NULL);
+			break;
 		case SB_PAGERIGHT:
 			if (m_blInWindows10)
 				break;
