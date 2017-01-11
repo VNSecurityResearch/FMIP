@@ -128,7 +128,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 				size_t count;
 				wxString strAssembly;
 #ifdef _WIN64
-				m_CSMode = FMIP_::IsProcessWoW64(m_hProcessToRead) ? CS_MODE_32 : CS_MODE_64;
+				m_CSMode = FMIP::IsProcessWoW64(m_hProcessToRead) ? CS_MODE_32 : CS_MODE_64;
 #else
 				m_CSMode = CS_MODE_32;
 #endif // _WIN64
