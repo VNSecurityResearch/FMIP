@@ -158,7 +158,6 @@ WXLRESULT MainWindow::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lP
 		::SendInput(1, &input, sizeof(INPUT));
 		return 0;
 	}
-	break;
 
 	case CM_TERMINATE:
 	{

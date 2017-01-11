@@ -159,8 +159,8 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 		default:
 			break;
 		}
+		break;
 	}
-	break;
 
 	default:
 		break;
