@@ -55,9 +55,9 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 		if (m_blInWindows10) // If running in Windows 10...
 			break; // ...just let the default procedure handle this
 		/*
-		* In Windows 8 (or other version older than Windows 10), when resizing the window to the size
-		* that makes the state of the scroll bar changes to STATE_SYSTEM_UNAVAILABLE, the scroll bar
-		* automatically scrolls to the top. In that case, this is to restore the scroll bar to it's previous position.
+		* In Windows 8 (or other version older than Windows 10), when the window is sized such that
+		* the state of the scroll bar changes to STATE_SYSTEM_UNAVAILABLE, the scroll bar automatically scrolls to the top. 
+		* In that case, this is to restore the scroll bar to it's previous position.
 		*/
 		::GetScrollBarInfo(m_hWndThis, OBJID_HSCROLL, &m_ScrollBarInfo);
 		if (m_ScrollBarInfo.rgstate[0] == STATE_SYSTEM_UNAVAILABLE)
