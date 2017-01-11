@@ -14,21 +14,16 @@ VMContentDisplay::VMContentDisplay(MainWindow* Parent, FMIP_TreeCtrl* ptrTreeCtr
 {
 	m_OutputType = OutputType;
 	wxBoxSizer* pVBox = new wxBoxSizer(wxVERTICAL);
-	//wxBoxSizer* pHInnerBox = new wxBoxSizer(wxHORIZONTAL);
 	this->m_ptrTextCtrl = new FMIP_TextCtrl(this);
-	//m_hwndTextCtrl = m_ptrTextCtrl->GetHWND();
 	wxTextAttr TextAttr;
 	TextAttr.SetFontFaceName("Consolas");
 	//TextAttr.SetFont(wxFontInfo().FaceName("Consolas"));
 	SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_MENU));
 	m_ptrTextCtrl->SetDefaultStyle(TextAttr);
-	//pHInnerBox->Add(m_ptrTextCtrl, 1, wxLEFT | wxRIGHT | wxTOP | wxEXPAND, 3);
-	//pVBox->Add(pHInnerBox, 1, wxGROW | wxALL, 0);
 	pVBox->Add(m_ptrTextCtrl, 1, wxLEFT | wxRIGHT | wxTOP | wxEXPAND, 3);
 	m_ptrButtonOK = new wxButton(this, wxID_OK);
 	m_hWndButtonOK = m_ptrButtonOK->GetHWND();
 	pVBox->Add(m_ptrButtonOK, 0, wxALIGN_RIGHT | wxALL, 10);
-	//CreateStatusBar(1, wxSTB_DEFAULT_STYLE, wxID_ANY);
 	m_ptrStatusBar = new wxStatusBar(this);
 	pVBox->Add(m_ptrStatusBar, 0, wxGROW);
 	SetSizer(pVBox);
@@ -78,7 +73,7 @@ void VMContentDisplay::Output(const wxString& Text)
 
 wxString VMContentDisplay::GetStatusText()
 {
-	wxString strStatusText = m_ptrStatusBar->GetStatusText(); //this->GetStatusBar()->GetStatusText();
+	wxString strStatusText = m_ptrStatusBar->GetStatusText(); // this->GetStatusBar()->GetStatusText();
 	assert(strStatusText != "");
 	return strStatusText;
 }
@@ -108,20 +103,13 @@ WXLRESULT VMContentDisplay::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPA
 	{
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) != WA_INACTIVE)
-		{
 			m_ptrButtonOK->SetDefault(); // = ::SendMessage(m_ptrButtonOK->GetHWND(), BM_SETSTYLE, BS_DEFPUSHBUTTON | BS_TEXT, TRUE);
-		}
 		else
-		{
 			::SendMessage(m_hWndButtonOK, BM_SETSTYLE, BS_PUSHBUTTON | BS_TEXT, TRUE);
-		}
 		break;
+
 	default:
 		break;
 	}
-	/*if (m_hwndTextCtrl != nullptr)
-	{
-		::HideCaret(m_hwndTextCtrl);
-	}*/
 	return wxDialog::MSWWindowProc(message, wParam, lParam);
 }

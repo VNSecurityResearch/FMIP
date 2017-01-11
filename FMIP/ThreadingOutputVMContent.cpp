@@ -145,13 +145,6 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 						if (this->TestDestroy()) return (wxThread::ExitCode)0; //IMPORTANT TO KILL THE THREAD WHILE IN LONG DURATION OPERATION
 						strAssembly.append(wxString::Format("0x%p: %-12s\t%-s\r\n", (void*)insn[line].address, insn[line].mnemonic,
 							insn[line].op_str));
-						//if (line % 10000 == 0)
-						//{
-						//	m_ptrVMContentDisplay->Output(Output);
-						//	//m_ptrOutput->Update();
-						//	//wxThread::This()->Sleep(10);
-						//	Output.Empty();
-						//}
 					}
 					uintLastExaminedAddress = insn[count - 1].address;
 					m_ptrVMContentDisplay->Output(strAssembly);
@@ -164,6 +157,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 				cs_close(&handle);
 			}
 			break;
+
 			case OUTPUT_TYPE_STRING:
 			{
 #ifndef min
@@ -175,17 +169,12 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 				ULONG memoryTypeMask;
 				PUCHAR buffer;
 				SIZE_T bufferSize;
-				//PWSTR displayBuffer;
 				SIZE_T displayBufferCount;
 				wxString wxstrStrings;
 				minimumLength = 4;
-				/*detectUnicode = Options->DetectUnicode;
-				memoryTypeMask = Options->MemoryTypeMask;*/
 				if (minimumLength < 4)
 					return "";
 				displayBufferCount = (PAGE_SIZE * 2) - 1;
-				//displayBuffer = new WCHAR[displayBufferCount + 1];
-				std::unique_ptr<WCHAR>displayBuffer(new WCHAR[displayBufferCount + 1]);
 				std::wstring wstrDisplayBuffer(displayBufferCount + 1, L'\0');
 				UCHAR byte; // current byte
 				UCHAR byte1; // previous byte
@@ -194,7 +183,6 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 				BOOLEAN printable1;
 				BOOLEAN printable2;
 				ULONG length;
-				//uint64_t uintAddress = 0;
 				byte1 = 0;
 				byte2 = 0;
 				printable1 = FALSE;
@@ -252,7 +240,6 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 					{
 						if (length < displayBufferCount)
 						{
-							displayBuffer.get()[length] = byte;
 							wstrDisplayBuffer.at(length) = byte;
 						}
 						length++;
@@ -266,7 +253,6 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 						else if (byte == 0)
 						{
 							length = 1;
-							displayBuffer.get()[0] = byte1;
 							wstrDisplayBuffer.at(0) = byte1;
 						}
 						else
@@ -280,7 +266,6 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 						{
 							if (length < displayBufferCount)
 							{
-								displayBuffer.get()[length] = byte;
 								wstrDisplayBuffer.at(length) = byte;
 							}
 							length++;
@@ -307,8 +292,6 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 						else
 						{
 							length = 2;
-							displayBuffer.get()[0] = byte1;
-							displayBuffer.get()[1] = byte;
 							wstrDisplayBuffer.at(0) = byte1;
 							wstrDisplayBuffer.at(1) = byte;
 						}
@@ -321,7 +304,6 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 					{
 						if (length < displayBufferCount)
 						{
-							displayBuffer.get()[length] = byte;
 							wstrDisplayBuffer.at(length) = byte;
 						}
 						length++;
@@ -354,10 +336,8 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 						}
 						uintLastExaminedAddress = (uint64_t)BaseAddress + (i - bias - lengthInBytes);
 						displayLength = (ULONG)(min(length, displayBufferCount));
-						displayBuffer.get()[displayLength] = L'\n'; // L'\r';
 						wstrDisplayBuffer.at(displayLength) = L'\n';
 						//displayBuffer.get()[displayLength + 1] = L'\n';
-						displayBuffer.get()[displayLength + 1] = L'\0';
 						wstrDisplayBuffer.at(displayLength + 1) = L'\0';
 						int pos = 0;
 						pos = wstrDisplayBuffer.find(L'\r');
@@ -366,7 +346,6 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 							wstrDisplayBuffer.replace(pos, 1, L"\x1A\x0"); // L"\r                    ");
 							pos = wstrDisplayBuffer.find(L'\r', pos + 1); // should be pos + 21?
 						}
-						pos = 0;
 						pos = wstrDisplayBuffer.find(L'\n');
 						int intStringLength = wcslen(wstrDisplayBuffer.data());
 						while (pos != std::wstring::npos && pos < intStringLength - 1)
@@ -375,7 +354,6 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 							pos = wstrDisplayBuffer.find(L'\n', pos + 1);
 						}
 						wxstrStrings.append(wxString::Format("0x%p: ", (void*)uintLastExaminedAddress));
-						//wxstrStrings.append(displayBuffer.get());
 						wxstrStrings.append(wstrDisplayBuffer.data());
 						length = 0;
 					}
@@ -385,10 +363,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 					printable2 = printable1;
 					printable1 = printable;
 				}
-				/*if (uintAddress != 0)
-				uintLastExaminedAddress = uintAddress;*/
 				m_ptrVMContentDisplay->Output(wxstrStrings);
-				//delete[] displayBuffer; // no need since displayBuffer is a smart pointer
 			}
 			break;
 			default:

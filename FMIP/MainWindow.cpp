@@ -115,7 +115,6 @@ void MainWindow::OnAbout(wxMenuEvent& event)
 
 WXLRESULT MainWindow::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam)
 {
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// this is the case only with the WoW64 X86 version to handle a request from the X64 version for querying virtual memory of a X86 process
 	switch (message)
 	{
@@ -128,23 +127,21 @@ WXLRESULT MainWindow::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lP
 		case ACTION::ACTION_REQUEST_FOR_X86HANDLING:
 		{
 			DWORD dwPid = ptrNodeProperty->PROCESSNAMEPID.dwPId;
-			/*HANDLE hToken;
-			::OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, &hToken);
-			FMIP_::SetPrivilege(hToken, L"SeDebugPrivilege", TRUE);*/
 			HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwPid);
 			if ((hProcess != INVALID_HANDLE_VALUE) && (hProcess != nullptr))
 			{
 				FMIP::MakeTreeNodesForRemoteProcess((HWND)wParam, hProcess, ptrNodeProperty->PROCESSNAMEPID);
 			}
 			::CloseHandle(hProcess);
-			//::CloseHandle(hToken);
 			break;
 		}
+
 		default:
 			break;
 		} // close switch (ptrCopyDataStruct->dwData)
 		return 0;
 	}
+
 	// this is to get rid of the idle state when a menu of the main window is clicked
 	case WM_ENTERIDLE:
 	{
@@ -162,10 +159,12 @@ WXLRESULT MainWindow::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lP
 		return 0;
 	}
 	break;
+
 	case CM_TERMINATE:
 	{
 		::PostQuitMessage(0);
 	}
+
 	case WM_NOTIFY:
 	{
 		WXLRESULT Result = CDRF_DODEFAULT;
@@ -181,10 +180,11 @@ WXLRESULT MainWindow::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lP
 				{
 					return CDRF_NOTIFYITEMDRAW;
 				}
+
 				case CDDS_ITEMPREPAINT:
 				{
 					Generic_Tree_Item* ptrGenericTreeItem = static_cast<Generic_Tree_Item*>(m_ptrFMIP_TreeCtrl->GetItemData((wxTreeItemId*)lpNMCustomDraw->nmcd.dwItemSpec));
-					if (ptrGenericTreeItem != nullptr /*&& pGTI != (LPCVOID)0xffffffffffffffff*/)
+					if (ptrGenericTreeItem != nullptr)
 					{
 						if (ptrGenericTreeItem->IsRedWarning() == TRUE)
 						{
@@ -197,21 +197,20 @@ WXLRESULT MainWindow::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lP
 						if (ptrGenericTreeItem->GetType() != TREE_ITEM_TYPE::TREE_ITEM_TYPE_PROCESS_NAME_PID)
 						{
 							wxFont fntSubItem (wxFontInfo().FaceName("Consolas"));
-							/*HFONT hNewFont = CreateFont(16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-								OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-								DEFAULT_PITCH | FF_DONTCARE, TEXT("Consolas"));*/
 							SelectObject(lpNMCustomDraw->nmcd.hdc, fntSubItem.GetHFONT());
 							Result |= CDRF_NEWFONT;
 						}
 					}
 					return Result;
 				}
+
 				default:
 					break;
 				}
 			}
 		}
 	}
+
 	default:
 		break;
 	}

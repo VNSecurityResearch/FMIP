@@ -18,7 +18,6 @@ enum POPUP_MENU_ITEM
 
 FMIP_TreeCtrl::FMIP_TreeCtrl(wxWindow* parent, wxWindowID Id, long style) : wxTreeCtrl(parent, Id, wxDefaultPosition, wxDefaultSize, style) 
 {
-	//Bind(wxEVT_PAINT, &FMIP_TreeCtrl::OnPaint, this);
 }
 
 void FMIP_TreeCtrl::OnPopupClick(wxCommandEvent& event)
@@ -27,16 +26,6 @@ void FMIP_TreeCtrl::OnPopupClick(wxCommandEvent& event)
 	OUTPUT_TYPE	OutputType = event.GetId() == POPUP_MENU_ITEM_ASM ? OUTPUT_TYPE_ASM : OUTPUT_TYPE_STRING;
 	VMContentDisplay* pVMContentDisplay = new VMContentDisplay(static_cast<MainWindow*>(this->GetParent()), this, OutputType);
 }
-
-//void FMIP_TreeCtrl::OnPaint(wxPaintEvent &evt)
-//{
-//	/*OutputDebugString(L"Paint\n");
-//	wxPaintDC wxDC(this);
-//	wxDC.SetTextBackground(wxColor(255, 0, 0));
-//	wxDC.SetTextForeground(wxColor(255, 0, 0));
-//	wxDC.DrawText(wxT("Hello"), wxPoint(100, 100));*/
-//	evt.Skip();
-//}
 
 void FMIP_TreeCtrl::OnRightClick(wxTreeEvent& event)
 {
@@ -94,7 +83,6 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 			{
 			case TREE_ITEM_TYPE::TREE_ITEM_TYPE_PROCESS_NAME_PID:
 			{
-
 				wxTreeItemId tiRoot = this->GetRootItem();
 				if (tiRoot == nullptr)
 				{
@@ -105,6 +93,7 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 				if (ptrTreeItemProperties->blPEInjection) this->SetItemTextColour(tiLastProcessNameId, wxColor(255, 0, 0));
 				break;
 			}
+
 			case TREE_ITEM_TYPE::TREE_ITEM_TYPE_ALLOCATION_BASE:
 			{
 				wxTreeItemData* ptrTreeItemParentRegion = new Tree_Item_Allocation_Base((PVOID)ptrTreeItemProperties->dwAllocationBase);
@@ -112,6 +101,7 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 				if (ptrTreeItemProperties->blPEInjection) this->SetItemTextColour(tiLastAllocationBase, wxColor(255, 0, 0));
 				break;
 			}
+
 			case TREE_ITEM_TYPE::TREE_ITEM_TYPE_REGION:
 			{
 				wxTreeItemData* ptrTreeItemRegion = new Tree_Item_Region((PVOID)ptrTreeItemProperties->dwBaseAddress, (SIZE_T)ptrTreeItemProperties->lnRegionSize);
@@ -119,20 +109,20 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 				if (ptrTreeItemProperties->blPEInjection) this->SetItemTextColour(tiTreeLastRegion, wxColor(255, 0, 0));
 				break;
 			}
+
 			default:
 				break;
 			} // close switch (pIPCData->NodeType)
 			break;
 		}
+
 		case ACTION::ACTION_EDIT_TREE_ITEM_TEXT:
 		{
-			//wxString wxszItemText = this->GetItemText(tiLastProcessNameId);
-			//this->SetItemText(tiLastProcessNameId, wxszItemText.append(PEInjectionWarning));
 			wxTreeItemData* ptiData = this->GetItemData(tiLastProcessNameId);
 			static_cast<Tree_Item_ptrrocess_Name_PId*>(ptiData)->SetRedWarning(TRUE);
-			//this->SetItemTextColour(tiLastProcessNameId, wxColor(255, 0, 0));
 			break;
 		}
+
 		default:
 			break;
 		} // close switch (pCopyDataStruct->dwData)

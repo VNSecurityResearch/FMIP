@@ -10,6 +10,5 @@ public:
 	void OnRefresh(wxMenuEvent&);
 	//void OnKeyDown(wxTreeEvent& event);
 	void OnPopupClick(wxCommandEvent& event);
-	void OnPaint(wxPaintEvent&);
 	WXLRESULT MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam);
-};
+};	

@@ -177,7 +177,6 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 			NodeProperties.PROCESSNAMEPID.dwPId = ProcessNamePId.dwPId;
 			wxszItemText = ProcessNamePId.szProcessName;
 			wxszItemText.append(wxString::Format(" (PId: %d X86)", ProcessNamePId.dwPId));
-			//wxszItemText.append(" X86");
 			DWORD dwLength = wxszItemText.length();
 			for (DWORD i = 0; i <= dwLength; i++) // include NULL character
 			{
@@ -307,11 +306,10 @@ BOOL FMIP::FillTreeCtrl(FMIP_TreeCtrl* ptrTreeCtrl)
 		{
 			PROCESSNAMEPID.szProcessName[i] = strProcessName.wc_str()[i];
 		}
-#ifdef _WIN64																					// our app is X64 and...
-		if (FMIP::IsProcessWoW64(hProcess) == TRUE)													// this is a X86 process running under WoW64, so...
+#ifdef _WIN64 // our app is X64 and...
+		if (FMIP::IsProcessWoW64(hProcess) == TRUE) // this is a X86 process running under WoW64, so...
 		{
 			RequestAction(hwndX86RequestHandler, hwndX64MakeTreeItemsHandler, ACTION_REQUEST_FOR_X86HANDLING, &PROCESSNAMEPID, sizeof(PROCESS_NAME_PID));
-			//RequestX86Handling(hwndX86RequestHandler, hwndX64MakeTreeItemsHandler, &ProcessNamePId, sizeof(PROCESS_NAME_PID));				// let the X86 version take care of this process
 		}
 		else
 		{
