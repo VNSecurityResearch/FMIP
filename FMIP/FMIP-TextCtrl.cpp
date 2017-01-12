@@ -17,7 +17,6 @@ FMIP_TextCtrl::FMIP_TextCtrl(VMContentDisplay* ptrParent) :wxTextCtrl(ptrParent,
 	m_ScrollInfo.fMask = SIF_RANGE | SIF_TRACKPOS | SIF_PAGE | SIF_POS;
 	::GetScrollBarInfo(m_hWndThis, OBJID_HSCROLL, &m_ScrollBarInfo);
 	m_dwInitialScrollBarState = m_ScrollBarInfo.rgstate[0];
-	m_blInWindows10 = IsWindows10();
 }
 
 //BOOL FMIP_TextCtrl::CanScroll(HWND hWnd, LONG Direction)
@@ -27,27 +26,6 @@ FMIP_TextCtrl::FMIP_TextCtrl(VMContentDisplay* ptrParent) :wxTextCtrl(ptrParent,
 //	::GetScrollBarInfo(hWnd, OBJID_HSCROLL, &ScrollBarInfo);
 //	return (ScrollBarInfo.rgstate[0] != STATE_SYSTEM_INVISIBLE && ScrollBarInfo.rgstate[0] != STATE_SYSTEM_UNAVAILABLE) ? TRUE : FALSE;
 //}
-
-BOOL FMIP_TextCtrl::IsWindows10()
-{
-	OSVERSIONINFOEX osvi;
-	DWORDLONG dwlConditionMask = 0;
-	int op = VER_GREATER_EQUAL;
-
-	// Initialize the OSVERSIONINFOEX structure.
-	ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
-	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-	osvi.dwMajorVersion = 10;
-
-	// Initialize the condition mask.
-	VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, op);
-
-	// Perform the test.
-	return VerifyVersionInfo(
-		&osvi,
-		VER_MAJORVERSION,
-		dwlConditionMask);
-}
 
 WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam)
 {
@@ -128,7 +106,7 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 		switch (LOWORD(wParam))
 		{
 		case SB_LINERIGHT:
-			if (m_blInWindows10)
+			if (m_dwInitialScrollBarState == STATE_SYSTEM_UNAVAILABLE)
 				break;
 			/*
 			* In Windows 8 (or other version older than Windows 10), the scroll bar can scroll past the max position.
