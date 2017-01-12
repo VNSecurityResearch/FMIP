@@ -10,6 +10,7 @@ private:
 	SCROLLINFO m_ScrollInfo;
 	SCROLLBARINFO m_ScrollBarInfo;
 	BOOL m_blInWindows10;
+	DWORD m_dwInitialScrollBarState;
 	int m_intLastCheckFirstVisibleLine = 0;
 public:
 	FMIP_TextCtrl(VMContentDisplay*);
