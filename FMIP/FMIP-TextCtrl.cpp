@@ -16,7 +16,8 @@ FMIP_TextCtrl::FMIP_TextCtrl(VMContentDisplay* ptrParent) :wxTextCtrl(ptrParent,
 	m_ScrollBarInfo.cbSize = sizeof(SCROLLBARINFO);
 	m_ScrollInfo.fMask = SIF_RANGE | SIF_TRACKPOS | SIF_PAGE | SIF_POS;
 	::GetScrollBarInfo(m_hWndThis, OBJID_HSCROLL, &m_ScrollBarInfo);
-	m_dwInitialScrollBarState = m_ScrollBarInfo.rgstate[0];
+	m_blHScrollBarVisible = m_ScrollBarInfo.rgstate[0] == 0 ? TRUE : FALSE;
+	m_dwInitialHScrollBarState = m_ScrollBarInfo.rgstate[0];
 }
 
 //BOOL FMIP_TextCtrl::CanScroll(HWND hWnd, LONG Direction)
@@ -31,26 +32,40 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 {
 	switch (nMsg)
 	{
+		case WM_SIZE:
+			::GetScrollBarInfo(m_hWndThis, OBJID_HSCROLL, &m_ScrollBarInfo);
+			if (m_ScrollBarInfo.rgstate[0] == 0)
+				m_blHScrollBarVisible = TRUE;
+			break;
+
 	case WM_PAINT:
 		/*
 		* In Windows 8 (or other version older than Windows 10), when the window is sized such that
 		* the state of the scroll bar changes to STATE_SYSTEM_UNAVAILABLE, the scroll bar automatically scrolls to the top.
 		* In that case, this is to restore the scroll bar to it's previous position.
 		*/
-		if (m_dwInitialScrollBarState == STATE_SYSTEM_UNAVAILABLE)
+		if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
 			break;
-		::GetScrollBarInfo(m_hWndThis, OBJID_HSCROLL, &m_ScrollBarInfo);
-		if (m_ScrollBarInfo.rgstate[0] == STATE_SYSTEM_UNAVAILABLE)
+		if (m_blHScrollBarVisible)
 		{
-			wxTextCtrl::MSWWindowProc(nMsg, wParam, lParam);
-			int intFirstVisibleLine = ::SendMessage(m_hWndThis, EM_GETFIRSTVISIBLELINE, 0, 0);
-			if (intFirstVisibleLine != m_intLastCheckFirstVisibleLine)
-				if ((::GetAsyncKeyState(VK_HOME) & 0x8000) != 0x8000)
-					::SendMessage(m_hWndThis, EM_LINESCROLL, 0, m_intLastCheckFirstVisibleLine - intFirstVisibleLine);
-			return 0;
+			::GetScrollBarInfo(m_hWndThis, OBJID_HSCROLL, &m_ScrollBarInfo);
+			m_blHScrollBarVisible = m_ScrollBarInfo.rgstate[0] == 0 ? TRUE : FALSE;
+			if (m_ScrollBarInfo.rgstate[0] == STATE_SYSTEM_UNAVAILABLE)
+			{
+				wxTextCtrl::MSWWindowProc(nMsg, wParam, lParam);
+				int intFirstVisibleLine = ::SendMessage(m_hWndThis, EM_GETFIRSTVISIBLELINE, 0, 0);
+				if (intFirstVisibleLine != m_intLastCheckFirstVisibleLine)
+					if ((::GetAsyncKeyState(VK_HOME) & 0x8000) != 0x8000)
+						::SendMessage(m_hWndThis, EM_LINESCROLL, 0, m_intLastCheckFirstVisibleLine - intFirstVisibleLine);
+				
+				return 0;
+			}
 		}
+		break;
 
 	case WM_VSCROLL:
+		if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
+			break;
 		wxTextCtrl::MSWWindowProc(nMsg, wParam, lParam);
 		m_intLastCheckFirstVisibleLine = ::SendMessage(m_hWndThis, EM_GETFIRSTVISIBLELINE, 0, 0);
 		return 0;
@@ -106,7 +121,7 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 		switch (LOWORD(wParam))
 		{
 		case SB_LINERIGHT:
-			if (m_dwInitialScrollBarState == STATE_SYSTEM_UNAVAILABLE)
+			if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
 				break;
 			/*
 			* In Windows 8 (or other version older than Windows 10), the scroll bar can scroll past the max position.
@@ -118,7 +133,7 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 			break;
 
 		case SB_PAGERIGHT:
-			if (m_dwInitialScrollBarState == STATE_SYSTEM_UNAVAILABLE)
+			if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
 				break;
 			/*
 			* In Windows 8 (or other version older than Windows 10), the scroll bar can scroll past the max position.

@@ -99,9 +99,9 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeaderFile>wx/wxprec.h</PrecompiledHeaderFile>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -109,7 +109,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Capstone\static_lib;C:\wxWidgets-3.1.0\lib\vc_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Capstone\dll;C:\wxWidgets-3.1.0\lib\vc_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -180,7 +180,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="About.cpp">
-      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <ClCompile Include="Entry.cpp" />
     <ClCompile Include="MainWindow.cpp" />
