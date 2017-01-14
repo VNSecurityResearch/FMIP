@@ -15,6 +15,7 @@ FMIP_TextCtrl::FMIP_TextCtrl(VMContentDisplay* ptrParent) :wxTextCtrl(ptrParent,
 	m_ScrollInfo.cbSize = sizeof(SCROLLINFO);
 	m_ScrollBarInfo.cbSize = sizeof(SCROLLBARINFO);
 	m_ScrollInfo.fMask = SIF_RANGE | SIF_TRACKPOS | SIF_PAGE | SIF_POS;
+	::ShowScrollBar(this->GetHWND(), SB_HORZ, FALSE);
 	::GetScrollBarInfo(m_hWndThis, OBJID_HSCROLL, &m_ScrollBarInfo);
 	m_blHScrollBarVisible = m_ScrollBarInfo.rgstate[0] == 0 ? TRUE : FALSE;
 	m_dwInitialHScrollBarState = m_ScrollBarInfo.rgstate[0];
@@ -32,11 +33,16 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 {
 	switch (nMsg)
 	{
-		case WM_SIZE:
-			::GetScrollBarInfo(m_hWndThis, OBJID_HSCROLL, &m_ScrollBarInfo);
-			if (m_ScrollBarInfo.rgstate[0] == 0)
-				m_blHScrollBarVisible = TRUE;
+	case WM_SIZE:
+		if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
 			break;
+		::GetScrollBarInfo(m_hWndThis, OBJID_HSCROLL, &m_ScrollBarInfo);
+		if (m_ScrollBarInfo.rgstate[0] == 0)
+		{
+			m_blHScrollBarVisible = TRUE;
+			m_intLastCheckFirstVisibleLine = ::SendMessage(m_hWndThis, EM_GETFIRSTVISIBLELINE, 0, 0);
+		}
+		break;
 
 	case WM_PAINT:
 		/*
@@ -57,18 +63,22 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 				if (intFirstVisibleLine != m_intLastCheckFirstVisibleLine)
 					if ((::GetAsyncKeyState(VK_HOME) & 0x8000) != 0x8000)
 						::SendMessage(m_hWndThis, EM_LINESCROLL, 0, m_intLastCheckFirstVisibleLine - intFirstVisibleLine);
-				
+
 				return 0;
 			}
 		}
 		break;
 
-	case WM_VSCROLL:
-		if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
-			break;
-		wxTextCtrl::MSWWindowProc(nMsg, wParam, lParam);
-		m_intLastCheckFirstVisibleLine = ::SendMessage(m_hWndThis, EM_GETFIRSTVISIBLELINE, 0, 0);
-		return 0;
+	case WM_MOUSEWHEEL:
+		wxLogDebug(wxT("mousewheel"));
+		break;
+
+		/*case WM_VSCROLL:
+			if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
+				break;
+			wxTextCtrl::MSWWindowProc(nMsg, wParam, lParam);
+			m_intLastCheckFirstVisibleLine = ::SendMessage(m_hWndThis, EM_GETFIRSTVISIBLELINE, 0, 0);
+			return 0;*/
 
 	case WM_KEYDOWN:
 	{
@@ -128,8 +138,9 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 			* In that case, this is to keep the scroll bar postion within the range.
 			*/
 			::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
-			if (m_ScrollInfo.nPos >= m_ScrollInfo.nMax - (m_ScrollInfo.nPage - 1))
-				return 0;
+			//if (m_ScrollInfo.nPos == m_ScrollInfo.nMax - (m_ScrollInfo.nPage)) // CHECK this in Windows 8
+				//return 0;
+			wxLogDebug(wxString::Format("npos: %d", m_ScrollInfo.nPos));
 			break;
 
 		case SB_PAGERIGHT:
@@ -140,10 +151,10 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 			* In that case, this is to keep the scroll bar postion within the range.
 			*/
 			::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
-			if (m_ScrollInfo.nPos + m_ScrollInfo.nPage <= m_ScrollInfo.nMax - (m_ScrollInfo.nPage - 1))
+			if (m_ScrollInfo.nPos + m_ScrollInfo.nPage <= m_ScrollInfo.nMax - (m_ScrollInfo.nPage))
 				break;
 			else
-				while (m_ScrollInfo.nPos < m_ScrollInfo.nMax - (m_ScrollInfo.nPage - 1))
+				while (m_ScrollInfo.nPos < m_ScrollInfo.nMax - (m_ScrollInfo.nPage))
 				{
 					::SendMessage(m_hWndThis, WM_HSCROLL, SB_LINERIGHT, NULL);
 					::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
