@@ -176,7 +176,7 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 			NodeProperties.TREEITEMTYPE = TREE_ITEM_TYPE_PROCESS_NAME_PID;
 			NodeProperties.PROCESSNAMEPID.dwPId = ProcessNamePId.dwPId;
 			wxszItemText = ProcessNamePId.szProcessName;
-			wxszItemText.append(wxString::Format(" (PId: %d X86)", ProcessNamePId.dwPId));
+			wxszItemText.append(wxString::Format(wxT(" (PId: %d X86)"), ProcessNamePId.dwPId));
 			DWORD dwLength = wxszItemText.length();
 			for (DWORD i = 0; i <= dwLength; i++) // include NULL character
 			{
@@ -187,7 +187,7 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 		else // ...else display the name of the process
 		{
 			wxTreeItemData* ptrTreeItemProcessNamePId = new Tree_Item_ptrrocess_Name_PId(ProcessNamePId.dwPId);
-			tiLastProcessNameId = ptrTreeCtrl->AppendItem(tiRoot, wxString::Format("%s (PId: %d)", ProcessNamePId.szProcessName, ProcessNamePId.dwPId), -1, -1, ptrTreeItemProcessNamePId);
+			tiLastProcessNameId = ptrTreeCtrl->AppendItem(tiRoot, wxString::Format(wxT("%s (PId: %d)"), ProcessNamePId.szProcessName, ProcessNamePId.dwPId), -1, -1, ptrTreeItemProcessNamePId);
 		}
 		do // make tree items of a allocation base and their child regions
 		{
@@ -197,8 +197,42 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 			{
 				// Check if this process has a sign of PE injection
 				SIZE_T nNumOfBytesRead;
-				char pCharBuffer[2] = { '\0','\0' };
-				ReadProcessMemory(hProcess, (PBYTE)ptrRegionBase, pCharBuffer, 2, &nNumOfBytesRead);
+				char* pCharBuffer = new char[mbi.RegionSize];
+				ReadProcessMemory(hProcess, (PBYTE)ptrRegionBase, pCharBuffer, mbi.RegionSize, &nNumOfBytesRead);
+				int i;
+				for (i = 0; i < mbi.RegionSize; i++)
+				{
+					if (pCharBuffer[i] == 'M')
+					{
+						if (i + 1 < mbi.RegionSize)
+						{
+							if (pCharBuffer[i + 1] == 'Z')
+							{
+								if (i + 0x3c < mbi.RegionSize)
+								{
+									DWORD dwPEOffset = *(PDWORD)&(pCharBuffer[i + 0x3c]);
+									if (i + dwPEOffset < mbi.RegionSize)
+									{
+										BYTE b = pCharBuffer[i + dwPEOffset];
+										OutputDebugString(L"");
+									}
+									else
+									{
+										break;
+									}
+								}
+								else
+								{
+									break;
+								}
+							}
+						}
+						else
+						{
+							break;
+						}
+					}
+				}
 				if (pCharBuffer[0] == 'M' && pCharBuffer[1] == 'Z')
 				{
 					NodeProperties.blPEInjection = TRUE;
@@ -215,7 +249,7 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 			{
 				Tree_Item_Allocation_Base* pTreeItemParentRegion = new Tree_Item_Allocation_Base(mbi.AllocationBase);
 				pTreeItemParentRegion->SetRedWarning(NodeProperties.blPEInjection);
-				tiLastAllocationBase = ptrTreeCtrl->AppendItem(tiLastProcessNameId, wxString::Format("0x%p", ptrAllocationBase), -1, -1, static_cast<wxTreeItemData*>(pTreeItemParentRegion));
+				tiLastAllocationBase = ptrTreeCtrl->AppendItem(tiLastProcessNameId, wxString::Format(wxT("0x%p"), ptrAllocationBase), -1, -1, static_cast<wxTreeItemData*>(pTreeItemParentRegion));
 				ptrTreeCtrl->SetItemFont(tiLastAllocationBase, wxFont(10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Consolas")));
 				//if (NodeProperties.blPEInjection) ptrTreeCtrl->SetItemTextColour(tiLastAllocationBase, wxColor(255, 0, 0));
 			}
@@ -234,7 +268,7 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 					{
 						Tree_Item_Region* ptrTreeItemRegion = new Tree_Item_Region(mbi.BaseAddress, mbi.RegionSize);
 						ptrTreeItemRegion->SetRedWarning(NodeProperties.blPEInjection);
-						tiLastRegion = ptrTreeCtrl->AppendItem(tiLastAllocationBase, wxString::Format("0x%p", ptrRegionBase), -1, -1, static_cast<wxTreeItemData*>(ptrTreeItemRegion));
+						tiLastRegion = ptrTreeCtrl->AppendItem(tiLastAllocationBase, wxString::Format(wxT("0x%p"), ptrRegionBase), -1, -1, static_cast<wxTreeItemData*>(ptrTreeItemRegion));
 						ptrTreeCtrl->SetItemFont(tiLastRegion, wxFont(10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Consolas")));
 						//if (NodeProperties.blPEInjection) ptrTreeCtrl->SetItemTextColour(tiTreeLastRegion, wxColor(255, 0, 0));
 					}

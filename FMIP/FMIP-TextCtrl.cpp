@@ -140,7 +140,7 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 			::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
 			//if (m_ScrollInfo.nPos == m_ScrollInfo.nMax - (m_ScrollInfo.nPage)) // CHECK this in Windows 8
 				//return 0;
-			wxLogDebug(wxString::Format("npos: %d", m_ScrollInfo.nPos));
+			wxLogDebug(wxString::Format(wxT("npos: %d"), m_ScrollInfo.nPos));
 			break;
 
 		case SB_PAGERIGHT:
