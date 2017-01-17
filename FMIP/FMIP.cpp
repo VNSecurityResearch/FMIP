@@ -204,32 +204,17 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 				{
 					if (pCharBuffer[i] == 'M')
 					{
-						if (i + 1 < mbi.RegionSize)
-						{
-							if (pCharBuffer[i + 1] == 'Z')
-							{
-								if (i + 0x3c < mbi.RegionSize)
-								{
-									DWORD dwPEOffset = *(PDWORD)&(pCharBuffer[i + 0x3c]);
-									if (i + dwPEOffset < mbi.RegionSize)
-									{
-										BYTE b = pCharBuffer[i + dwPEOffset];
-										OutputDebugString(L"");
-									}
-									else
-									{
-										break;
-									}
-								}
-								else
-								{
-									break;
-								}
-							}
-						}
-						else
-						{
+						if (i + 1 >= mbi.RegionSize)
 							break;
+						if (pCharBuffer[i + 1] == 'Z')
+						{
+							if (i + 0x3c >= mbi.RegionSize)
+								break;
+							DWORD dwPEOffset = *(PDWORD)((PBYTE)pCharBuffer + i + 0x3c);
+							if (i + dwPEOffset >= mbi.RegionSize)
+								break;
+							BYTE b = pCharBuffer[i + dwPEOffset];
+							OutputDebugString(L"");
 						}
 					}
 				}
@@ -356,7 +341,7 @@ BOOL FMIP::FillTreeCtrl(FMIP_TreeCtrl* ptrTreeCtrl)
 	} while (Process32Next(hSnapshot, &pe32));
 	CloseHandle(hSnapshot);
 	return TRUE;
-	}
+}
 
 void Generic_Tree_Item::SetType(const TREE_ITEM_TYPE& TreeItemType)
 {
