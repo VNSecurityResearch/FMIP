@@ -143,14 +143,14 @@ BOOL RequestAction(HWND hwndDestWindow, HWND hwndSourceWindow, ACTION Action, LP
 	return SendMessage(hwndDestWindow, WM_COPYDATA, (WPARAM)hwndSourceWindow, (LPARAM)&CopyDataStruct);
 }
 
-BOOL SendTreeItem(HWND hwndDestWindow, TREE_ITEM_PROPERTIES *pNodeProperties, DWORD DataSize)
+BOOL SendTreeItem(HWND hwndDestWindow, TREE_ITEM_PROPERTIES* ptrNodeProperties, DWORD DataSize)
 {
-	return RequestAction(hwndDestWindow, nullptr, ACTION_MAKE_TREE_ITEMS, pNodeProperties, DataSize);
+	return RequestAction(hwndDestWindow, nullptr, ACTION_MAKE_TREE_ITEMS, ptrNodeProperties, DataSize);
 }
 
-BOOL RequestX86Handling(HWND hwndDestWindow, HWND hwndSourceWindow, PROCESS_NAME_PID *pProcessNamePId, DWORD DataSize)
+BOOL RequestX86Handling(HWND hwndDestWindow, HWND hwndSourceWindow, PROCESS_NAME_PID* ptrProcessNamePId, DWORD DataSize)
 {
-	return RequestAction(hwndDestWindow, hwndSourceWindow, ACTION_REQUEST_FOR_X86HANDLING, pProcessNamePId, DataSize);
+	return RequestAction(hwndDestWindow, hwndSourceWindow, ACTION_REQUEST_FOR_X86HANDLING, ptrProcessNamePId, DataSize);
 }
 
 void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const wxTreeItemId& tiRoot, HANDLE hProcess, const PROCESS_NAME_PID& ProcessNamePId)
@@ -168,6 +168,7 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 		wxTreeItemId tiLastRegion = 0;
 		BOOL blIsPEInjectedInProcess = FALSE;
 		NodeProperties.blPEInjection = FALSE;
+		TREE_ITEM_TYPE tiType;
 		VirtualQueryEx(hProcess, ptrRegionBase, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
 		ptrRegionBase = mbi.AllocationBase;
 		if (hwndDestWindow != nullptr) // if there is a remote (X86) version then send relevant data to the remote version...
@@ -193,37 +194,43 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 		{
 			VirtualQueryEx(hProcess, ptrRegionBase, &mbi, sizeof(MEMORY_BASIC_INFORMATION)); // query data for displaying a allocation base tree item
 			ptrAllocationBase = mbi.AllocationBase;
-			if (!blIsPEInjectedInProcess)
-			{
-				// Check if this process has a sign of PE injection
-				SIZE_T nNumOfBytesRead;
-				char* pCharBuffer = new char[mbi.RegionSize];
-				ReadProcessMemory(hProcess, (PBYTE)ptrRegionBase, pCharBuffer, mbi.RegionSize, &nNumOfBytesRead);
-				int i;
-				for (i = 0; i < mbi.RegionSize; i++)
-				{
-					if (pCharBuffer[i] == 'M')
-					{
-						if (i + 1 >= mbi.RegionSize)
-							break;
-						if (pCharBuffer[i + 1] == 'Z')
-						{
-							if (i + 0x3c >= mbi.RegionSize)
-								break;
-							DWORD dwPEOffset = *(PDWORD)((PBYTE)pCharBuffer + i + 0x3c);
-							if (i + dwPEOffset >= mbi.RegionSize)
-								break;
-							BYTE b = pCharBuffer[i + dwPEOffset];
-							OutputDebugString(L"");
-						}
-					}
-				}
-				if (pCharBuffer[0] == 'M' && pCharBuffer[1] == 'Z')
-				{
-					NodeProperties.blPEInjection = TRUE;
-					blIsPEInjectedInProcess = TRUE;
-				}
-			}
+			//if (!blIsPEInjectedInProcess)
+			////{
+			////	// Check if this process has a sign of PE injection
+			////	SIZE_T nNumOfBytesRead;
+			////	char* ptrCharBuffer = new char[mbi.RegionSize];
+			////	ReadProcessMemory(hProcess, (PBYTE)ptrRegionBase, ptrCharBuffer, mbi.RegionSize, &nNumOfBytesRead);
+			////	int i;
+			////	for (i = 0; i < mbi.RegionSize; i++)
+			////	{
+			////		if (ptrCharBuffer[i] == 'M')
+			////		{
+			////			if (i + 1 >= mbi.RegionSize)
+			////				break;
+			////			if (ptrCharBuffer[i + 1] == 'Z')
+			////			{
+			////				if (i + 0x3c >= mbi.RegionSize)
+			////					break;
+			////				DWORD dwPEOffset = *(PDWORD)((PBYTE)ptrCharBuffer + i + 0x3c);
+			////				if (i + dwPEOffset + 1 >= mbi.RegionSize)
+			////					break;
+			////			/*	BYTE b = ptrCharBuffer[i + dwPEOffset];
+			////				OutputDebugString(L"");*/
+			////				if (ptrCharBuffer[i + dwPEOffset] == 'P' && ptrCharBuffer[i + dwPEOffset + 1] == 'E')
+			////				{
+			////					NodeProperties.blPEInjection = TRUE;
+			////					blIsPEInjectedInProcess = TRUE;
+			////					break;
+			////				}
+			////			}
+			////		}
+			////	}
+			//	/*if (ptrCharBuffer[0] == 'M' && ptrCharBuffer[1] == 'Z')
+			//	{
+			//		NodeProperties.blPEInjection = TRUE;
+			//		blIsPEInjectedInProcess = TRUE;
+			//	}*/
+			//}
 			if (hwndDestWindow != nullptr)
 			{
 				NodeProperties.TREEITEMTYPE = TREE_ITEM_TYPE_ALLOCATION_BASE;
@@ -232,9 +239,9 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 			}
 			else
 			{
-				Tree_Item_Allocation_Base* pTreeItemParentRegion = new Tree_Item_Allocation_Base(mbi.AllocationBase);
-				pTreeItemParentRegion->SetRedWarning(NodeProperties.blPEInjection);
-				tiLastAllocationBase = ptrTreeCtrl->AppendItem(tiLastProcessNameId, wxString::Format(wxT("0x%p"), ptrAllocationBase), -1, -1, static_cast<wxTreeItemData*>(pTreeItemParentRegion));
+				Tree_Item_Allocation_Base* ptrTreeItemParentRegion = new Tree_Item_Allocation_Base(mbi.AllocationBase);
+				ptrTreeItemParentRegion->SetRedWarning(NodeProperties.blPEInjection);
+				tiLastAllocationBase = ptrTreeCtrl->AppendItem(tiLastProcessNameId, wxString::Format(wxT("0x%p"), ptrAllocationBase), -1, -1, static_cast<wxTreeItemData*>(ptrTreeItemParentRegion));
 				ptrTreeCtrl->SetItemFont(tiLastAllocationBase, wxFont(10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Consolas")));
 				//if (NodeProperties.blPEInjection) ptrTreeCtrl->SetItemTextColour(tiLastAllocationBase, wxColor(255, 0, 0));
 			}
@@ -242,6 +249,45 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 			{
 				if (mbi.State == MEM_COMMIT)
 				{
+					// Check if this process has a sign of PE injection
+					SIZE_T nNumOfBytesRead;
+					char* ptrCharBuffer = new char[mbi.RegionSize];
+					ReadProcessMemory(hProcess, (PBYTE)ptrRegionBase, ptrCharBuffer, mbi.RegionSize, &nNumOfBytesRead);
+					int i;
+					for (i = 0; i < mbi.RegionSize; i++)
+					{
+						if (ptrCharBuffer[i] == 'M')
+						{
+							if (i + 1 >= mbi.RegionSize)
+								break;
+							if (ptrCharBuffer[i + 1] == 'Z')
+							{
+								if (i + 0x3c >= mbi.RegionSize)
+									break;
+								DWORD dwPEOffset = *(PDWORD)((PBYTE)ptrCharBuffer + i + 0x3c);
+								if (i + dwPEOffset + 1 >= mbi.RegionSize)
+									break;
+								/*	BYTE b = ptrCharBuffer[i + dwPEOffset];
+									OutputDebugString(L"");*/
+								if (ptrCharBuffer[i + dwPEOffset] == 'P' && ptrCharBuffer[i + dwPEOffset + 1] == 'E')
+								{
+									NodeProperties.blPEInjection = TRUE;
+									blIsPEInjectedInProcess = TRUE;
+									if (hwndDestWindow != nullptr)
+									{
+										tiType = TREE_ITEM_TYPE_ALLOCATION_BASE;
+										RequestAction(hwndDestWindow, nullptr, ACTION_EDIT_LAST_TREE_ITEM, &tiType, sizeof(TREE_ITEM_TYPE_ALLOCATION_BASE));
+									}
+									else
+									{
+										wxTreeItemData* ptiData = ptrTreeCtrl->GetItemData(tiLastAllocationBase);
+										static_cast<Tree_Item_Allocation_Base*>(ptiData)->SetRedWarning(NodeProperties.blPEInjection);
+									}
+									break;
+								}
+							}
+						}
+					}
 					if (hwndDestWindow != nullptr)
 					{
 						NodeProperties.TREEITEMTYPE = TREE_ITEM_TYPE_REGION;
@@ -266,9 +312,10 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 		} while (ptrRegionBase != nullptr); // keep searching until reach the end of valid VM address
 		if (blIsPEInjectedInProcess == TRUE)
 		{
-			if (hwndDestWindow != nullptr) // if there is a remote (X86) version then send relevant data to the remote version...
+			if (hwndDestWindow != nullptr) // if there is a remote (X86) version then send relevant data to the		remote version...
 			{
-				RequestAction(hwndDestWindow, nullptr, ACTION_EDIT_TREE_ITEM_TEXT, nullptr, 0);
+				tiType = TREE_ITEM_TYPE_PROCESS_NAME_PID;
+				RequestAction(hwndDestWindow, nullptr, ACTION_EDIT_LAST_TREE_ITEM, &tiType, sizeof(TREE_ITEM_TYPE_PROCESS_NAME_PID));
 			}
 			else // ...else display the region address
 			{

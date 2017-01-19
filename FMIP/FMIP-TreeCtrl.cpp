@@ -71,9 +71,9 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 	static wxTreeItemId tiTreeLastRegion = nullptr;
 	if (message == WM_COPYDATA)
 	{
-		COPYDATASTRUCT* pCopyDataStruct = (COPYDATASTRUCT*)lParam;
-		TREE_ITEM_PROPERTIES* ptrTreeItemProperties = (TREE_ITEM_PROPERTIES*)pCopyDataStruct->lpData;
-		switch (pCopyDataStruct->dwData)
+		COPYDATASTRUCT* ptrCopyDataStruct = (COPYDATASTRUCT*)lParam;
+		TREE_ITEM_PROPERTIES* ptrTreeItemProperties = (TREE_ITEM_PROPERTIES*)ptrCopyDataStruct->lpData;
+		switch (ptrCopyDataStruct->dwData)
 		{
 		case ACTION::ACTION_MAKE_TREE_ITEMS:
 		{
@@ -116,10 +116,24 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 			break;
 		}
 
-		case ACTION::ACTION_EDIT_TREE_ITEM_TEXT:
+		case ACTION::ACTION_EDIT_LAST_TREE_ITEM:
 		{
-			wxTreeItemData* ptiData = this->GetItemData(tiLastProcessNameId);
-			static_cast<Tree_Item_ptrrocess_Name_PId*>(ptiData)->SetRedWarning(TRUE);
+			TREE_ITEM_TYPE tiType = *(TREE_ITEM_TYPE*)ptrCopyDataStruct->lpData;
+			wxTreeItemData* ptiData = nullptr;
+			switch (tiType)
+			{
+			case TREE_ITEM_TYPE_PROCESS_NAME_PID:
+				ptiData = this->GetItemData(tiLastProcessNameId);
+				break;
+
+			case TREE_ITEM_TYPE_ALLOCATION_BASE:
+				ptiData = this->GetItemData(tiLastAllocationBase);
+				break;
+
+			default:
+				break;
+			}
+			static_cast<Generic_Tree_Item*>(ptiData)->SetRedWarning(TRUE);
 			break;
 		}
 

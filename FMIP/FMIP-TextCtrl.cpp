@@ -69,10 +69,6 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 		}
 		break;
 
-	case WM_MOUSEWHEEL:
-		wxLogDebug(wxT("mousewheel"));
-		break;
-
 		/*case WM_VSCROLL:
 			if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
 				break;
