@@ -116,7 +116,7 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 			break;
 		}
 
-		case ACTION::ACTION_EDIT_LAST_TREE_ITEM:
+		case ACTION::ACTION_CHANGE_TREE_ITEM_PARENT_COLOR:
 		{
 			TREE_ITEM_TYPE tiType = *(TREE_ITEM_TYPE*)ptrCopyDataStruct->lpData;
 			wxTreeItemData* ptiData = nullptr;
@@ -133,7 +133,7 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 			default:
 				break;
 			}
-			static_cast<Generic_Tree_Item*>(ptiData)->SetRedWarning(TRUE);
+			static_cast<Generic_Tree_Item*>(ptiData)->SetColor(255, 0, 0);
 			break;
 		}
 

@@ -116,9 +116,10 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 		for (size_t offset = 0; offset <= nRegionSize; offset += nReadSize)
 		{
 			if (this->TestDestroy()) return (wxThread::ExitCode)0;
-			std::unique_ptr<unsigned char>sptrCharBuffer(new unsigned char[nBufferSize]);
+			std::unique_ptr<unsigned char>smptrCharBuffer(new unsigned char[nBufferSize]);
+			unsigned char* ptrCharBuffer = smptrCharBuffer.get();
 			SIZE_T nNumOfBytesRead;
-			ReadProcessMemory(m_hProcessToRead, (PBYTE)BaseAddress + offset, (sptrCharBuffer.get()), nReadSize, &nNumOfBytesRead);
+			ReadProcessMemory(m_hProcessToRead, (PBYTE)BaseAddress + offset, ptrCharBuffer, nReadSize, &nNumOfBytesRead);
 			switch (m_ptrVMContentDisplay->m_OutputType)
 			{
 			case OUTPUT_TYPE_ASM:
@@ -137,7 +138,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 					wxLogDebug(wxT("ERROR 1: Failed to disassemble given code!"));
 					continue;
 				}
-				count = cs_disasm(handle, sptrCharBuffer.get(), nReadSize, (uint64_t)BaseAddress, 0, &insn);
+				count = cs_disasm(handle, ptrCharBuffer, nReadSize, (uint64_t)BaseAddress, 0, &insn);
 				if (count > 0)
 				{
 					for (size_t line = 0; line < count; line++)
@@ -192,7 +193,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 				for (SIZE_T i = 0; i < nReadSize; i++)
 				{
 					if (this->TestDestroy()) return (wxThread::ExitCode)0;
-					byte = (sptrCharBuffer.get())[i];
+					byte = ptrCharBuffer[i];
 					printable = PhCharIsPrintable[byte];
 
 					// To find strings Process Hacker uses a state table.

@@ -7,6 +7,7 @@
 #include <TlHelp32.h>
 #include <Capstone\headers\capstone.h>
 #include <strsafe.h>
+#include <memory>
 
 #ifdef NDEBUG
 #ifdef _WIN64
@@ -168,7 +169,7 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 		wxTreeItemId tiLastRegion = 0;
 		BOOL blIsPEInjectedInProcess = FALSE;
 		NodeProperties.blPEInjection = FALSE;
-		TREE_ITEM_TYPE tiType;
+		TREE_ITEM_TYPE tiParentType;
 		VirtualQueryEx(hProcess, ptrRegionBase, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
 		ptrRegionBase = mbi.AllocationBase;
 		if (hwndDestWindow != nullptr) // if there is a remote (X86) version then send relevant data to the remote version...
@@ -194,43 +195,6 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 		{
 			VirtualQueryEx(hProcess, ptrRegionBase, &mbi, sizeof(MEMORY_BASIC_INFORMATION)); // query data for displaying a allocation base tree item
 			ptrAllocationBase = mbi.AllocationBase;
-			//if (!blIsPEInjectedInProcess)
-			////{
-			////	// Check if this process has a sign of PE injection
-			////	SIZE_T nNumOfBytesRead;
-			////	char* ptrCharBuffer = new char[mbi.RegionSize];
-			////	ReadProcessMemory(hProcess, (PBYTE)ptrRegionBase, ptrCharBuffer, mbi.RegionSize, &nNumOfBytesRead);
-			////	int i;
-			////	for (i = 0; i < mbi.RegionSize; i++)
-			////	{
-			////		if (ptrCharBuffer[i] == 'M')
-			////		{
-			////			if (i + 1 >= mbi.RegionSize)
-			////				break;
-			////			if (ptrCharBuffer[i + 1] == 'Z')
-			////			{
-			////				if (i + 0x3c >= mbi.RegionSize)
-			////					break;
-			////				DWORD dwPEOffset = *(PDWORD)((PBYTE)ptrCharBuffer + i + 0x3c);
-			////				if (i + dwPEOffset + 1 >= mbi.RegionSize)
-			////					break;
-			////			/*	BYTE b = ptrCharBuffer[i + dwPEOffset];
-			////				OutputDebugString(L"");*/
-			////				if (ptrCharBuffer[i + dwPEOffset] == 'P' && ptrCharBuffer[i + dwPEOffset + 1] == 'E')
-			////				{
-			////					NodeProperties.blPEInjection = TRUE;
-			////					blIsPEInjectedInProcess = TRUE;
-			////					break;
-			////				}
-			////			}
-			////		}
-			////	}
-			//	/*if (ptrCharBuffer[0] == 'M' && ptrCharBuffer[1] == 'Z')
-			//	{
-			//		NodeProperties.blPEInjection = TRUE;
-			//		blIsPEInjectedInProcess = TRUE;
-			//	}*/
-			//}
 			if (hwndDestWindow != nullptr)
 			{
 				NodeProperties.TREEITEMTYPE = TREE_ITEM_TYPE_ALLOCATION_BASE;
@@ -239,9 +203,10 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 			}
 			else
 			{
-				Tree_Item_Allocation_Base* ptrTreeItemParentRegion = new Tree_Item_Allocation_Base(mbi.AllocationBase);
-				ptrTreeItemParentRegion->SetRedWarning(NodeProperties.blPEInjection);
-				tiLastAllocationBase = ptrTreeCtrl->AppendItem(tiLastProcessNameId, wxString::Format(wxT("0x%p"), ptrAllocationBase), -1, -1, static_cast<wxTreeItemData*>(ptrTreeItemParentRegion));
+				Tree_Item_Allocation_Base* ptrTreeItemAllocationBase = new Tree_Item_Allocation_Base(mbi.AllocationBase);
+				if (NodeProperties.blPEInjection)
+					ptrTreeItemAllocationBase->SetColor(255, 0, 0);
+				tiLastAllocationBase = ptrTreeCtrl->AppendItem(tiLastProcessNameId, wxString::Format(wxT("0x%p"), ptrAllocationBase), -1, -1, static_cast<wxTreeItemData*>(ptrTreeItemAllocationBase));
 				ptrTreeCtrl->SetItemFont(tiLastAllocationBase, wxFont(10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Consolas")));
 				//if (NodeProperties.blPEInjection) ptrTreeCtrl->SetItemTextColour(tiLastAllocationBase, wxColor(255, 0, 0));
 			}
@@ -251,7 +216,8 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 				{
 					// Check if this process has a sign of PE injection
 					SIZE_T nNumOfBytesRead;
-					char* ptrCharBuffer = new char[mbi.RegionSize];
+					std::unique_ptr<char>smptrCharBuffer(new char[mbi.RegionSize]);
+					char* ptrCharBuffer = smptrCharBuffer.get();
 					ReadProcessMemory(hProcess, (PBYTE)ptrRegionBase, ptrCharBuffer, mbi.RegionSize, &nNumOfBytesRead);
 					int i;
 					for (i = 0; i < mbi.RegionSize; i++)
@@ -267,21 +233,19 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 								DWORD dwPEOffset = *(PDWORD)((PBYTE)ptrCharBuffer + i + 0x3c);
 								if (i + dwPEOffset + 1 >= mbi.RegionSize)
 									break;
-								/*	BYTE b = ptrCharBuffer[i + dwPEOffset];
-									OutputDebugString(L"");*/
 								if (ptrCharBuffer[i + dwPEOffset] == 'P' && ptrCharBuffer[i + dwPEOffset + 1] == 'E')
 								{
 									NodeProperties.blPEInjection = TRUE;
 									blIsPEInjectedInProcess = TRUE;
 									if (hwndDestWindow != nullptr)
 									{
-										tiType = TREE_ITEM_TYPE_ALLOCATION_BASE;
-										RequestAction(hwndDestWindow, nullptr, ACTION_EDIT_LAST_TREE_ITEM, &tiType, sizeof(TREE_ITEM_TYPE_ALLOCATION_BASE));
+										tiParentType = TREE_ITEM_TYPE_ALLOCATION_BASE;
+										RequestAction(hwndDestWindow, nullptr, ACTION_CHANGE_TREE_ITEM_PARENT_COLOR, &tiParentType, sizeof(TREE_ITEM_TYPE_ALLOCATION_BASE));
 									}
 									else
 									{
 										wxTreeItemData* ptiData = ptrTreeCtrl->GetItemData(tiLastAllocationBase);
-										static_cast<Tree_Item_Allocation_Base*>(ptiData)->SetRedWarning(NodeProperties.blPEInjection);
+										static_cast<Tree_Item_Allocation_Base*>(ptiData)->SetColor(255, 0, 0);
 									}
 									break;
 								}
@@ -298,7 +262,8 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 					else
 					{
 						Tree_Item_Region* ptrTreeItemRegion = new Tree_Item_Region(mbi.BaseAddress, mbi.RegionSize);
-						ptrTreeItemRegion->SetRedWarning(NodeProperties.blPEInjection);
+						if (NodeProperties.blPEInjection)
+							ptrTreeItemRegion->SetColor(255, 0, 0);
 						tiLastRegion = ptrTreeCtrl->AppendItem(tiLastAllocationBase, wxString::Format(wxT("0x%p"), ptrRegionBase), -1, -1, static_cast<wxTreeItemData*>(ptrTreeItemRegion));
 						ptrTreeCtrl->SetItemFont(tiLastRegion, wxFont(10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Consolas")));
 						//if (NodeProperties.blPEInjection) ptrTreeCtrl->SetItemTextColour(tiTreeLastRegion, wxColor(255, 0, 0));
@@ -312,18 +277,15 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 		} while (ptrRegionBase != nullptr); // keep searching until reach the end of valid VM address
 		if (blIsPEInjectedInProcess == TRUE)
 		{
-			if (hwndDestWindow != nullptr) // if there is a remote (X86) version then send relevant data to the		remote version...
+			if (hwndDestWindow != nullptr) // if there is a remote (X86) version then send relevant data to the remote version...
 			{
-				tiType = TREE_ITEM_TYPE_PROCESS_NAME_PID;
-				RequestAction(hwndDestWindow, nullptr, ACTION_EDIT_LAST_TREE_ITEM, &tiType, sizeof(TREE_ITEM_TYPE_PROCESS_NAME_PID));
+				tiParentType = TREE_ITEM_TYPE_PROCESS_NAME_PID;
+				RequestAction(hwndDestWindow, nullptr, ACTION_CHANGE_TREE_ITEM_PARENT_COLOR, &tiParentType, sizeof(TREE_ITEM_TYPE_PROCESS_NAME_PID));
 			}
 			else // ...else display the region address
 			{
 				wxTreeItemData* ptiData = ptrTreeCtrl->GetItemData(tiLastProcessNameId);
-				static_cast<Tree_Item_ptrrocess_Name_PId*>(ptiData)->SetRedWarning(blIsPEInjectedInProcess);
-				/*wxString wxszItemText = ptrTreeCtrl->GetItemText(tiLastProcessNameId);
-				ptrTreeCtrl->SetItemText(tiLastProcessNameId, wxszItemText.append(PEInjectionWarning));*/
-				//ptrTreeCtrl->SetItemTextColour(tiLastProcessNameId, wxColor(255, 0, 0));
+				static_cast<Tree_Item_ptrrocess_Name_PId*>(ptiData)->SetColor(255, 0, 0);
 			}
 		}
 	}
@@ -395,15 +357,25 @@ void Generic_Tree_Item::SetType(const TREE_ITEM_TYPE& TreeItemType)
 	this->m_TreeItemType = TreeItemType;
 }
 
-void Generic_Tree_Item::SetRedWarning(BOOL blToggle)
+//void Generic_Tree_Item::SetRedWarning(BOOL blToggle)
+//{
+//	m_blRedWarning = blToggle;
+//}
+
+void Generic_Tree_Item::SetColor(unsigned char red, unsigned char green, unsigned char blue)
 {
-	m_blRedWarning = blToggle;
+	m_wxclColor.Set(red, green, blue);
 }
 
-BOOL Generic_Tree_Item::IsRedWarning()
+wxColor * Generic_Tree_Item::GetColor()
 {
-	return m_blRedWarning;
+	return &m_wxclColor;
 }
+
+//BOOL Generic_Tree_Item::IsRedWarning()
+//{
+//	return m_blRedWarning;
+//}
 
 TREE_ITEM_TYPE Generic_Tree_Item::GetType() const
 {

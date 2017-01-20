@@ -18,7 +18,7 @@ FMIP_TextCtrl::FMIP_TextCtrl(VMContentDisplay* ptrParent) :wxTextCtrl(ptrParent,
 	::ShowScrollBar(this->GetHWND(), SB_HORZ, FALSE);
 	::GetScrollBarInfo(m_hWndThis, OBJID_HSCROLL, &m_ScrollBarInfo);
 	m_blHScrollBarVisible = m_ScrollBarInfo.rgstate[0] == 0 ? TRUE : FALSE;
-	m_dwInitialHScrollBarState = m_ScrollBarInfo.rgstate[0];
+	//m_dwInitialHScrollBarState = m_ScrollBarInfo.rgstate[0];
 }
 
 //BOOL FMIP_TextCtrl::CanScroll(HWND hWnd, LONG Direction)
@@ -34,8 +34,8 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 	switch (nMsg)
 	{
 	case WM_SIZE:
-		if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
-			break;
+		/*if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
+			break;*/
 		::GetScrollBarInfo(m_hWndThis, OBJID_HSCROLL, &m_ScrollBarInfo);
 		if (m_ScrollBarInfo.rgstate[0] == 0)
 		{
@@ -50,8 +50,8 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 		* the state of the scroll bar changes to STATE_SYSTEM_UNAVAILABLE, the scroll bar automatically scrolls to the top.
 		* In that case, this is to restore the scroll bar to it's previous position.
 		*/
-		if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
-			break;
+		/*if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
+			break;*/
 		if (m_blHScrollBarVisible)
 		{
 			::GetScrollBarInfo(m_hWndThis, OBJID_HSCROLL, &m_ScrollBarInfo);
@@ -127,8 +127,8 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 		switch (LOWORD(wParam))
 		{
 		case SB_LINERIGHT:
-			if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
-				break;
+			/*if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
+				break;*/
 			{
 				/*
 				* In Windows 8 (or other version older than Windows 10), the scroll bar can scroll past the max position.
@@ -144,8 +144,8 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 			}
 
 		case SB_PAGERIGHT:
-			if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
-				break;
+			/*if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
+				break;*/
 			{
 				/*
 				* In Windows 8 (or other version older than Windows 10), the scroll bar can scroll past the max position.

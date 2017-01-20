@@ -18,7 +18,7 @@ enum ACTION
 {
 	ACTION_REQUEST_FOR_X86HANDLING,
 	ACTION_MAKE_TREE_ITEMS,
-	ACTION_EDIT_LAST_TREE_ITEM
+	ACTION_CHANGE_TREE_ITEM_PARENT_COLOR
 };
 
 struct PROCESS_NAME_PID
@@ -31,12 +31,15 @@ class Generic_Tree_Item :public wxTreeItemData
 {
 private:
 	TREE_ITEM_TYPE m_TreeItemType;
-	BOOL m_blRedWarning = FALSE;
+	//BOOL m_blRedWarning = FALSE;
+	wxColor m_wxclColor = wxNullColour;
 public:
 	//Generic_Tree_Item();
 	//Generic_Tree_Item(TREE_ITEM_TYPE TreeItemType);
 	void SetType(const TREE_ITEM_TYPE& TreeItemType);
-	void SetRedWarning(BOOL);
+	//void SetRedWarning(BOOL);
+	void SetColor(unsigned char, unsigned char, unsigned char);
+	wxColor* GetColor();
 	BOOL IsRedWarning();
 	TREE_ITEM_TYPE GetType() const;
 	virtual ~Generic_Tree_Item() = 0;

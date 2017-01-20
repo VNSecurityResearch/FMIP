@@ -185,17 +185,22 @@ WXLRESULT MainWindow::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lP
 					Generic_Tree_Item* ptrGenericTreeItem = static_cast<Generic_Tree_Item*>(m_ptrFMIP_TreeCtrl->GetItemData((wxTreeItemId*)lpNMCustomDraw->nmcd.dwItemSpec));
 					if (ptrGenericTreeItem != nullptr)
 					{
-						if (ptrGenericTreeItem->IsRedWarning() == TRUE)
+						wxColor* ptiColor = ptrGenericTreeItem->GetColor();
+						if (ptiColor->IsOk())
+							lpNMCustomDraw->clrText = RGB(ptiColor->Red(), ptiColor->Green(), ptiColor->Blue());
+						else
+							lpNMCustomDraw->clrText = CLR_DEFAULT;
+						/*if (ptrGenericTreeItem->IsRedWarning() == TRUE)
 						{
 							lpNMCustomDraw->clrText = RGB(255, 0, 0);
 						}
 						else
 						{
 							lpNMCustomDraw->clrText = CLR_DEFAULT;
-						}
+						}*/
 						if (ptrGenericTreeItem->GetType() != TREE_ITEM_TYPE::TREE_ITEM_TYPE_PROCESS_NAME_PID)
 						{
-							wxFont fntSubItem (wxFontInfo().FaceName("Consolas"));
+							wxFont fntSubItem(wxFontInfo().FaceName("Consolas"));
 							SelectObject(lpNMCustomDraw->nmcd.hdc, fntSubItem.GetHFONT());
 							Result |= CDRF_NEWFONT;
 						}
