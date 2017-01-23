@@ -18,6 +18,8 @@
 #else
 #ifndef _WIN64
 #pragma comment(lib,"capstone_dll.lib")
+#else
+#pragma comment(lib,"capstoneX64_dll.lib")
 #endif // !_WIN64
 #endif // NDEBUG
 

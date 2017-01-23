@@ -9,6 +9,10 @@
 #include <wx/msw/msvcrt.h>      // redefines the new() operator 
 #endif
 
+#pragma comment(lib,"ntdll.lib")
+
+extern "C" __declspec(dllimport) NTSTATUS RtlGetVersion(LPOSVERSIONINFOEX);
+
 DWORD WINAPI ManageX64Process(LPVOID lpParam)
 {
 	TCHAR szFileNameWithPath[MAX_PATH];
@@ -78,6 +82,13 @@ MainWindow::MainWindow(const wxString& Title) : wxFrame(nullptr, wxID_ANY, Title
 		return;
 	}
 #endif
+	OSVERSIONINFOEX OSVerInfo;
+	DWORD dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+	ZeroMemory(&OSVerInfo, dwOSVersionInfoSize);
+	OSVerInfo.dwOSVersionInfoSize = dwOSVersionInfoSize;
+	RtlGetVersion(&OSVerInfo);
+	if (OSVerInfo.dwMajorVersion == 10 && OSVerInfo.wProductType == VER_NT_WORKSTATION)
+		wxLogDebug(wxT("Windows 10"));
 	wxMenu* ptrMenuRefresh = new wxMenu;
 	wxMenu* ptrMenuAbout = new wxMenu;
 	wxMenuBar* ptrMenuBar = new wxMenuBar;

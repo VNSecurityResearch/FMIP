@@ -22,7 +22,6 @@
     <ProjectGuid>{83EB20E4-87B8-469C-AAAA-8AA0BBA69F25}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>FMIP</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
     <ProjectName>FMIP</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -79,8 +78,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Program Files %28x86%29\Microsoft SDKs\Windows\v7.1A\Include;$(SolutionDir);$(SolutionDir)Capstone\headers\;C:\wxWidgets-3.1.0\include\msvc;C:\wxWidgets-3.1.0\include;$(IncludePath);C:\Users\Tung\Downloads\vld-48d9fef04a3117747c594afaf3036105713323d3\vld-48d9fef04a3117747c594afaf3036105713323d3\src</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\Microsoft SDKs\Windows\v7.1A\Lib\x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
-    <ExecutablePath>C:\Program Files %28x86%29\Microsoft SDKs\Windows\v7.1A\Bin\x64;$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH)</ExecutablePath>
+    <LibraryPath>$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>$(WindowsSdk_71A_ExecutablePath);$(ExecutablePath)</ExecutablePath>
     <TargetName>$(ProjectName)</TargetName>
     <EmbedManifest>true</EmbedManifest>
   </PropertyGroup>
@@ -133,11 +132,13 @@
       <AdditionalLibraryDirectories>C:\wxWidgets-3.1.0\lib\vc140_x64_dll;C:\Users\Tung\Downloads\vld-48d9fef04a3117747c594afaf3036105713323d3\vld-48d9fef04a3117747c594afaf3036105713323d3\src\bin\x64\Release-v140;$(SolutionDir)Capstone\dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
-      <AdditionalDependencies>capstoneX64_dll.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <UACExecutionLevel>AsInvoker</UACExecutionLevel>
+      <AdditionalOptions>/verbose:lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>D:\Source code\Repos\FMIP\FMIP\additional.manifest</AdditionalManifestFiles>
+      <AdditionalManifestFiles>
+      </AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
