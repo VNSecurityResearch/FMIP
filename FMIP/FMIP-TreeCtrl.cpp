@@ -89,7 +89,7 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 					tiRoot = this->AddRoot("Root");
 				}
 				wxTreeItemData* ptrTreeItemProcessNamePId = new Tree_Item_ptrrocess_Name_PId(ptrTreeItemProperties->PROCESSNAMEPID.dwPId);
-				tiLastProcessNameId = this->AppendItem(tiRoot, wxString(ptrTreeItemProperties->PROCESSNAMEPID.szProcessName), -1, -1, ptrTreeItemProcessNamePId);
+				tiLastProcessNameId = this->AppendItem(tiRoot, wxString(ptrTreeItemProperties->PROCESSNAMEPID.strProcessName), -1, -1, ptrTreeItemProcessNamePId);
 				if (ptrTreeItemProperties->blPEInjection) this->SetItemTextColour(tiLastProcessNameId, wxColor(255, 0, 0));
 				break;
 			}

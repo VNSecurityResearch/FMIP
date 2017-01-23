@@ -29,13 +29,13 @@
 
 bool ThisApp::OnInit()
 {
-	HWND hWnd = ::FindWindow(nullptr, AppTitle);
+	/*HWND hWnd = ::FindWindow(nullptr, AppTitle);
 	if (hWnd != NULL)
 	{
 		::SetActiveWindow(hWnd);
 		::ShowWindow(hWnd, SW_NORMAL);
 		return false;
-	}
+	}*/
 	HANDLE hToken;
 	OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, &hToken);
 	FMIP::SetPrivilege(hToken, L"SeDebugPrivilege", TRUE);
@@ -185,17 +185,17 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 			wxszItemText = ProcessNamePId.strProcessName;
 			wxszItemText.append(wxString::Format(wxT(" (PId: %d X86)"), ProcessNamePId.dwPId));
 			NodeProperties.PROCESSNAMEPID.strProcessName = wxszItemText.wc_str();
-			DWORD dwLength = wxszItemText.length();
-			for (DWORD i = 0; i <= dwLength; i++) // include NULL character
-			{
-				NodeProperties.PROCESSNAMEPID.szProcessName[i] = wxszItemText.wc_str()[i];
-			}
+			//DWORD dwLength = wxszItemText.length();
+			//for (DWORD i = 0; i <= dwLength; i++) // include NULL character
+			//{
+			//	NodeProperties.PROCESSNAMEPID.szProcessName[i] = wxszItemText.wc_str()[i];
+			//}
 			SendTreeItem(hwndDestWindow, &NodeProperties, sizeof(TREE_ITEM_PROPERTIES));
 		}
 		else // ...else display the name of the process
 		{
 			wxTreeItemData* ptrTreeItemProcessNamePId = new Tree_Item_ptrrocess_Name_PId(ProcessNamePId.dwPId);
-			tiLastProcessNameId = ptrTreeCtrl->AppendItem(tiRoot, wxString::Format(wxT("%s (PId: %d)"), ProcessNamePId.szProcessName, ProcessNamePId.dwPId), -1, -1, ptrTreeItemProcessNamePId);
+			tiLastProcessNameId = ptrTreeCtrl->AppendItem(tiRoot, wxString::Format(wxT("%s (PId: %d)"), ProcessNamePId.strProcessName, ProcessNamePId.dwPId), -1, -1, ptrTreeItemProcessNamePId);
 		}
 		do // make tree items of a allocation base and their child regions
 		{
@@ -339,10 +339,10 @@ BOOL FMIP::FillTreeCtrl(FMIP_TreeCtrl* ptrTreeCtrl)
 		PROCESSNAMEPID.strProcessName = pe32.szExeFile;
 		wxString strProcessName(pe32.szExeFile);
 		DWORD dwLength = strProcessName.length();
-		for (DWORD i = 0; i <= dwLength; i++) // include NULL character
-		{
-			PROCESSNAMEPID.szProcessName[i] = strProcessName.wc_str()[i];
-		}
+		//for (DWORD i = 0; i <= dwLength; i++) // include NULL character
+		//{
+		//	PROCESSNAMEPID.szProcessName[i] = strProcessName.wc_str()[i];
+		//}
 #ifdef _WIN64 // our app is X64 and...
 		if (FMIP::IsProcessWoW64(hProcess) == TRUE) // this is a X86 process running under WoW64, so...
 		{

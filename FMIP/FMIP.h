@@ -4,7 +4,7 @@
 
 #define PEInjectionWarning wxT(" có PE tiêm trong tiến trình!")
 #define AppTitle L"Tìm tiến trình nghi vấn bị tiêm mã độc"
-#define AppTitleWoW AppTitle##" X86"
+#define AppTitleWoW AppTitle//##" X86"
 #define CM_TERMINATE WM_APP
 
 enum TREE_ITEM_TYPE
@@ -30,7 +30,7 @@ struct TREE_ITEM_PARENT_INFO_TO_CHANGE
 struct PROCESS_NAME_PID
 {
 	std::wstring strProcessName;
-	WCHAR szProcessName[256];
+	//WCHAR szProcessName[256];
 	DWORD dwPId;
 };
 
