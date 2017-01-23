@@ -121,7 +121,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions);WXUSINGDLL;wxMSVC_VERSION_AUTO</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions);WXUSINGDLL</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeaderFile>wx/wxprec.h</PrecompiledHeaderFile>
@@ -129,7 +129,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\wxWidgets-3.1.0\lib\vc140_x64_dll;C:\Users\Tung\Downloads\vld-48d9fef04a3117747c594afaf3036105713323d3\vld-48d9fef04a3117747c594afaf3036105713323d3\src\bin\x64\Release-v140;$(SolutionDir)Capstone\dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\wxWidgets-3.1.0\lib\vc_x64_dll;C:\Users\Tung\Downloads\vld-48d9fef04a3117747c594afaf3036105713323d3\vld-48d9fef04a3117747c594afaf3036105713323d3\src\bin\x64\Release-v140;$(SolutionDir)Capstone\dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -191,7 +191,6 @@
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="FMIP-TextCtrl.cpp" />
     <ClCompile Include="FMIP-TreeCtrl.cpp" />
-    <ClCompile Include="OSVersionInfo.cpp" />
     <ClCompile Include="VMContentDisplay.cpp" />
     <ClCompile Include="ThreadingOutputVMContent.cpp" />
     <ClCompile Include="FMIP.cpp">
@@ -210,7 +209,6 @@
   <ItemGroup>
     <ClInclude Include="About.h" />
     <ClInclude Include="MainWindow.h" />
-    <ClInclude Include="OSVersionInfo.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="FMIP-TextCtrl.h" />
     <ClInclude Include="FMIP-TreeCtrl.h" />

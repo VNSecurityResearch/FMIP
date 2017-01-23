@@ -169,18 +169,22 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 		wxTreeItemId tiLastProcessNameId = 0;
 		wxTreeItemId tiLastAllocationBase = 0;
 		wxTreeItemId tiLastRegion = 0;
+		TREE_ITEM_PARENT_INFO_TO_CHANGE tiParentInfoToChange;
 		BOOL blIsPEInjectedInProcess = FALSE;
 		NodeProperties.blPEInjection = FALSE;
-		TREE_ITEM_TYPE tiParentType;
 		VirtualQueryEx(hProcess, ptrRegionBase, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
 		ptrRegionBase = mbi.AllocationBase;
 		if (hwndDestWindow != nullptr) // if there is a remote (X86) version then send relevant data to the remote version...
 		{
 			wxString wxszItemText;
+			std::wstring strItemText;
 			NodeProperties.TREEITEMTYPE = TREE_ITEM_TYPE_PROCESS_NAME_PID;
 			NodeProperties.PROCESSNAMEPID.dwPId = ProcessNamePId.dwPId;
-			wxszItemText = ProcessNamePId.szProcessName;
+			std::wstring strTemp;
+			//NodeProperties.PROCESSNAMEPID.strProcessName.append(StringCchPrintfW(L" (PId: %d X86)", ProcessNamePId.dwPId));
+			wxszItemText = ProcessNamePId.strProcessName;
 			wxszItemText.append(wxString::Format(wxT(" (PId: %d X86)"), ProcessNamePId.dwPId));
+			NodeProperties.PROCESSNAMEPID.strProcessName = wxszItemText.wc_str();
 			DWORD dwLength = wxszItemText.length();
 			for (DWORD i = 0; i <= dwLength; i++) // include NULL character
 			{
@@ -241,8 +245,9 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 									blIsPEInjectedInProcess = TRUE;
 									if (hwndDestWindow != nullptr)
 									{
-										tiParentType = TREE_ITEM_TYPE_ALLOCATION_BASE;
-										RequestAction(hwndDestWindow, nullptr, ACTION_CHANGE_TREE_ITEM_PARENT_COLOR, &tiParentType, sizeof(TREE_ITEM_TYPE_ALLOCATION_BASE));
+										tiParentInfoToChange.TreeItemParentType = TREE_ITEM_TYPE_ALLOCATION_BASE;
+										tiParentInfoToChange.wxclColor.Set(255, 0, 0);
+										RequestAction(hwndDestWindow, nullptr, ACTION_CHANGE_TREE_ITEM_PARENT_COLOR, &tiParentInfoToChange, sizeof(TREE_ITEM_PARENT_INFO_TO_CHANGE));
 									}
 									else
 									{
@@ -281,8 +286,9 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 		{
 			if (hwndDestWindow != nullptr) // if there is a remote (X86) version then send relevant data to the remote version...
 			{
-				tiParentType = TREE_ITEM_TYPE_PROCESS_NAME_PID;
-				RequestAction(hwndDestWindow, nullptr, ACTION_CHANGE_TREE_ITEM_PARENT_COLOR, &tiParentType, sizeof(TREE_ITEM_TYPE_PROCESS_NAME_PID));
+				tiParentInfoToChange.TreeItemParentType = TREE_ITEM_TYPE_PROCESS_NAME_PID;
+				tiParentInfoToChange.wxclColor.Set(255, 0, 0);
+				RequestAction(hwndDestWindow, nullptr, ACTION_CHANGE_TREE_ITEM_PARENT_COLOR, &tiParentInfoToChange, sizeof(TREE_ITEM_PARENT_INFO_TO_CHANGE));
 			}
 			else // ...else display the region address
 			{
@@ -330,6 +336,7 @@ BOOL FMIP::FillTreeCtrl(FMIP_TreeCtrl* ptrTreeCtrl)
 		}
 		PROCESS_NAME_PID PROCESSNAMEPID;
 		PROCESSNAMEPID.dwPId = pe32.th32ProcessID;
+		PROCESSNAMEPID.strProcessName = pe32.szExeFile;
 		wxString strProcessName(pe32.szExeFile);
 		DWORD dwLength = strProcessName.length();
 		for (DWORD i = 0; i <= dwLength; i++) // include NULL character

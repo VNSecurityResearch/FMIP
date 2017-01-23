@@ -21,8 +21,15 @@ enum ACTION
 	ACTION_CHANGE_TREE_ITEM_PARENT_COLOR
 };
 
+struct TREE_ITEM_PARENT_INFO_TO_CHANGE
+{
+	TREE_ITEM_TYPE TreeItemParentType;
+	wxColor wxclColor;
+};
+
 struct PROCESS_NAME_PID
 {
+	std::wstring strProcessName;
 	WCHAR szProcessName[256];
 	DWORD dwPId;
 };
@@ -31,16 +38,12 @@ class Generic_Tree_Item :public wxTreeItemData
 {
 private:
 	TREE_ITEM_TYPE m_TreeItemType;
-	//BOOL m_blRedWarning = FALSE;
 	wxColor m_wxclColor = wxNullColour;
 public:
 	//Generic_Tree_Item();
-	//Generic_Tree_Item(TREE_ITEM_TYPE TreeItemType);
 	void SetType(const TREE_ITEM_TYPE& TreeItemType);
-	//void SetRedWarning(BOOL);
 	void SetColor(unsigned char, unsigned char, unsigned char);
 	wxColor* GetColor();
-	BOOL IsRedWarning();
 	TREE_ITEM_TYPE GetType() const;
 	virtual ~Generic_Tree_Item() = 0;
 
@@ -51,7 +54,6 @@ class Tree_Item_ptrrocess_Name_PId :public Generic_Tree_Item
 private:
 	//PROCESS_NAME_PID ProcessNamePId;
 	DWORD m_dwPId;
-	//BOOL m_blPEInjection = FALSE;
 public:
 	Tree_Item_ptrrocess_Name_PId(DWORD PId);
 	//~Tree_Item_ptrrocess_Name_PId();
