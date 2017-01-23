@@ -191,6 +191,7 @@
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="FMIP-TextCtrl.cpp" />
     <ClCompile Include="FMIP-TreeCtrl.cpp" />
+    <ClCompile Include="OSVersionInfo.cpp" />
     <ClCompile Include="VMContentDisplay.cpp" />
     <ClCompile Include="ThreadingOutputVMContent.cpp" />
     <ClCompile Include="FMIP.cpp">
@@ -209,6 +210,7 @@
   <ItemGroup>
     <ClInclude Include="About.h" />
     <ClInclude Include="MainWindow.h" />
+    <ClInclude Include="OSVersionInfo.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="FMIP-TextCtrl.h" />
     <ClInclude Include="FMIP-TreeCtrl.h" />

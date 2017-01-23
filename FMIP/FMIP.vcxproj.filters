@@ -28,6 +28,7 @@
     <ClCompile Include="wxPreCompile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="OSVersionInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="About.h">
@@ -54,6 +55,7 @@
     <ClInclude Include="VMContentDisplay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="OSVersionInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="wx\msw\cdrom.ico">
