@@ -69,20 +69,20 @@ DWORD WINAPI ManageX64Process(LPVOID lpParam)
 
 MainWindow::MainWindow(const wxString& Title) : wxFrame(nullptr, wxID_ANY, Title, wxDefaultPosition, wxSize(550, 640))
 {
-//#ifndef _WIN64
-//	if (FMIP::IsProcessWoW64(GetCurrentProcess()) == TRUE)
-//	{
-//		SetTitle(AppTitleWoW);
-//		CreateThread(
-//			NULL,                   // default security attributes
-//			0,                      // use default stack size  
-//			ManageX64Process,       // thread function name
-//			nullptr,          // argument to thread function 
-//			0,                      // use default creation flags 
-//			nullptr);
-//		return;
-//	}
-//#endif
+#ifndef _WIN64
+	if (FMIP::IsProcessWoW64(GetCurrentProcess()) == TRUE)
+	{
+		SetTitle(AppTitleWoW);
+		CreateThread(
+			NULL,                   // default security attributes
+			0,                      // use default stack size  
+			ManageX64Process,       // thread function name
+			nullptr,          // argument to thread function 
+			0,                      // use default creation flags 
+			nullptr);
+		return;
+	}
+#endif
 	wxMenu* ptrMenuRefresh = new wxMenu;
 	wxMenu* ptrMenuAbout = new wxMenu;
 	wxMenuBar* ptrMenuBar = new wxMenuBar;

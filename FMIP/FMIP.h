@@ -9,7 +9,7 @@
 
 #define PEInjectionWarning wxT(" có PE tiêm trong tiến trình!")
 #define AppTitle L"Tìm tiến trình nghi vấn bị tiêm mã độc"
-#define AppTitleWoW AppTitle//##" X86"
+#define AppTitleWoW AppTitle##" X86"
 #define CM_TERMINATE WM_APP
 
 enum TREE_ITEM_TYPE
