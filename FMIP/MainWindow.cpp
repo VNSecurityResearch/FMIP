@@ -1,4 +1,9 @@
-﻿#include <wx/wxprec.h>
+﻿/*
+/ Opensource project by Tung Nguyen Thanh
+/ 2007
+*/
+
+#include <wx/wxprec.h>
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif

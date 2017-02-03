@@ -1,3 +1,8 @@
+/*
+/ Opensource project by Tung Nguyen Thanh
+/ 2007
+*/
+
 #pragma once
 #include <wx/textctrl.h>
 #include "VMContentDisplay.h"
@@ -14,6 +19,7 @@ private:
 	int m_intLastCheckFirstVisibleLine = 0;
 public:
 	FMIP_TextCtrl(VMContentDisplay*);
+	void AppendText(const wxString& Text);
 	//BOOL CanScroll(HWND, LONG);
 	WXLRESULT MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam);
 };

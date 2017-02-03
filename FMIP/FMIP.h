@@ -1,4 +1,9 @@
-﻿#pragma once
+﻿/*
+/ Opensource project by Tung Nguyen Thanh
+/ 2007
+*/
+
+#pragma once
 #include "FMIP-TreeCtrl.h"
 #include <Capstone\headers\capstone.h>
 
@@ -94,22 +99,26 @@ struct TREE_ITEM_PROPERTIES
 	BOOL blPEInjection = FALSE;
 };
 
-namespace FMIP
-{
-	BOOL IsProcessWoW64(HANDLE hProcess);
-	BOOL SetPrivilege(HANDLE hToken, LPCTSTR lpszPrivilege, BOOL bEnablePrivilege);
-	LPCVOID FindPrivateERWRegion(HANDLE hProcess, LPCVOID ptrRegionBase);
-	BOOL FillTreeCtrl(FMIP_TreeCtrl* ptrTreeCtrl);
-	void MakeTreeNodesForRemoteProcess(HWND hwndDestWindow, HANDLE, const PROCESS_NAME_PID&);
-}
+//namespace FMIP
+//{
+//	BOOL IsProcessWoW64(HANDLE hProcess);
+//	BOOL SetPrivilege(HANDLE hToken, LPCTSTR lpszPrivilege, BOOL bEnablePrivilege);
+//	LPCVOID FindPrivateERWRegion(HANDLE hProcess, LPCVOID ptrRegionBase);
+//	BOOL FillTreeCtrl(FMIP_TreeCtrl* ptrTreeCtrl);
+//	void MakeTreeNodesForRemoteProcess(HWND hwndDestWindow, HANDLE, const PROCESS_NAME_PID&);
+//}
 
-class ThisApp : public wxApp
+class FMIP : public wxApp
 {
 public:
 	virtual bool OnInit() wxOVERRIDE;
-	~ThisApp();
+	static BOOL IsProcessWoW64(HANDLE hProcess);
+	static BOOL SetPrivilege(HANDLE hToken, LPCTSTR lpszPrivilege, BOOL bEnablePrivilege);
+	static LPCVOID FindPrivateERWRegion(HANDLE hProcess, LPCVOID ptrRegionBase);
+	static BOOL FillTreeCtrl(FMIP_TreeCtrl* ptrTreeCtrl);
+	static void MakeTreeNodesForRemoteProcess(HWND hwndDestWindow, HANDLE, const PROCESS_NAME_PID&);
+	~FMIP();
 };
-
 
 __declspec(selectany)
 BOOLEAN PhCharIsPrintable[256] =

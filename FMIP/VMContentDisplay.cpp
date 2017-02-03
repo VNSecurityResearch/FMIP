@@ -1,4 +1,9 @@
-﻿#include <wx/wxprec.h>
+﻿/*
+/ Opensource project by Tung Nguyen Thanh
+/ 2007
+*/
+
+#include <wx/wxprec.h>
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
@@ -32,6 +37,7 @@ VMContentDisplay::VMContentDisplay(MainWindow* Parent, FMIP_TreeCtrl* ptrTreeCtr
 	//Layout(); when this needed?
 	this->Show(true);
 	ThreadingOutputVMContent* pThreadingOutputVMContent = new ThreadingOutputVMContent(this);
+	//AppendOutput(L"ss\rbb\naa\r\ncc");
 	if (pThreadingOutputVMContent->Run() != wxTHREAD_NO_ERROR)
 	{
 		OutputDebugString(L"Could not create thread!");
@@ -65,10 +71,10 @@ void VMContentDisplay::AttachThread(ThreadingOutputVMContent* ptrThread)
 	m_ptrAttachedThread = ptrThread;
 }
 
-void VMContentDisplay::Output(const wxString& Text)
+void VMContentDisplay::AppendOutput(const wxString& Text)
 {
 	m_ptrTextCtrl->AppendText(Text);
-	m_ptrTextCtrl->ShowPosition(0);
+	
 }
 
 wxString VMContentDisplay::GetStatusText()

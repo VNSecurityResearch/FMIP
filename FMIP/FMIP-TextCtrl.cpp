@@ -1,4 +1,9 @@
-﻿#include "wx/wxprec.h"
+﻿/*
+/ Opensource project by Tung Nguyen Thanh
+/ 2007
+*/
+
+#include "wx/wxprec.h"
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
@@ -19,6 +24,22 @@ FMIP_TextCtrl::FMIP_TextCtrl(VMContentDisplay* ptrParent) :wxTextCtrl(ptrParent,
 	::GetScrollBarInfo(m_hWndThis, OBJID_HSCROLL, &m_ScrollBarInfo);
 	m_blHScrollBarVisible = m_ScrollBarInfo.rgstate[0] == 0 ? TRUE : FALSE;
 	//m_dwInitialHScrollBarState = m_ScrollBarInfo.rgstate[0];
+}
+
+void FMIP_TextCtrl::AppendText(const wxString & Text)
+{
+	SetInsertionPointEnd();
+	if (IsRich())
+	{
+		// first, ensure that the new text will be in the default style
+		if (!m_defaultStyle.IsDefault())
+		{
+			long start, end;
+			GetSelection(&start, &end);
+			SetStyle(start, end, m_defaultStyle);
+		}
+	}
+	::SendMessage(GetHWND(), EM_REPLACESEL, 0, (LPARAM)Text.t_str());
 }
 
 //BOOL FMIP_TextCtrl::CanScroll(HWND hWnd, LONG Direction)
@@ -43,6 +64,17 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 			m_intLastCheckFirstVisibleLine = ::SendMessage(m_hWndThis, EM_GETFIRSTVISIBLELINE, 0, 0);
 		}
 		break;
+
+	//case WM_LBUTTONDOWN:
+	//	OutputDebugString(L"LButtonDown\n");
+	//	wxTextCtrl::MSWWindowProc(nMsg, wParam, lParam);
+	//	//::UpdateWindow(this->GetHWND());
+	//	//SendUpdateEvent();
+	//	::InvalidateRect(this->GetHWND(), NULL, FALSE);
+	//	::UpdateWindow(this->GetHWND());
+	//	//::RedrawWindow(this->GetHWND(), NULL, NULL, RDW_INTERNALPAINT | RDW_UPDATENOW);
+	//	return 0;
+	//	break;
 
 	case WM_PAINT:
 		/*

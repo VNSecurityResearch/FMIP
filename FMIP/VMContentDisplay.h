@@ -1,4 +1,9 @@
-﻿#pragma once
+﻿/*
+/ Opensource project by Tung Nguyen Thanh
+/ 2007
+*/
+
+#pragma once
 #include "MainWindow.h"
 #include <wx/dialog.h>
 #include <Capstone/headers/capstone.h>
@@ -9,12 +14,13 @@ enum OUTPUT_TYPE
 	OUTPUT_TYPE_ASM
 };
 
+class FMIP_TextCtrl;
 
 class VMContentDisplay :
 	public wxDialog
 {
 	friend class ThreadingOutputVMContent;
-	friend class FMIP_TextCtrl;
+	//friend class FMIP_TextCtrl;
 private:
 	wxStatusBar* m_ptrStatusBar;
 	ThreadingOutputVMContent* m_ptrAttachedThread = nullptr;
@@ -33,7 +39,7 @@ public:
 	ThreadingOutputVMContent* GetAttachedThread();
 	bool IsAttachedThreadCompleted();	
 	void AttachThread(ThreadingOutputVMContent* pThread);
-	void Output(const wxString& Text);
+	void AppendOutput(const wxString& Text);
 	wxString GetStatusText();
 	void OnAttachedThreadComplete(wxThreadEvent& evt);
 	void OnAttachedThreadStart(wxThreadEvent& evt);

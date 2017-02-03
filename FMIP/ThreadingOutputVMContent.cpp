@@ -1,9 +1,15 @@
-﻿#include "wx/wxprec.h"
+﻿/*
+/ Opensource project by Tung Nguyen Thanh
+/ 2007
+*/
+
+#include "wx/wxprec.h"
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
 #include "FMIP.h"
 #include "ThreadingOutputVMContent.h"
+#include "FMIP-TextCtrl.h"
 #include <memory>
 //#include "MemLeakDetection.h"
 #ifdef __WXMSW__
@@ -144,11 +150,11 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 					for (size_t line = 0; line < count; line++)
 					{
 						if (this->TestDestroy()) return (wxThread::ExitCode)0; //IMPORTANT TO KILL THE THREAD WHILE IN LONG DURATION OPERATION
-						strAssembly.append(wxString::Format("0x%p: %-12s\t%-s\r\n", (void*)insn[line].address, insn[line].mnemonic,
+						strAssembly.append(wxString::Format(wxT("0x%p: %-12s\t%-s\r\n"), (void*)insn[line].address, insn[line].mnemonic,
 							insn[line].op_str));
 					}
 					uintLastExaminedAddress = insn[count - 1].address;
-					m_ptrVMContentDisplay->Output(strAssembly);
+					m_ptrVMContentDisplay->AppendOutput(strAssembly);
 					cs_free(insn, count);
 				}
 				else
@@ -337,24 +343,16 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 						}
 						uintLastExaminedAddress = (uint64_t)BaseAddress + (i - bias - lengthInBytes);
 						displayLength = (ULONG)(min(length, displayBufferCount));
-						wstrDisplayBuffer.at(displayLength) = L'\n';
-						//displayBuffer.get()[displayLength + 1] = L'\n';
-						wstrDisplayBuffer.at(displayLength + 1) = L'\0';
-						int pos = 0;
-						pos = wstrDisplayBuffer.find(L'\r');
-						while (pos != std::wstring::npos)
+						wstrDisplayBuffer.at(displayLength) = L'\0';
+						for (size_t i = 0; wstrDisplayBuffer[i] != L'\0'; i++)
 						{
-							wstrDisplayBuffer.replace(pos, 1, L"\x1A\x0"); // L"\r                    ");
-							pos = wstrDisplayBuffer.find(L'\r', pos + 1); // should be pos + 21?
+							if (wstrDisplayBuffer[i] == L'\r' || wstrDisplayBuffer[i] == '\n')
+								wstrDisplayBuffer[i] = L'\x1A';
 						}
-						pos = wstrDisplayBuffer.find(L'\n');
-						int intStringLength = wcslen(wstrDisplayBuffer.data());
-						while (pos != std::wstring::npos && pos < intStringLength - 1)
-						{
-							wstrDisplayBuffer.replace(pos, 1, L"\x1a\x0"); // L"\r                    ");
-							pos = wstrDisplayBuffer.find(L'\n', pos + 1);
-						}
-						wxstrStrings.append(wxString::Format("0x%p: ", (void*)uintLastExaminedAddress));
+						wstrDisplayBuffer[displayLength] = L'\r';
+						wstrDisplayBuffer[displayLength + 1] = L'\n';
+						wstrDisplayBuffer[displayLength + 2] = L'\0';
+						wxstrStrings.append(wxString::Format(wxT("0x%p: "), (void*)uintLastExaminedAddress));
 						wxstrStrings.append(wstrDisplayBuffer.data());
 						length = 0;
 					}
@@ -364,7 +362,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 					printable2 = printable1;
 					printable1 = printable;
 				}
-				m_ptrVMContentDisplay->Output(wxstrStrings);
+				m_ptrVMContentDisplay->AppendOutput(wxstrStrings);
 			}
 			break;
 			default:
@@ -378,7 +376,8 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 		m_ptrVMContentDisplay->SetTitle(wxString::Format(wxT("Không có %s từ 0x%p đến 0x%p"), m_ptrVMContentDisplay->m_OutputType == OUTPUT_TYPE_ASM ? wxT("mã hợp ngữ") : wxT("các dãy ký tự"),
 			ptrRegionStart, ptrRegionEnd));
 	else
-		m_ptrVMContentDisplay->SetTitle(wxstrTitle.Append(wxString::Format(wxT(" đến 0x%p"), (void*)uintLastExaminedAddress)));
+		m_ptrVMContentDisplay->SetTitle(wxstrTitle.Append(wxString::Format(wxT(" đến 0x%p"), ptrRegionEnd)));
+	m_ptrVMContentDisplay->m_ptrTextCtrl->ShowPosition(1);
 	m_ptrVMContentDisplay->m_ptrStatusBar->SetStatusText(wxstrProcessNamePId);
 	CloseHandle(m_hProcessToRead);
 	return (wxThread::ExitCode)0;

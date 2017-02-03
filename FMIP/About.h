@@ -1,3 +1,8 @@
+/*
+/ Opensource project by Tung Nguyen Thanh
+/ 2007
+*/
+
 #pragma once
 #include "MainWindow.h"
 

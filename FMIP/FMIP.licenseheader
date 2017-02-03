@@ -1,0 +1,17 @@
+﻿extensions: designer.cs generated.cs
+extensions: .cs .cpp .h
+/*
+/ Opensource project by Tung Nguyen Thanh
+/ 2007
+*/
+
+extensions: .aspx .ascx
+<%-- 
+Copyright (c) 2011 rubicon IT GmbH
+--%>
+extensions: .vb
+'Sample license text.
+extensions:  .xml .config .xsd
+<!--
+Sample license text.
+-->

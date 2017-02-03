@@ -1,4 +1,9 @@
-﻿#include <wx/wxprec.h>
+﻿/*
+/ Opensource project by Tung Nguyen Thanh
+/ 2007
+*/
+
+#include <wx/wxprec.h>
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
@@ -97,7 +102,7 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 			case TREE_ITEM_TYPE::TREE_ITEM_TYPE_ALLOCATION_BASE:
 			{
 				wxTreeItemData* ptrTreeItemParentRegion = new Tree_Item_Allocation_Base((PVOID)ptrTreeItemProperties->dwAllocationBase);
-				tiLastAllocationBase = this->AppendItem(tiLastProcessNameId, wxString::Format("0x%p", (void*)ptrTreeItemProperties->dwAllocationBase), -1, -1, ptrTreeItemParentRegion);
+				tiLastAllocationBase = this->AppendItem(tiLastProcessNameId, wxString::Format(wxT("0x%p"), (void*)ptrTreeItemProperties->dwAllocationBase), -1, -1, ptrTreeItemParentRegion);
 				if (ptrTreeItemProperties->blPEInjection) this->SetItemTextColour(tiLastAllocationBase, wxColor(255, 0, 0));
 				break;
 			}
@@ -105,7 +110,7 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 			case TREE_ITEM_TYPE::TREE_ITEM_TYPE_REGION:
 			{
 				wxTreeItemData* ptrTreeItemRegion = new Tree_Item_Region((PVOID)ptrTreeItemProperties->dwBaseAddress, (SIZE_T)ptrTreeItemProperties->lnRegionSize);
-				tiTreeLastRegion = this->AppendItem(tiLastAllocationBase, wxString::Format("0x%p", (void*)ptrTreeItemProperties->dwBaseAddress), -1, -1, ptrTreeItemRegion);
+				tiTreeLastRegion = this->AppendItem(tiLastAllocationBase, wxString::Format(wxT("0x%p"), (void*)ptrTreeItemProperties->dwBaseAddress), -1, -1, ptrTreeItemRegion);
 				if (ptrTreeItemProperties->blPEInjection) this->SetItemTextColour(tiTreeLastRegion, wxColor(255, 0, 0));
 				break;
 			}

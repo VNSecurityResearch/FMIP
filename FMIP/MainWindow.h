@@ -1,4 +1,9 @@
-﻿#pragma once
+﻿/*
+/ Opensource project by Tung Nguyen Thanh
+/ 2007
+*/
+
+#pragma once
 #include <wx/frame.h>
 #include "FMIP-TreeCtrl.h"
 

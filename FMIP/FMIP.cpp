@@ -1,4 +1,9 @@
-﻿#include <wx/wxprec.h>
+﻿/*
+/ Opensource project by Tung Nguyen Thanh
+/ 2007
+*/
+
+#include <wx/wxprec.h>
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
@@ -27,15 +32,15 @@
 #include <wx/msw/msvcrt.h>      // redefines the new() operator 
 #endif
 
-bool ThisApp::OnInit()
+bool FMIP::OnInit()
 {
-	/*HWND hWnd = ::FindWindow(nullptr, AppTitle);
+	HWND hWnd = ::FindWindow(nullptr, AppTitle);
 	if (hWnd != NULL)
 	{
 		::SetActiveWindow(hWnd);
 		::ShowWindow(hWnd, SW_NORMAL);
 		return false;
-	}*/
+	}
 	HANDLE hToken;
 	OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, &hToken);
 	FMIP::SetPrivilege(hToken, L"SeDebugPrivilege", TRUE);
@@ -434,6 +439,6 @@ SIZE_T Tree_Item_Region::GetRegionSize()
 	return SIZE_T(m_RegionSize);
 }
 
-ThisApp::~ThisApp()
+FMIP::~FMIP()
 {
 }
