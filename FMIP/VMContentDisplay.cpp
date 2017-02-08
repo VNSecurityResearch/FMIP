@@ -10,6 +10,7 @@
 #include "FMIP.h"
 #include "ThreadingOutputVMContent.h"
 #include "FMIP-TextCtrl.h"
+#include <Richedit.h>
 #ifdef __WXMSW__
 #include <wx/msw/msvcrt.h>      // redefines the new() operator 
 #endif
@@ -36,12 +37,27 @@ VMContentDisplay::VMContentDisplay(MainWindow* Parent, FMIP_TreeCtrl* ptrTreeCtr
 	m_ptrButtonOK->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &VMContentDisplay::OnOKClick, this); // <----------
 	//Layout(); when this needed?
 	this->Show(true);
-	ThreadingOutputVMContent* pThreadingOutputVMContent = new ThreadingOutputVMContent(this);
-	//AppendOutput(L"ss\rbb\naa\r\ncc");
+	#define nMaxWChar 8388608
+	wchar_t* wszFoo = new wchar_t[nMaxWChar];
+	for (size_t i = 0; i < nMaxWChar; i++)
+	{
+		wszFoo[i] = L'\A';
+	}
+	wszFoo[nMaxWChar - 2] = L'\B';
+	wszFoo[nMaxWChar - 1] = L'\0';
+	m_ptrTextCtrl->AppendText(wszFoo);
+	::FINDTEXTW strcFindTextW;
+	strcFindTextW.chrg.cpMin = 0;
+	strcFindTextW.chrg.cpMax = -1;
+	strcFindTextW.lpstrText = L"\B";
+	size_t nLimitText=::
+	size_t nCharPos = ::SendMessage(m_ptrTextCtrl->GetHWND(), EM_FINDTEXTW, FR_DOWN, (LPARAM)&strcFindTextW);
+	wxLogDebug(L"");
+	/*ThreadingOutputVMContent* pThreadingOutputVMContent = new ThreadingOutputVMContent(this);
 	if (pThreadingOutputVMContent->Run() != wxTHREAD_NO_ERROR)
 	{
 		OutputDebugString(L"Could not create thread!");
-	}
+	}*/
 }
 
 VMContentDisplay::~VMContentDisplay()
@@ -74,6 +90,7 @@ void VMContentDisplay::AttachThread(ThreadingOutputVMContent* ptrThread)
 void VMContentDisplay::AppendOutput(const wxString& Text)
 {
 	m_ptrTextCtrl->AppendText(Text);
+	m_ptrTextCtrl->ShowPosition(1);
 	
 }
 
@@ -112,6 +129,12 @@ WXLRESULT VMContentDisplay::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPA
 			m_ptrButtonOK->SetDefault(); // = ::SendMessage(m_ptrButtonOK->GetHWND(), BM_SETSTYLE, BS_DEFPUSHBUTTON | BS_TEXT, TRUE);
 		else
 			::SendMessage(m_hWndButtonOK, BM_SETSTYLE, BS_PUSHBUTTON | BS_TEXT, TRUE);
+		break;
+
+	case WM_COMMAND:
+		if (HIWORD(wParam) == EN_MAXTEXT)
+			if ((WXHWND)lParam == m_ptrTextCtrl->GetHWND())
+				wxLogDebug(wxT("EN_MAXTEXT"));
 		break;
 
 	default:

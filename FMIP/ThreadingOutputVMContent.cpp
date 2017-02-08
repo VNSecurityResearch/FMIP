@@ -343,15 +343,15 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 						}
 						uintLastExaminedAddress = (uint64_t)BaseAddress + (i - bias - lengthInBytes);
 						displayLength = (ULONG)(min(length, displayBufferCount));
-						wstrDisplayBuffer.at(displayLength) = L'\0';
+						wstrDisplayBuffer[displayLength-1] = L'\0';
 						for (size_t i = 0; wstrDisplayBuffer[i] != L'\0'; i++)
 						{
 							if (wstrDisplayBuffer[i] == L'\r' || wstrDisplayBuffer[i] == '\n')
 								wstrDisplayBuffer[i] = L'\x1A';
 						}
-						wstrDisplayBuffer[displayLength] = L'\r';
-						wstrDisplayBuffer[displayLength + 1] = L'\n';
-						wstrDisplayBuffer[displayLength + 2] = L'\0';
+						wstrDisplayBuffer[displayLength - 1] = L'\r';
+						wstrDisplayBuffer[displayLength] = L'\n';
+						wstrDisplayBuffer[displayLength + 1] = L'\0';
 						wxstrStrings.append(wxString::Format(wxT("0x%p: "), (void*)uintLastExaminedAddress));
 						wxstrStrings.append(wstrDisplayBuffer.data());
 						length = 0;
@@ -377,7 +377,6 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 			ptrRegionStart, ptrRegionEnd));
 	else
 		m_ptrVMContentDisplay->SetTitle(wxstrTitle.Append(wxString::Format(wxT(" đến 0x%p"), ptrRegionEnd)));
-	m_ptrVMContentDisplay->m_ptrTextCtrl->ShowPosition(1);
 	m_ptrVMContentDisplay->m_ptrStatusBar->SetStatusText(wxstrProcessNamePId);
 	CloseHandle(m_hProcessToRead);
 	return (wxThread::ExitCode)0;

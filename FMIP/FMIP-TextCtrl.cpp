@@ -65,17 +65,6 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 		}
 		break;
 
-	//case WM_LBUTTONDOWN:
-	//	OutputDebugString(L"LButtonDown\n");
-	//	wxTextCtrl::MSWWindowProc(nMsg, wParam, lParam);
-	//	//::UpdateWindow(this->GetHWND());
-	//	//SendUpdateEvent();
-	//	::InvalidateRect(this->GetHWND(), NULL, FALSE);
-	//	::UpdateWindow(this->GetHWND());
-	//	//::RedrawWindow(this->GetHWND(), NULL, NULL, RDW_INTERNALPAINT | RDW_UPDATENOW);
-	//	return 0;
-	//	break;
-
 	case WM_PAINT:
 		/*
 		* In Windows 8 (or other version older than Windows 10), when the window is sized such that
@@ -100,13 +89,6 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 			}
 		}
 		break;
-
-		/*case WM_VSCROLL:
-			if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
-				break;
-			wxTextCtrl::MSWWindowProc(nMsg, wParam, lParam);
-			m_intLastCheckFirstVisibleLine = ::SendMessage(m_hWndThis, EM_GETFIRSTVISIBLELINE, 0, 0);
-			return 0;*/
 
 	case WM_KEYDOWN:
 	{
@@ -171,7 +153,7 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 				DWORD dwScrBarMaxPosInWin10 = m_ScrollInfo.nMax - (m_ScrollInfo.nPage);
 				if (m_ScrollInfo.nPos == dwScrBarMaxPosInWinOlderThan10 || m_ScrollInfo.nPos == dwScrBarMaxPosInWin10) // CHECK this in Windows 8
 					return 0;
-				wxLogDebug(wxString::Format(wxT("npos: %d"), m_ScrollInfo.nPos));
+				//wxLogDebug(wxString::Format(wxT("npos: %d"), m_ScrollInfo.nPos));
 				break;
 			}
 
