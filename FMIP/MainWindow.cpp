@@ -73,6 +73,7 @@ MainWindow::MainWindow(const wxString& Title) : wxFrame(nullptr, wxID_ANY, Title
 	if (FMIP::IsProcessWoW64(GetCurrentProcess()) == TRUE)
 	{
 		SetTitle(AppTitleWoW);
+#ifdef _NDEBUG
 		CreateThread(
 			NULL,                   // default security attributes
 			0,                      // use default stack size  
@@ -81,8 +82,9 @@ MainWindow::MainWindow(const wxString& Title) : wxFrame(nullptr, wxID_ANY, Title
 			0,                      // use default creation flags 
 			nullptr);
 		return;
-	}
-#endif
+#endif // _NDEBUG
+}
+#endif // _WIN64
 	wxMenu* ptrMenuRefresh = new wxMenu;
 	wxMenu* ptrMenuAbout = new wxMenu;
 	wxMenuBar* ptrMenuBar = new wxMenuBar;
@@ -172,7 +174,8 @@ WXLRESULT MainWindow::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lP
 	case WM_NOTIFY:
 	{
 		WXLRESULT Result = CDRF_DODEFAULT;
-		if (m_ptrFMIP_TreeCtrl == nullptr) break;
+		if (m_ptrFMIP_TreeCtrl == nullptr)
+			break;
 		if (((LPNMHDR)lParam)->hwndFrom == m_ptrFMIP_TreeCtrl->GetHWND())
 		{
 			if (((LPNMHDR)lParam)->code == NM_CUSTOMDRAW)
@@ -195,14 +198,6 @@ WXLRESULT MainWindow::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lP
 							lpNMCustomDraw->clrText = RGB(ptiColor->Red(), ptiColor->Green(), ptiColor->Blue());
 						else
 							lpNMCustomDraw->clrText = CLR_DEFAULT;
-						/*if (ptrGenericTreeItem->IsRedWarning() == TRUE)
-						{
-							lpNMCustomDraw->clrText = RGB(255, 0, 0);
-						}
-						else
-						{
-							lpNMCustomDraw->clrText = CLR_DEFAULT;
-						}*/
 						if (ptrGenericTreeItem->GetType() != TREE_ITEM_TYPE::TREE_ITEM_TYPE_PROCESS_NAME_PID)
 						{
 							wxFont fntSubItem(wxFontInfo().FaceName("Consolas"));

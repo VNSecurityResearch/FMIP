@@ -74,12 +74,12 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 	{
 	case TREE_ITEM_TYPE_ALLOCATION_BASE:
 		ptrRegionStart = static_cast<Tree_Item_Allocation_Base*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiSelected))->GetAllocationBase();
-		wxstrTitle.Append(wxstrTitle.Format("0x%p [+]", ptrRegionStart));
+		wxstrTitle.Append(wxstrTitle.Format(L"0x%p [+]", ptrRegionStart));
 		tiIdIterator = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetFirstChild(tiSelected, tiIdValue);
 		break;
 	case TREE_ITEM_TYPE_REGION:
 		ptrRegionStart = static_cast<Tree_Item_Region*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiSelected))->GetBaseAdress();
-		wxstrTitle.Printf("0x%p", ptrRegionStart);
+		wxstrTitle.Printf(L"0x%p", ptrRegionStart);
 		tiIdIterator = tiSelected;
 		break;
 	}
@@ -103,18 +103,18 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 		//if (this->TestDestroy()) return (wxThread::ExitCode)0; // necessary?
 		SIZE_T nRegionSize = static_cast<Tree_Item_Region*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiIdIterator))->GetRegionSize();
 		ptrRegionEnd = (PBYTE)(static_cast<Tree_Item_Region*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiIdIterator))->GetBaseAdress()) + nRegionSize - 1;
-		SIZE_T nBufferSize = 4096 * 16;
+		SIZE_T nBufferSize = 1024 * 512; // 512KB
 		SIZE_T nReadSize = nRegionSize;
 		if (nRegionSize > nBufferSize)
 		{
 			// Don't allocate a huge buffer though.
-			if (nRegionSize < 16 * 1024 * 1024) // 16MB
+			if (nRegionSize < 1024 * 1024) // 1MB
 			{
 				nBufferSize = nRegionSize;
 			}
 			else
 			{
-				wxLogDebug(wxT("RegionSize >= 16MB"));
+				//wxLogDebug(wxT("RegionSize >= 1MB"));
 				nReadSize = nBufferSize;
 			}
 		}
@@ -247,7 +247,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 					{
 						if (length < displayBufferCount)
 						{
-							wstrDisplayBuffer.at(length) = byte;
+							wstrDisplayBuffer[length] = byte;
 						}
 						length++;
 					}
@@ -273,7 +273,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 						{
 							if (length < displayBufferCount)
 							{
-								wstrDisplayBuffer.at(length) = byte;
+								wstrDisplayBuffer[length] = byte;
 							}
 							length++;
 						}
@@ -311,7 +311,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 					{
 						if (length < displayBufferCount)
 						{
-							wstrDisplayBuffer.at(length) = byte;
+							wstrDisplayBuffer[length] = byte;
 						}
 						length++;
 					}
@@ -343,15 +343,15 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 						}
 						uintLastExaminedAddress = (uint64_t)BaseAddress + (i - bias - lengthInBytes);
 						displayLength = (ULONG)(min(length, displayBufferCount));
-						wstrDisplayBuffer[displayLength-1] = L'\0';
+						wstrDisplayBuffer[displayLength] = L'\0';
 						for (size_t i = 0; wstrDisplayBuffer[i] != L'\0'; i++)
 						{
 							if (wstrDisplayBuffer[i] == L'\r' || wstrDisplayBuffer[i] == '\n')
 								wstrDisplayBuffer[i] = L'\x1A';
 						}
-						wstrDisplayBuffer[displayLength - 1] = L'\r';
-						wstrDisplayBuffer[displayLength] = L'\n';
-						wstrDisplayBuffer[displayLength + 1] = L'\0';
+						wstrDisplayBuffer[displayLength] = L'\r';
+						wstrDisplayBuffer[displayLength + 1] = L'\n';
+						wstrDisplayBuffer[displayLength + 2] = L'\0';
 						wxstrStrings.append(wxString::Format(wxT("0x%p: "), (void*)uintLastExaminedAddress));
 						wxstrStrings.append(wstrDisplayBuffer.data());
 						length = 0;

@@ -26,7 +26,7 @@ About::About(MainWindow* Parent, wxWindowID WindowID, const wxString& Title, POI
 	pPanel->SetBackgroundColour(wxColor(255, 255, 255));
 	wxBoxSizer* pPanelSizer = new wxBoxSizer(wxVERTICAL);
 	wxStaticBoxSizer* pStaticBox1 = new wxStaticBoxSizer(wxVERTICAL, pPanel, wxT("FMIP"));
-	pStaticBox1->Add(new wxStaticText(pStaticBox1->GetStaticBox(), wxID_ANY, wxT("Version βeta\n3-42-V\n2016")));
+	pStaticBox1->Add(new wxStaticText(pStaticBox1->GetStaticBox(), wxID_ANY, wxT("Version 1.0.0.1\n3-42-V\n2016")));
 	wxStaticBoxSizer* pStaticBox2 = new wxStaticBoxSizer(wxVERTICAL, pPanel, wxT("Các thành phần mã nguồn mở sử dụng trong chương trình:"));
 	pStaticBox2->Add(new wxStaticText(pStaticBox2->GetStaticBox(), wxID_ANY, wxT("Memory strings (Process Hacker)\nCapstone")));
 	pPanelSizer->Add(pStaticBox1, 1, wxGROW);

@@ -10,7 +10,6 @@
 #include "FMIP.h"
 #include "ThreadingOutputVMContent.h"
 #include "FMIP-TextCtrl.h"
-#include <Richedit.h>
 #ifdef __WXMSW__
 #include <wx/msw/msvcrt.h>      // redefines the new() operator 
 #endif
@@ -26,6 +25,7 @@ VMContentDisplay::VMContentDisplay(MainWindow* Parent, FMIP_TreeCtrl* ptrTreeCtr
 	//TextAttr.SetFont(wxFontInfo().FaceName("Consolas"));
 	SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_MENU));
 	m_ptrTextCtrl->SetDefaultStyle(TextAttr);
+	m_ptrTextCtrl->Bind(wxEVT_LEFT_UP, &VMContentDisplay::OnLeftMouseUp, this);
 	pVBox->Add(m_ptrTextCtrl, 1, wxLEFT | wxRIGHT | wxTOP | wxEXPAND, 3);
 	m_ptrButtonOK = new wxButton(this, wxID_OK);
 	m_hWndButtonOK = m_ptrButtonOK->GetHWND();
@@ -33,31 +33,16 @@ VMContentDisplay::VMContentDisplay(MainWindow* Parent, FMIP_TreeCtrl* ptrTreeCtr
 	m_ptrStatusBar = new wxStatusBar(this);
 	pVBox->Add(m_ptrStatusBar, 0, wxGROW);
 	SetSizer(pVBox);
-	Bind(wxEVT_CLOSE_WINDOW, &VMContentDisplay::OnClose, this); // <----------
-	m_ptrButtonOK->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &VMContentDisplay::OnOKClick, this); // <----------
+	Bind(wxEVT_CLOSE_WINDOW, &VMContentDisplay::OnClose, this);
+	m_ptrButtonOK->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &VMContentDisplay::OnOKClick, this);
+	m_ptrButtonOK->Bind(wxEVT_LEFT_UP, &VMContentDisplay::OnLeftMouseUp, this);
 	//Layout(); when this needed?
 	this->Show(true);
-	#define nMaxWChar 8388608
-	wchar_t* wszFoo = new wchar_t[nMaxWChar];
-	for (size_t i = 0; i < nMaxWChar; i++)
-	{
-		wszFoo[i] = L'\A';
-	}
-	wszFoo[nMaxWChar - 2] = L'\B';
-	wszFoo[nMaxWChar - 1] = L'\0';
-	m_ptrTextCtrl->AppendText(wszFoo);
-	::FINDTEXTW strcFindTextW;
-	strcFindTextW.chrg.cpMin = 0;
-	strcFindTextW.chrg.cpMax = -1;
-	strcFindTextW.lpstrText = L"\B";
-	size_t nLimitText=::
-	size_t nCharPos = ::SendMessage(m_ptrTextCtrl->GetHWND(), EM_FINDTEXTW, FR_DOWN, (LPARAM)&strcFindTextW);
-	wxLogDebug(L"");
-	/*ThreadingOutputVMContent* pThreadingOutputVMContent = new ThreadingOutputVMContent(this);
+	ThreadingOutputVMContent* pThreadingOutputVMContent = new ThreadingOutputVMContent(this);
 	if (pThreadingOutputVMContent->Run() != wxTHREAD_NO_ERROR)
 	{
 		OutputDebugString(L"Could not create thread!");
-	}*/
+	}
 }
 
 VMContentDisplay::~VMContentDisplay()
@@ -120,6 +105,12 @@ void VMContentDisplay::OnOKClick(wxCommandEvent& WXUNUSED(evt))
 	this->Destroy();
 }
 
+void VMContentDisplay::OnLeftMouseUp(wxMouseEvent& MouseEvt)
+{
+	m_ptrButtonOK->SetDefault();
+	MouseEvt.Skip();
+}
+
 WXLRESULT VMContentDisplay::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam)
 {
 	switch (message)
@@ -129,12 +120,6 @@ WXLRESULT VMContentDisplay::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPA
 			m_ptrButtonOK->SetDefault(); // = ::SendMessage(m_ptrButtonOK->GetHWND(), BM_SETSTYLE, BS_DEFPUSHBUTTON | BS_TEXT, TRUE);
 		else
 			::SendMessage(m_hWndButtonOK, BM_SETSTYLE, BS_PUSHBUTTON | BS_TEXT, TRUE);
-		break;
-
-	case WM_COMMAND:
-		if (HIWORD(wParam) == EN_MAXTEXT)
-			if ((WXHWND)lParam == m_ptrTextCtrl->GetHWND())
-				wxLogDebug(wxT("EN_MAXTEXT"));
 		break;
 
 	default:

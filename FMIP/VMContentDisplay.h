@@ -25,12 +25,8 @@ private:
 	wxStatusBar* m_ptrStatusBar;
 	ThreadingOutputVMContent* m_ptrAttachedThread = nullptr;
 	FMIP_TextCtrl* m_ptrTextCtrl = nullptr;
-	//HWND m_hwndTextCtrl = nullptr;
 	wxButton* m_ptrButtonOK;
 	FMIP_TreeCtrl* m_ptrTreeCtrl;
-	/*DWORD m_ptrId;
-	HANDLE m_hProcessToRead;
-	cs_mode m_CSMode;*/
 	HWND m_hWndButtonOK;
 	OUTPUT_TYPE m_OutputType;
 public:
@@ -45,6 +41,7 @@ public:
 	void OnAttachedThreadStart(wxThreadEvent& evt);
 	void OnClose(wxCloseEvent& evt);
 	void OnOKClick(wxCommandEvent&);
+	void OnLeftMouseUp(wxMouseEvent& MouseEvt);
 	wxCriticalSection m_ptrAttachedThreadLocker;
 	WXLRESULT MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam);
 };

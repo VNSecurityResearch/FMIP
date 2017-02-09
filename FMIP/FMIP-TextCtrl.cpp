@@ -20,25 +20,17 @@ FMIP_TextCtrl::FMIP_TextCtrl(VMContentDisplay* ptrParent) :wxTextCtrl(ptrParent,
 	m_ScrollInfo.cbSize = sizeof(SCROLLINFO);
 	m_ScrollBarInfo.cbSize = sizeof(SCROLLBARINFO);
 	m_ScrollInfo.fMask = SIF_RANGE | SIF_TRACKPOS | SIF_PAGE | SIF_POS;
-	::ShowScrollBar(this->GetHWND(), SB_HORZ, FALSE);
 	::GetScrollBarInfo(m_hWndThis, OBJID_HSCROLL, &m_ScrollBarInfo);
 	m_blHScrollBarVisible = m_ScrollBarInfo.rgstate[0] == 0 ? TRUE : FALSE;
-	//m_dwInitialHScrollBarState = m_ScrollBarInfo.rgstate[0];
 }
 
 void FMIP_TextCtrl::AppendText(const wxString & Text)
 {
 	SetInsertionPointEnd();
-	if (IsRich())
-	{
-		// first, ensure that the new text will be in the default style
-		if (!m_defaultStyle.IsDefault())
-		{
-			long start, end;
-			GetSelection(&start, &end);
-			SetStyle(start, end, m_defaultStyle);
-		}
-	}
+	// first, ensure that the new text will be in the default style
+	long start, end;
+	GetSelection(&start, &end);
+	SetStyle(start, end, m_defaultStyle);
 	::SendMessage(GetHWND(), EM_REPLACESEL, 0, (LPARAM)Text.t_str());
 }
 
@@ -55,8 +47,6 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 	switch (nMsg)
 	{
 	case WM_SIZE:
-		/*if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
-			break;*/
 		::GetScrollBarInfo(m_hWndThis, OBJID_HSCROLL, &m_ScrollBarInfo);
 		if (m_ScrollBarInfo.rgstate[0] == 0)
 		{
@@ -71,8 +61,6 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 		* the state of the scroll bar changes to STATE_SYSTEM_UNAVAILABLE, the scroll bar automatically scrolls to the top.
 		* In that case, this is to restore the scroll bar to it's previous position.
 		*/
-		/*if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
-			break;*/
 		if (m_blHScrollBarVisible)
 		{
 			::GetScrollBarInfo(m_hWndThis, OBJID_HSCROLL, &m_ScrollBarInfo);
@@ -141,42 +129,38 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 		switch (LOWORD(wParam))
 		{
 		case SB_LINERIGHT:
-			/*if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
-				break;*/
-			{
-				/*
-				* In Windows 8 (or other version older than Windows 10), the scroll bar can scroll past the max position.
-				* In that case, this is to keep the scroll bar postion within the range.
-				*/
-				::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
-				DWORD dwScrBarMaxPosInWinOlderThan10 = m_ScrollInfo.nMax - (m_ScrollInfo.nPage - 1);
-				DWORD dwScrBarMaxPosInWin10 = m_ScrollInfo.nMax - (m_ScrollInfo.nPage);
-				if (m_ScrollInfo.nPos == dwScrBarMaxPosInWinOlderThan10 || m_ScrollInfo.nPos == dwScrBarMaxPosInWin10) // CHECK this in Windows 8
-					return 0;
-				//wxLogDebug(wxString::Format(wxT("npos: %d"), m_ScrollInfo.nPos));
-				break;
-			}
+		{
+			/*
+			* In Windows 8 (or other version older than Windows 10), the scroll bar can scroll past the max scrolling position.
+			* In that case, this is to keep the scroll bar postion within the correct scrolling range.
+			*/
+			::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
+			DWORD dwMaxScrlPosInWinOlderThan10 = m_ScrollInfo.nMax - (m_ScrollInfo.nPage - 1);
+			DWORD dwMaxScrlPosInWin10 = m_ScrollInfo.nMax - (m_ScrollInfo.nPage);
+			if (m_ScrollInfo.nPos == dwMaxScrlPosInWinOlderThan10 || m_ScrollInfo.nPos == dwMaxScrlPosInWin10)
+				return 0;
+			//wxLogDebug(wxString::Format(wxT("npos: %d"), m_ScrollInfo.nPos));
+			break;
+		}
 
 		case SB_PAGERIGHT:
-			/*if (m_dwInitialHScrollBarState == STATE_SYSTEM_UNAVAILABLE)
-				break;*/
-			{
-				/*
-				* In Windows 8 (or other version older than Windows 10), the scroll bar can scroll past the max position.
-				* In that case, this is to keep the scroll bar postion within the range.
-				*/
-				::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
-				DWORD dwScrBarMaxPosInSafeCase = m_ScrollInfo.nMax - (m_ScrollInfo.nPage);
-				if (m_ScrollInfo.nPos + m_ScrollInfo.nPage <= dwScrBarMaxPosInSafeCase)
-					break;
-				else
-					while (m_ScrollInfo.nPos < dwScrBarMaxPosInSafeCase)
-					{
-						::SendMessage(m_hWndThis, WM_HSCROLL, SB_LINERIGHT, NULL);
-						::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
-					}
-				return 0;
-			}
+		{
+			/*
+			* In Windows 8 (or other version older than Windows 10), the scroll bar can scroll past the max scrolling position.
+			* In that case, this is to keep the scroll bar postion within the correct scrolling range.
+			*/
+			::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
+			DWORD dwScrBarMaxPosInSafeCase = m_ScrollInfo.nMax - (m_ScrollInfo.nPage);
+			if (m_ScrollInfo.nPos + m_ScrollInfo.nPage <= dwScrBarMaxPosInSafeCase)
+				break;
+			else
+				while (m_ScrollInfo.nPos < dwScrBarMaxPosInSafeCase)
+				{
+					::SendMessage(m_hWndThis, WM_HSCROLL, SB_LINERIGHT, NULL);
+					::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
+				}
+			return 0;
+		}
 
 		default:
 			break;

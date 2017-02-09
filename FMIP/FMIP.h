@@ -34,8 +34,8 @@ struct TREE_ITEM_PARENT_INFO_TO_CHANGE
 
 struct PROCESS_NAME_PID
 {
-	std::wstring strProcessName;
-	//WCHAR szProcessName[256];
+	//std::wstring strProcessName;
+	WCHAR szProcessName[256];
 	DWORD dwPId;
 };
 

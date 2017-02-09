@@ -14,7 +14,6 @@ private:
 	HWND m_hWndThis = nullptr;
 	SCROLLINFO m_ScrollInfo;
 	SCROLLBARINFO m_ScrollBarInfo;
-	//DWORD m_dwInitialHScrollBarState;
 	BOOL m_blHScrollBarVisible;
 	int m_intLastCheckFirstVisibleLine = 0;
 public:
