@@ -35,7 +35,7 @@ struct TREE_ITEM_PARENT_INFO_TO_CHANGE
 struct PROCESS_NAME_PID
 {
 	//std::wstring strProcessName;
-	WCHAR szProcessName[256];
+	WCHAR wszProcessName[256];
 	DWORD dwPId;
 };
 
@@ -93,8 +93,8 @@ struct TREE_ITEM_PROPERTIES
 {
 	PROCESS_NAME_PID PROCESSNAMEPID;
 	TREE_ITEM_TYPE TREEITEMTYPE;
-	DWORD dwAllocationBase;
-	DWORD dwBaseAddress;
+	VOID* POINTER_32 ptr32AllocationBase;
+	VOID* POINTER_32 ptr32BaseAddress;
 	LONG lnRegionSize;
 	BOOL blPEInjection = FALSE;
 };

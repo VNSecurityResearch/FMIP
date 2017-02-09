@@ -94,24 +94,24 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 					tiRoot = this->AddRoot("Root");
 				}
 				wxTreeItemData* ptrTreeItemProcessNamePId = new Tree_Item_ptrrocess_Name_PId(ptrTreeItemProperties->PROCESSNAMEPID.dwPId);
-				tiLastProcessNameId = this->AppendItem(tiRoot, wxString(ptrTreeItemProperties->PROCESSNAMEPID.szProcessName), -1, -1, ptrTreeItemProcessNamePId);
-				if (ptrTreeItemProperties->blPEInjection) this->SetItemTextColour(tiLastProcessNameId, wxColor(255, 0, 0));
+				tiLastProcessNameId = this->AppendItem(tiRoot, wxString(ptrTreeItemProperties->PROCESSNAMEPID.wszProcessName), -1, -1, ptrTreeItemProcessNamePId);
+				//if (ptrTreeItemProperties->blPEInjection) this->SetItemTextColour(tiLastProcessNameId, wxColor(255, 0, 0));
 				break;
 			}
 
 			case TREE_ITEM_TYPE::TREE_ITEM_TYPE_ALLOCATION_BASE:
 			{
-				wxTreeItemData* ptrTreeItemParentRegion = new Tree_Item_Allocation_Base((PVOID)ptrTreeItemProperties->dwAllocationBase);
-				tiLastAllocationBase = this->AppendItem(tiLastProcessNameId, wxString::Format(wxT("0x%p"), (void*)ptrTreeItemProperties->dwAllocationBase), -1, -1, ptrTreeItemParentRegion);
-				if (ptrTreeItemProperties->blPEInjection) this->SetItemTextColour(tiLastAllocationBase, wxColor(255, 0, 0));
+				wxTreeItemData* ptrTreeItemParentRegion = new Tree_Item_Allocation_Base((PVOID)ptrTreeItemProperties->ptr32AllocationBase);
+				tiLastAllocationBase = this->AppendItem(tiLastProcessNameId, wxString::Format(wxT("0x%p"), (void*)ptrTreeItemProperties->ptr32AllocationBase), -1, -1, ptrTreeItemParentRegion);
+				//if (ptrTreeItemProperties->blPEInjection) this->SetItemTextColour(tiLastAllocationBase, wxColor(255, 0, 0));
 				break;
 			}
 
 			case TREE_ITEM_TYPE::TREE_ITEM_TYPE_REGION:
 			{
-				wxTreeItemData* ptrTreeItemRegion = new Tree_Item_Region((PVOID)ptrTreeItemProperties->dwBaseAddress, (SIZE_T)ptrTreeItemProperties->lnRegionSize);
-				tiTreeLastRegion = this->AppendItem(tiLastAllocationBase, wxString::Format(wxT("0x%p"), (void*)ptrTreeItemProperties->dwBaseAddress), -1, -1, ptrTreeItemRegion);
-				if (ptrTreeItemProperties->blPEInjection) this->SetItemTextColour(tiTreeLastRegion, wxColor(255, 0, 0));
+				wxTreeItemData* ptrTreeItemRegion = new Tree_Item_Region((PVOID)ptrTreeItemProperties->ptr32BaseAddress, (SIZE_T)ptrTreeItemProperties->lnRegionSize);
+				tiTreeLastRegion = this->AppendItem(tiLastAllocationBase, wxString::Format(wxT("0x%p"), (void*)ptrTreeItemProperties->ptr32BaseAddress), -1, -1, ptrTreeItemRegion);
+				//if (ptrTreeItemProperties->blPEInjection) this->SetItemTextColour(tiTreeLastRegion, wxColor(255, 0, 0));
 				break;
 			}
 

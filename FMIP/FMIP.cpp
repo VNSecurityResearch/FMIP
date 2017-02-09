@@ -38,8 +38,7 @@ bool FMIP::OnInit()
 	HWND hWnd = ::FindWindow(nullptr, AppTitle);
 	if (hWnd != NULL)
 	{
-		::SetActiveWindow(hWnd);
-		::ShowWindow(hWnd, SW_NORMAL);
+		::SetForegroundWindow(hWnd);
 		return false;
 	}
 #endif // _NDEBUG
@@ -181,28 +180,26 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 		NodeProperties.blPEInjection = FALSE;
 		VirtualQueryEx(hProcess, ptrRegionBase, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
 		ptrRegionBase = mbi.AllocationBase;
-		if (hwndDestWindow != nullptr) // if there is a remote (X86) version then send relevant data to the remote version...
+		if (hwndDestWindow != nullptr) // this is X86 version sending relevant data to the remote X64 version
 		{
 			wxString wxszItemText;
-			std::wstring strItemText;
 			NodeProperties.TREEITEMTYPE = TREE_ITEM_TYPE_PROCESS_NAME_PID;
 			NodeProperties.PROCESSNAMEPID.dwPId = ProcessNamePId.dwPId;
-			std::wstring strTemp;
 			//NodeProperties.PROCESSNAMEPID.strProcessName.append(StringCchPrintfW(L" (PId: %d X86)", ProcessNamePId.dwPId));
-			//wxszItemText = ProcessNamePId.strProcessName;
+			wxszItemText = ProcessNamePId.wszProcessName;
 			wxszItemText.append(wxString::Format(wxT(" (PId: %d X86)"), ProcessNamePId.dwPId));
 			//NodeProperties.PROCESSNAMEPID.strProcessName = wxszItemText.wc_str();
 			DWORD dwLength = wxszItemText.length();
 			for (DWORD i = 0; i <= dwLength; i++) // include NULL character
 			{
-				NodeProperties.PROCESSNAMEPID.szProcessName[i] = wxszItemText.wc_str()[i];
+				NodeProperties.PROCESSNAMEPID.wszProcessName[i] = wxszItemText.wc_str()[i];
 			}
 			SendTreeItem(hwndDestWindow, &NodeProperties, sizeof(TREE_ITEM_PROPERTIES));
 		}
 		else // ...else display the name of the process
 		{
 			wxTreeItemData* ptrTreeItemProcessNamePId = new Tree_Item_ptrrocess_Name_PId(ProcessNamePId.dwPId);
-			tiLastProcessNameId = ptrTreeCtrl->AppendItem(tiRoot, wxString::Format(wxT("%s (PId: %d)"), ProcessNamePId.szProcessName, ProcessNamePId.dwPId), -1, -1, ptrTreeItemProcessNamePId);
+			tiLastProcessNameId = ptrTreeCtrl->AppendItem(tiRoot, wxString::Format(wxT("%s (PId: %d)"), ProcessNamePId.wszProcessName, ProcessNamePId.dwPId), -1, -1, ptrTreeItemProcessNamePId);
 		}
 		do // make tree items of a allocation base and their child regions
 		{
@@ -211,7 +208,8 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 			if (hwndDestWindow != nullptr)
 			{
 				NodeProperties.TREEITEMTYPE = TREE_ITEM_TYPE_ALLOCATION_BASE;
-				NodeProperties.dwAllocationBase = (DWORD)ptrAllocationBase;
+				LPCVOID lpcAllocBaseToPtr32 = ptrAllocationBase;
+				NodeProperties.ptr32AllocationBase = PtrToPtr32(ptrAllocationBase);
 				SendTreeItem(hwndDestWindow, &NodeProperties, sizeof(TREE_ITEM_PROPERTIES));
 			}
 			else
@@ -269,7 +267,8 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 					if (hwndDestWindow != nullptr)
 					{
 						NodeProperties.TREEITEMTYPE = TREE_ITEM_TYPE_REGION;
-						NodeProperties.dwBaseAddress = (DWORD)mbi.BaseAddress;
+						PVOID ptrBaseAddressToPtr32 = mbi.BaseAddress;
+						NodeProperties.ptr32BaseAddress = PtrToPtr32(ptrBaseAddressToPtr32);
 						NodeProperties.lnRegionSize = mbi.RegionSize;
 						SendTreeItem(hwndDestWindow, &NodeProperties, sizeof(TREE_ITEM_PROPERTIES));
 					}
@@ -348,7 +347,7 @@ BOOL FMIP::FillTreeCtrl(FMIP_TreeCtrl* ptrTreeCtrl)
 		DWORD dwLength = strProcessName.length();
 		for (DWORD i = 0; i <= dwLength; i++) // include NULL character
 		{
-			PROCESSNAMEPID.szProcessName[i] = strProcessName.wc_str()[i];
+			PROCESSNAMEPID.wszProcessName[i] = strProcessName.wc_str()[i];
 		}
 #ifdef _WIN64 // our app is X64 and...
 		if (FMIP::IsProcessWoW64(hProcess) == TRUE) // this is a X86 process running under WoW64, so...

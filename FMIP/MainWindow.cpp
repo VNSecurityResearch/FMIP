@@ -83,7 +83,7 @@ MainWindow::MainWindow(const wxString& Title) : wxFrame(nullptr, wxID_ANY, Title
 			nullptr);
 		return;
 #endif // _NDEBUG
-}
+	}
 #endif // _WIN64
 	wxMenu* ptrMenuRefresh = new wxMenu;
 	wxMenu* ptrMenuAbout = new wxMenu;
