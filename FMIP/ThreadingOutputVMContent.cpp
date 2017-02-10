@@ -68,18 +68,18 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 	ptrGenericTreeItem = static_cast<Generic_Tree_Item*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiSelected));
 	TreeItemType = ptrGenericTreeItem->GetType();
 	wxString wxstrTitle;
-	void* ptrRegionStart = nullptr;
-	void* ptrRegionEnd = nullptr;
+	LPCVOID pcvoidRegionStart = nullptr;
+	LPCVOID pcvoidRegionEnd = nullptr;
 	switch (TreeItemType)
 	{
 	case TREE_ITEM_TYPE_ALLOCATION_BASE:
-		ptrRegionStart = static_cast<Tree_Item_Allocation_Base*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiSelected))->GetAllocationBase();
-		wxstrTitle.Append(wxstrTitle.Format(L"0x%p [+]", ptrRegionStart));
+		pcvoidRegionStart = static_cast<Tree_Item_Allocation_Base*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiSelected))->GetAllocationBase();
+		wxstrTitle.Append(wxstrTitle.Format(L"0x%p [+]", pcvoidRegionStart));
 		tiIdIterator = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetFirstChild(tiSelected, tiIdValue);
 		break;
 	case TREE_ITEM_TYPE_REGION:
-		ptrRegionStart = static_cast<Tree_Item_Region*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiSelected))->GetBaseAdress();
-		wxstrTitle.Printf(L"0x%p", ptrRegionStart);
+		pcvoidRegionStart = static_cast<Tree_Item_Region*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiSelected))->GetBaseAdress();
+		wxstrTitle.Printf(L"0x%p", pcvoidRegionStart);
 		tiIdIterator = tiSelected;
 		break;
 	}
@@ -102,7 +102,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 			break;
 		//if (this->TestDestroy()) return (wxThread::ExitCode)0; // necessary?
 		SIZE_T nRegionSize = static_cast<Tree_Item_Region*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiIdIterator))->GetRegionSize();
-		ptrRegionEnd = (PBYTE)(static_cast<Tree_Item_Region*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiIdIterator))->GetBaseAdress()) + nRegionSize - 1;
+		pcvoidRegionEnd = (PBYTE)(static_cast<Tree_Item_Region*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiIdIterator))->GetBaseAdress()) + nRegionSize - 1;
 		SIZE_T nBufferSize = 1024 * 512; // 512KB
 		SIZE_T nReadSize = nRegionSize;
 		if (nRegionSize > nBufferSize)
@@ -374,9 +374,9 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 	} while ((tiIdIterator = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetNextSibling(tiIdIterator)) != nullptr);
 	if (uintLastExaminedAddress == 0)
 		m_ptrVMContentDisplay->SetTitle(wxString::Format(wxT("Không có %s từ 0x%p đến 0x%p"), m_ptrVMContentDisplay->m_OutputType == OUTPUT_TYPE_ASM ? wxT("mã hợp ngữ") : wxT("các dãy ký tự"),
-			ptrRegionStart, ptrRegionEnd));
+			pcvoidRegionStart, pcvoidRegionEnd));
 	else
-		m_ptrVMContentDisplay->SetTitle(wxstrTitle.Append(wxString::Format(wxT(" đến 0x%p"), ptrRegionEnd)));
+		m_ptrVMContentDisplay->SetTitle(wxstrTitle.Append(wxString::Format(wxT(" đến 0x%p"), pcvoidRegionEnd)));
 	m_ptrVMContentDisplay->m_ptrStatusBar->SetStatusText(wxstrProcessNamePId);
 	CloseHandle(m_hProcessToRead);
 	return (wxThread::ExitCode)0;

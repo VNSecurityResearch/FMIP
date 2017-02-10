@@ -22,19 +22,21 @@ About::About(MainWindow* Parent, wxWindowID WindowID, const wxString& Title, POI
 	InnerTopVSizer = new wxBoxSizer(wxVERTICAL);
 	wxBoxSizer* InnerBottomVSizer;
 	InnerBottomVSizer = new wxBoxSizer(wxVERTICAL);
-	wxPanel* pPanel = new wxPanel(this);
-	pPanel->SetBackgroundColour(wxColor(255, 255, 255));
-	wxBoxSizer* pPanelSizer = new wxBoxSizer(wxVERTICAL);
-	wxStaticBoxSizer* pStaticBox1 = new wxStaticBoxSizer(wxVERTICAL, pPanel, wxT("FMIP"));
-	pStaticBox1->Add(new wxStaticText(pStaticBox1->GetStaticBox(), wxID_ANY, wxT("Version 1.0.0.1\n3-42-V\n2016")));
-	wxStaticBoxSizer* pStaticBox2 = new wxStaticBoxSizer(wxVERTICAL, pPanel, wxT("Các thành phần mã nguồn mở sử dụng trong chương trình:"));
+	wxPanel* ptrPanel = new wxPanel(this);
+	ptrPanel->Bind(wxEVT_LEFT_UP, &About::OnLeftMouseUp, this);
+	ptrPanel->SetBackgroundColour(wxColor(255, 255, 255));
+	wxBoxSizer* ptrPanelSizer = new wxBoxSizer(wxVERTICAL);
+	wxStaticBoxSizer* ptrStaticBox1 = new wxStaticBoxSizer(wxVERTICAL, ptrPanel, wxT("FMIP"));
+	ptrStaticBox1->Add(new wxStaticText(ptrStaticBox1->GetStaticBox(), wxID_ANY, wxT("Version 1.0.0.1\n3-42-V\n2016")));
+	wxStaticBoxSizer* pStaticBox2 = new wxStaticBoxSizer(wxVERTICAL, ptrPanel, wxT("Các thành phần mã nguồn mở sử dụng trong chương trình:"));
 	pStaticBox2->Add(new wxStaticText(pStaticBox2->GetStaticBox(), wxID_ANY, wxT("Memory strings (Process Hacker)\nCapstone")));
-	pPanelSizer->Add(pStaticBox1, 1, wxGROW);
-	pPanelSizer->Add(pStaticBox2, 1, wxEXPAND);
-	pPanel->SetSizer(pPanelSizer);
-	InnerTopVSizer->Add(pPanel, 1, wxALL | wxEXPAND);
+	ptrPanelSizer->Add(ptrStaticBox1, 1, wxGROW);
+	ptrPanelSizer->Add(pStaticBox2, 1, wxEXPAND);
+	ptrPanel->SetSizer(ptrPanelSizer);
+	InnerTopVSizer->Add(ptrPanel, 1, wxALL | wxEXPAND);
 	OutmostVSizer->Add(InnerTopVSizer, 1, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 3);
-	m_ptrButtonOK = new wxButton(this, wxID_OK);
+	m_ptrButtonOK = new wxButton(this, wxID_OK);	
+	m_ptrButtonOK->Bind(wxEVT_LEFT_UP, &About::OnLeftMouseUp, this);
 	InnerBottomVSizer->Add(m_ptrButtonOK);
 	m_ptrButtonOK->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &About::OnButtonClick, this);
 	OutmostVSizer->Add(InnerBottomVSizer, 0, wxALL | wxALIGN_RIGHT, 10);
@@ -52,6 +54,12 @@ void About::OnClose(wxCloseEvent& evt)
 void About::OnButtonClick(wxCommandEvent& evt)
 {
 	this->Destroy();
+}
+
+void About::OnLeftMouseUp(wxMouseEvent & evtMouse)
+{
+	m_ptrButtonOK->SetDefault();
+	evtMouse.Skip();
 }
 
 WXLRESULT About::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam)

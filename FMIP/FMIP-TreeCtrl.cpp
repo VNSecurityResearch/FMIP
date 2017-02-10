@@ -101,16 +101,22 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 
 			case TREE_ITEM_TYPE::TREE_ITEM_TYPE_ALLOCATION_BASE:
 			{
-				wxTreeItemData* ptrTreeItemParentRegion = new Tree_Item_Allocation_Base((PVOID)ptrTreeItemProperties->ptr32AllocationBase);
-				tiLastAllocationBase = this->AppendItem(tiLastProcessNameId, wxString::Format(wxT("0x%p"), (void*)ptrTreeItemProperties->ptr32AllocationBase), -1, -1, ptrTreeItemParentRegion);
+				wxTreeItemData* ptrTreeItemParentRegion = new Tree_Item_Allocation_Base((PVOID)ptrTreeItemProperties->pcvoidAllocationBase);
+				tiLastAllocationBase = this->AppendItem(tiLastProcessNameId, wxString::Format(wxT("0x%p"),
+					(PVOID)(PtrToUlong(ptrTreeItemProperties->pcvoidAllocationBase))), // truncates X64 PVOID to  X86 PVOID
+					-1, -1, ptrTreeItemParentRegion);
 				//if (ptrTreeItemProperties->blPEInjection) this->SetItemTextColour(tiLastAllocationBase, wxColor(255, 0, 0));
 				break;
 			}
 
 			case TREE_ITEM_TYPE::TREE_ITEM_TYPE_REGION:
 			{
-				wxTreeItemData* ptrTreeItemRegion = new Tree_Item_Region((PVOID)ptrTreeItemProperties->ptr32BaseAddress, (SIZE_T)ptrTreeItemProperties->lnRegionSize);
-				tiTreeLastRegion = this->AppendItem(tiLastAllocationBase, wxString::Format(wxT("0x%p"), (void*)ptrTreeItemProperties->ptr32BaseAddress), -1, -1, ptrTreeItemRegion);
+				wxTreeItemData* ptrTreeItemRegion = new Tree_Item_Region((PVOID)ptrTreeItemProperties->pcvoidBaseAddress, (SIZE_T)ptrTreeItemProperties->siztRegionSize);
+				LPCVOID lpcBaseAddress = ptrTreeItemProperties->pcvoidBaseAddress;
+				ptrTreeItemProperties->pcvoidBaseAddress = PtrToPtr32(lpcBaseAddress);
+				tiTreeLastRegion = this->AppendItem(tiLastAllocationBase, wxString::Format(wxT("0x%p"),
+					(PVOID)(PtrToUlong(ptrTreeItemProperties->pcvoidBaseAddress))), // truncates X64 PVOID to  X86 PVOID
+					-1, -1, ptrTreeItemRegion);
 				//if (ptrTreeItemProperties->blPEInjection) this->SetItemTextColour(tiTreeLastRegion, wxColor(255, 0, 0));
 				break;
 			}

@@ -14,5 +14,6 @@ public:
 	About(MainWindow*, wxWindowID, const wxString& , POINT);
 	void OnClose(wxCloseEvent&);
 	void OnButtonClick(wxCommandEvent&);
+	void OnLeftMouseUp(wxMouseEvent& evtMouse);
 	WXLRESULT MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam);
 };

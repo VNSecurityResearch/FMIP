@@ -12,7 +12,6 @@
 #include <TlHelp32.h>
 #include <Capstone\headers\capstone.h>
 #include <strsafe.h>
-#include <memory>
 
 #ifdef NDEBUG
 #ifdef _WIN64
@@ -164,12 +163,12 @@ BOOL RequestX86Handling(HWND hwndDestWindow, HWND hwndSourceWindow, PROCESS_NAME
 
 void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const wxTreeItemId& tiRoot, HANDLE hProcess, const PROCESS_NAME_PID& ProcessNamePId)
 {
-	LPCVOID ptrRegionBase = (LPCVOID)0x10000; // start scanning from user-mode VM partition 
-	LPCVOID ptrAllocationBase = nullptr;
+	LPCVOID pcvoidRegionBase = (LPCVOID)0x10000; // start scanning from user-mode VM partition 
+	LPCVOID pcvoidAllocationBase = nullptr;
 	MEMORY_BASIC_INFORMATION mbi;
 	TREE_ITEM_PROPERTIES NodeProperties;
-	ptrRegionBase = FMIP::FindPrivateERWRegion(hProcess, ptrRegionBase);
-	if (ptrRegionBase != nullptr) // found the first private ERW Region
+	pcvoidRegionBase = FMIP::FindPrivateERWRegion(hProcess, pcvoidRegionBase);
+	if (pcvoidRegionBase != nullptr) // found the first private ERW Region
 	{
 		// variable names: prefix ti stands for Tree Item
 		wxTreeItemId tiLastProcessNameId = 0;
@@ -178,8 +177,8 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 		TREE_ITEM_PARENT_INFO_TO_CHANGE tiParentInfoToChange;
 		BOOL blIsPEInjectedInProcess = FALSE;
 		NodeProperties.blPEInjection = FALSE;
-		VirtualQueryEx(hProcess, ptrRegionBase, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
-		ptrRegionBase = mbi.AllocationBase;
+		VirtualQueryEx(hProcess, pcvoidRegionBase, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
+		pcvoidRegionBase = mbi.AllocationBase;
 		if (hwndDestWindow != nullptr) // this is X86 version sending relevant data to the remote X64 version
 		{
 			wxString wxszItemText;
@@ -203,13 +202,12 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 		}
 		do // make tree items of a allocation base and their child regions
 		{
-			VirtualQueryEx(hProcess, ptrRegionBase, &mbi, sizeof(MEMORY_BASIC_INFORMATION)); // query data for displaying a allocation base tree item
-			ptrAllocationBase = mbi.AllocationBase;
+			VirtualQueryEx(hProcess, pcvoidRegionBase, &mbi, sizeof(MEMORY_BASIC_INFORMATION)); // query data for displaying a allocation base tree item
+			pcvoidAllocationBase = mbi.AllocationBase;
 			if (hwndDestWindow != nullptr)
 			{
 				NodeProperties.TREEITEMTYPE = TREE_ITEM_TYPE_ALLOCATION_BASE;
-				LPCVOID lpcAllocBaseToPtr32 = ptrAllocationBase;
-				NodeProperties.ptr32AllocationBase = PtrToPtr32(ptrAllocationBase);
+				NodeProperties.pcvoidAllocationBase = pcvoidAllocationBase;
 				SendTreeItem(hwndDestWindow, &NodeProperties, sizeof(TREE_ITEM_PROPERTIES));
 			}
 			else
@@ -217,34 +215,33 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 				Tree_Item_Allocation_Base* ptrTreeItemAllocationBase = new Tree_Item_Allocation_Base(mbi.AllocationBase);
 				if (NodeProperties.blPEInjection)
 					ptrTreeItemAllocationBase->SetColor(255, 0, 0);
-				tiLastAllocationBase = ptrTreeCtrl->AppendItem(tiLastProcessNameId, wxString::Format(wxT("0x%p"), ptrAllocationBase), -1, -1, static_cast<wxTreeItemData*>(ptrTreeItemAllocationBase));
+				tiLastAllocationBase = ptrTreeCtrl->AppendItem(tiLastProcessNameId, wxString::Format(wxT("0x%p"), pcvoidAllocationBase), -1, -1, static_cast<wxTreeItemData*>(ptrTreeItemAllocationBase));
 				ptrTreeCtrl->SetItemFont(tiLastAllocationBase, wxFont(10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Consolas")));
 				//if (NodeProperties.blPEInjection) ptrTreeCtrl->SetItemTextColour(tiLastAllocationBase, wxColor(255, 0, 0));
 			}
-			while ((mbi.AllocationBase == ptrAllocationBase) /*|| (mbi.AllocationBase == (LPVOID)NodeProperties.AllocationBase)*/) // to find all regions belonging to the same allocation base (allocation base)
+			while ((mbi.AllocationBase == pcvoidAllocationBase) /*|| (mbi.AllocationBase == (LPVOID)NodeProperties.AllocationBase)*/) // to find all regions belonging to the same allocation base (allocation base)
 			{
 				if (mbi.State == MEM_COMMIT)
 				{
 					// Check if this process has a sign of PE injection
 					SIZE_T nNumOfBytesRead;
-					std::unique_ptr<char>smptrCharBuffer(new char[mbi.RegionSize]);
-					char* ptrCharBuffer = smptrCharBuffer.get();
-					ReadProcessMemory(hProcess, (PBYTE)ptrRegionBase, ptrCharBuffer, mbi.RegionSize, &nNumOfBytesRead);
+					std::string CharBuffer(mbi.RegionSize, L'\0');
+					ReadProcessMemory(hProcess, pcvoidRegionBase, (PVOID)CharBuffer.data(), mbi.RegionSize, &nNumOfBytesRead);
 					int i;
 					for (i = 0; i < mbi.RegionSize; i++)
 					{
-						if (ptrCharBuffer[i] == 'M')
+						if (CharBuffer[i] == 'M')
 						{
 							if (i + 1 >= mbi.RegionSize)
 								break;
-							if (ptrCharBuffer[i + 1] == 'Z')
+							if (CharBuffer[i + 1] == 'Z')
 							{
 								if (i + 0x3c >= mbi.RegionSize)
 									break;
-								DWORD dwPEOffset = *(PDWORD)((PBYTE)ptrCharBuffer + i + 0x3c);
+								DWORD dwPEOffset = *(PDWORD)&CharBuffer[i + 0x3c];
 								if (i + dwPEOffset + 1 >= mbi.RegionSize)
 									break;
-								if (ptrCharBuffer[i + dwPEOffset] == 'P' && ptrCharBuffer[i + dwPEOffset + 1] == 'E')
+								if (CharBuffer[i + dwPEOffset] == 'P' && CharBuffer[i + dwPEOffset + 1] == 'E')
 								{
 									NodeProperties.blPEInjection = TRUE;
 									blIsPEInjectedInProcess = TRUE;
@@ -267,9 +264,8 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 					if (hwndDestWindow != nullptr)
 					{
 						NodeProperties.TREEITEMTYPE = TREE_ITEM_TYPE_REGION;
-						PVOID ptrBaseAddressToPtr32 = mbi.BaseAddress;
-						NodeProperties.ptr32BaseAddress = PtrToPtr32(ptrBaseAddressToPtr32);
-						NodeProperties.lnRegionSize = mbi.RegionSize;
+						NodeProperties.pcvoidBaseAddress = mbi.BaseAddress;
+						NodeProperties.siztRegionSize = mbi.RegionSize;
 						SendTreeItem(hwndDestWindow, &NodeProperties, sizeof(TREE_ITEM_PROPERTIES));
 					}
 					else
@@ -277,17 +273,17 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 						Tree_Item_Region* ptrTreeItemRegion = new Tree_Item_Region(mbi.BaseAddress, mbi.RegionSize);
 						if (NodeProperties.blPEInjection)
 							ptrTreeItemRegion->SetColor(255, 0, 0);
-						tiLastRegion = ptrTreeCtrl->AppendItem(tiLastAllocationBase, wxString::Format(wxT("0x%p"), ptrRegionBase), -1, -1, static_cast<wxTreeItemData*>(ptrTreeItemRegion));
+						tiLastRegion = ptrTreeCtrl->AppendItem(tiLastAllocationBase, wxString::Format(wxT("0x%p"), pcvoidRegionBase), -1, -1, static_cast<wxTreeItemData*>(ptrTreeItemRegion));
 						ptrTreeCtrl->SetItemFont(tiLastRegion, wxFont(10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Consolas")));
 						//if (NodeProperties.blPEInjection) ptrTreeCtrl->SetItemTextColour(tiTreeLastRegion, wxColor(255, 0, 0));
 					}
 				}
-				ptrRegionBase = (PBYTE)(mbi.BaseAddress) + mbi.RegionSize;
-				VirtualQueryEx(hProcess, ptrRegionBase, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
+				pcvoidRegionBase = (PBYTE)(mbi.BaseAddress) + mbi.RegionSize;
+				VirtualQueryEx(hProcess, pcvoidRegionBase, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
 			}
 			NodeProperties.blPEInjection = FALSE;
-			ptrRegionBase = FMIP::FindPrivateERWRegion(hProcess, ptrRegionBase);
-		} while (ptrRegionBase != nullptr); // keep searching until reach the end of valid VM address
+			pcvoidRegionBase = FMIP::FindPrivateERWRegion(hProcess, pcvoidRegionBase);
+		} while (pcvoidRegionBase != nullptr); // keep searching until reach the end of valid VM address
 		if (blIsPEInjectedInProcess == TRUE)
 		{
 			if (hwndDestWindow != nullptr) // if there is a remote (X86) version then send relevant data to the remote version...
@@ -350,9 +346,9 @@ BOOL FMIP::FillTreeCtrl(FMIP_TreeCtrl* ptrTreeCtrl)
 			PROCESSNAMEPID.wszProcessName[i] = strProcessName.wc_str()[i];
 		}
 #ifdef _WIN64 // our app is X64 and...
-		if (FMIP::IsProcessWoW64(hProcess) == TRUE) // this is a X86 process running under WoW64, so...
+		if (FMIP::IsProcessWoW64(hProcess) == TRUE) // the process being examined (with hProcess) is a X86 one running under WoW64, so...
 		{
-			RequestAction(hwndX86RequestHandler, hwndX64MakeTreeItemsHandler, ACTION_REQUEST_FOR_X86HANDLING, &PROCESSNAMEPID, sizeof(PROCESS_NAME_PID));
+			RequestX86Handling(hwndX86RequestHandler, hwndX64MakeTreeItemsHandler, &PROCESSNAMEPID, sizeof(PROCESS_NAME_PID));
 		}
 		else
 		{
@@ -415,29 +411,29 @@ DWORD Tree_Item_ptrrocess_Name_PId::GetPId()
 Tree_Item_Allocation_Base::Tree_Item_Allocation_Base(PVOID AllocationBase)
 {
 	SetType(TREE_ITEM_TYPE_ALLOCATION_BASE);
-	this->m_ptrAllocationBase = AllocationBase;
+	this->m_pvoidAllocationBase = AllocationBase;
 }
 
-PVOID Tree_Item_Allocation_Base::GetAllocationBase()
+LPCVOID Tree_Item_Allocation_Base::GetAllocationBase()
 {
-	return PVOID(m_ptrAllocationBase);
+	return m_pvoidAllocationBase;
 }
 
 Tree_Item_Region::Tree_Item_Region(PVOID BaseAddress, SIZE_T RegionSize)
 {
 	SetType(TREE_ITEM_TYPE_REGION);
-	this->m_ptrBaseAddress = BaseAddress;
-	this->m_RegionSize = RegionSize;
+	this->m_pcvoidBaseAddress = BaseAddress;
+	this->m_siztRegionSize = RegionSize;
 }
 
 PVOID Tree_Item_Region::GetBaseAdress()
 {
-	return PVOID(m_ptrBaseAddress);
+	return PVOID(m_pcvoidBaseAddress);
 }
 
 SIZE_T Tree_Item_Region::GetRegionSize()
 {
-	return SIZE_T(m_RegionSize);
+	return SIZE_T(m_siztRegionSize);
 }
 
 FMIP::~FMIP()

@@ -68,18 +68,18 @@ public:
 class Tree_Item_Allocation_Base :public Generic_Tree_Item
 {
 private:
-	PVOID m_ptrAllocationBase;
+	LPCVOID m_pvoidAllocationBase;
 public:
 	Tree_Item_Allocation_Base(PVOID AllocationBase);
-	PVOID GetAllocationBase();
+	LPCVOID GetAllocationBase();
 };
 
 class Tree_Item_Region :public Generic_Tree_Item
 {
 private:
 	/*PVOID AllocationBase;*/
-	PVOID m_ptrBaseAddress;
-	SIZE_T m_RegionSize;
+	LPCVOID m_pcvoidBaseAddress;
+	SIZE_T m_siztRegionSize;
 	/*DWORD AllocationProtect;
 	DWORD State;
 	DWORD Protect;*/
@@ -93,9 +93,9 @@ struct TREE_ITEM_PROPERTIES
 {
 	PROCESS_NAME_PID PROCESSNAMEPID;
 	TREE_ITEM_TYPE TREEITEMTYPE;
-	VOID* POINTER_32 ptr32AllocationBase;
-	VOID* POINTER_32 ptr32BaseAddress;
-	LONG lnRegionSize;
+	LPCVOID pcvoidAllocationBase;
+	LPCVOID pcvoidBaseAddress;
+	SIZE_T siztRegionSize;
 	BOOL blPEInjection = FALSE;
 };
 
