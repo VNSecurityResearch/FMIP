@@ -12,6 +12,7 @@
 #include <TlHelp32.h>
 #include <Capstone\headers\capstone.h>
 #include <strsafe.h>
+#include <memory>
 
 #ifdef NDEBUG
 #ifdef _WIN64
@@ -197,7 +198,7 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 		}
 		else // ...else display the name of the process
 		{
-			wxTreeItemData* ptrTreeItemProcessNamePId = new Tree_Item_ptrrocess_Name_PId(ProcessNamePId.dwPId);
+			wxTreeItemData* ptrTreeItemProcessNamePId = new Tree_Item_Process_Name_PId(ProcessNamePId.dwPId);
 			tiLastProcessNameId = ptrTreeCtrl->AppendItem(tiRoot, wxString::Format(wxT("%s (PId: %d)"), ProcessNamePId.wszProcessName, ProcessNamePId.dwPId), -1, -1, ptrTreeItemProcessNamePId);
 		}
 		do // make tree items of a allocation base and their child regions
@@ -207,7 +208,7 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 			if (hwndDestWindow != nullptr)
 			{
 				NodeProperties.TREEITEMTYPE = TREE_ITEM_TYPE_ALLOCATION_BASE;
-				NodeProperties.pcvoidAllocationBase = pcvoidAllocationBase;
+				NodeProperties.ptr32AllocationBase = (VOID* POINTER_32)pcvoidAllocationBase;
 				SendTreeItem(hwndDestWindow, &NodeProperties, sizeof(TREE_ITEM_PROPERTIES));
 			}
 			else
@@ -225,23 +226,23 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 				{
 					// Check if this process has a sign of PE injection
 					SIZE_T nNumOfBytesRead;
-					std::string CharBuffer(mbi.RegionSize, L'\0');
-					ReadProcessMemory(hProcess, pcvoidRegionBase, (PVOID)CharBuffer.data(), mbi.RegionSize, &nNumOfBytesRead);
-					int i;
-					for (i = 0; i < mbi.RegionSize; i++)
+					std::unique_ptr<BYTE>smptrAutoFreedByteBuffer(new BYTE[mbi.RegionSize]);
+					PBYTE ptrByteBuffer = smptrAutoFreedByteBuffer.get();
+					ReadProcessMemory(hProcess, pcvoidRegionBase, (PVOID)ptrByteBuffer, mbi.RegionSize, &nNumOfBytesRead);
+					for ( SIZE_T i = 0; i < mbi.RegionSize; i++)
 					{
-						if (CharBuffer[i] == 'M')
+						if (ptrByteBuffer[i] == 'M')
 						{
 							if (i + 1 >= mbi.RegionSize)
 								break;
-							if (CharBuffer[i + 1] == 'Z')
+							if (ptrByteBuffer[i + 1] == 'Z')
 							{
 								if (i + 0x3c >= mbi.RegionSize)
 									break;
-								DWORD dwPEOffset = *(PDWORD)&CharBuffer[i + 0x3c];
+								DWORD dwPEOffset = *(PDWORD)&ptrByteBuffer[i + 0x3c];
 								if (i + dwPEOffset + 1 >= mbi.RegionSize)
 									break;
-								if (CharBuffer[i + dwPEOffset] == 'P' && CharBuffer[i + dwPEOffset + 1] == 'E')
+								if (ptrByteBuffer[i + dwPEOffset] == 'P' && ptrByteBuffer[i + dwPEOffset + 1] == 'E')
 								{
 									NodeProperties.blPEInjection = TRUE;
 									blIsPEInjectedInProcess = TRUE;
@@ -264,7 +265,7 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 					if (hwndDestWindow != nullptr)
 					{
 						NodeProperties.TREEITEMTYPE = TREE_ITEM_TYPE_REGION;
-						NodeProperties.pcvoidBaseAddress = mbi.BaseAddress;
+						NodeProperties.ptr32BaseAddress = (VOID* POINTER_32)mbi.BaseAddress;
 						NodeProperties.siztRegionSize = mbi.RegionSize;
 						SendTreeItem(hwndDestWindow, &NodeProperties, sizeof(TREE_ITEM_PROPERTIES));
 					}
@@ -295,7 +296,7 @@ void MakeTreeNodesForProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const
 			else // ...else display the region address
 			{
 				wxTreeItemData* ptiData = ptrTreeCtrl->GetItemData(tiLastProcessNameId);
-				static_cast<Tree_Item_ptrrocess_Name_PId*>(ptiData)->SetColor(255, 0, 0);
+				static_cast<Tree_Item_Process_Name_PId*>(ptiData)->SetColor(255, 0, 0);
 			}
 		}
 	}
@@ -397,38 +398,38 @@ Generic_Tree_Item::~Generic_Tree_Item()
 {
 }
 
-Tree_Item_ptrrocess_Name_PId::Tree_Item_ptrrocess_Name_PId(DWORD PId)
+Tree_Item_Process_Name_PId::Tree_Item_Process_Name_PId(DWORD PId)
 {
 	SetType(TREE_ITEM_TYPE_PROCESS_NAME_PID);
 	this->m_dwPId = PId;
 }
 
-DWORD Tree_Item_ptrrocess_Name_PId::GetPId()
+DWORD Tree_Item_Process_Name_PId::GetPId()
 {
 	return this->m_dwPId;
 }
 
-Tree_Item_Allocation_Base::Tree_Item_Allocation_Base(PVOID AllocationBase)
+Tree_Item_Allocation_Base::Tree_Item_Allocation_Base(LPCVOID AllocationBase)
 {
 	SetType(TREE_ITEM_TYPE_ALLOCATION_BASE);
-	this->m_pvoidAllocationBase = AllocationBase;
+	this->m_pcvoidAllocationBase = AllocationBase;
 }
 
 LPCVOID Tree_Item_Allocation_Base::GetAllocationBase()
 {
-	return m_pvoidAllocationBase;
+	return m_pcvoidAllocationBase;
 }
 
-Tree_Item_Region::Tree_Item_Region(PVOID BaseAddress, SIZE_T RegionSize)
+Tree_Item_Region::Tree_Item_Region(LPCVOID BaseAddress, SIZE_T RegionSize)
 {
 	SetType(TREE_ITEM_TYPE_REGION);
 	this->m_pcvoidBaseAddress = BaseAddress;
 	this->m_siztRegionSize = RegionSize;
 }
 
-PVOID Tree_Item_Region::GetBaseAdress()
+LPCVOID Tree_Item_Region::GetBaseAdress()
 {
-	return PVOID(m_pcvoidBaseAddress);
+	return LPCVOID(m_pcvoidBaseAddress);
 }
 
 SIZE_T Tree_Item_Region::GetRegionSize()

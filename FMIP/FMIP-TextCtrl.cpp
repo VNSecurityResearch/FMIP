@@ -135,9 +135,9 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 			* In that case, this is to keep the scroll bar postion within the correct scrolling range.
 			*/
 			::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
-			DWORD dwMaxScrlPosInWinOlderThan10 = m_ScrollInfo.nMax - (m_ScrollInfo.nPage - 1);
-			DWORD dwMaxScrlPosInWin10 = m_ScrollInfo.nMax - (m_ScrollInfo.nPage);
-			if (m_ScrollInfo.nPos == dwMaxScrlPosInWinOlderThan10 || m_ScrollInfo.nPos == dwMaxScrlPosInWin10)
+			UINT uintMaxScrlPosInWinOlderThan10 = m_ScrollInfo.nMax - (m_ScrollInfo.nPage - 1);
+			UINT uintMaxScrlPosInWin10 = m_ScrollInfo.nMax - (m_ScrollInfo.nPage);
+			if (m_ScrollInfo.nPos == uintMaxScrlPosInWinOlderThan10 || m_ScrollInfo.nPos == uintMaxScrlPosInWin10)
 				return 0;
 			//wxLogDebug(wxString::Format(wxT("npos: %d"), m_ScrollInfo.nPos));
 			break;
@@ -150,11 +150,11 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 			* In that case, this is to keep the scroll bar postion within the correct scrolling range.
 			*/
 			::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
-			DWORD dwScrBarMaxPosInSafeCase = m_ScrollInfo.nMax - (m_ScrollInfo.nPage);
-			if (m_ScrollInfo.nPos + m_ScrollInfo.nPage <= dwScrBarMaxPosInSafeCase)
+			UINT uintScrBarMaxPosInSafeCase = m_ScrollInfo.nMax - (m_ScrollInfo.nPage);
+			if (m_ScrollInfo.nPos + m_ScrollInfo.nPage <= uintScrBarMaxPosInSafeCase)
 				break;
 			else
-				while (m_ScrollInfo.nPos < dwScrBarMaxPosInSafeCase)
+				while ((UINT)m_ScrollInfo.nPos < uintScrBarMaxPosInSafeCase)
 				{
 					::SendMessage(m_hWndThis, WM_HSCROLL, SB_LINERIGHT, NULL);
 					::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);

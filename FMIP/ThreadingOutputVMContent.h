@@ -15,7 +15,7 @@ class ThreadingOutputVMContent : public wxThread
 {
 private:
 	VMContentDisplay* m_ptrVMContentDisplay;
-	DWORD m_ptrId;
+	DWORD m_dwPId;
 	HANDLE m_hProcessToRead;
 	cs_mode m_CSMode;
 public:

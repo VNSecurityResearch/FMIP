@@ -54,13 +54,13 @@ public:
 
 };
 
-class Tree_Item_ptrrocess_Name_PId :public Generic_Tree_Item
+class Tree_Item_Process_Name_PId :public Generic_Tree_Item
 {
 private:
 	//PROCESS_NAME_PID ProcessNamePId;
 	DWORD m_dwPId;
 public:
-	Tree_Item_ptrrocess_Name_PId(DWORD PId);
+	Tree_Item_Process_Name_PId(DWORD PId);
 	//~Tree_Item_ptrrocess_Name_PId();
 	DWORD GetPId();
 };
@@ -68,9 +68,9 @@ public:
 class Tree_Item_Allocation_Base :public Generic_Tree_Item
 {
 private:
-	LPCVOID m_pvoidAllocationBase;
+	LPCVOID m_pcvoidAllocationBase;
 public:
-	Tree_Item_Allocation_Base(PVOID AllocationBase);
+	Tree_Item_Allocation_Base(LPCVOID AllocationBase);
 	LPCVOID GetAllocationBase();
 };
 
@@ -84,8 +84,8 @@ private:
 	DWORD State;
 	DWORD Protect;*/
 public:
-	Tree_Item_Region(PVOID BaseAddress, SIZE_T RegionSize);
-	PVOID GetBaseAdress();
+	Tree_Item_Region(LPCVOID BaseAddress, SIZE_T RegionSize);
+	LPCVOID GetBaseAdress();
 	SIZE_T GetRegionSize();
 };
 
@@ -93,8 +93,8 @@ struct TREE_ITEM_PROPERTIES
 {
 	PROCESS_NAME_PID PROCESSNAMEPID;
 	TREE_ITEM_TYPE TREEITEMTYPE;
-	LPCVOID pcvoidAllocationBase;
-	LPCVOID pcvoidBaseAddress;
+	VOID* POINTER_32 ptr32AllocationBase;
+	VOID* POINTER_32 ptr32BaseAddress;
 	SIZE_T siztRegionSize;
 	BOOL blPEInjection = FALSE;
 };

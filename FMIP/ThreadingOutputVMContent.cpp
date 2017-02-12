@@ -52,8 +52,8 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 	} while (TreeItemType != TREE_ITEM_TYPE_PROCESS_NAME_PID);
 	wxstrProcessNamePId = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemText(tiIdIterator);
 	//m_ptrVMContentDisplay->SetStatusText(strProcessNamePId);
-	m_ptrId = static_cast<Tree_Item_ptrrocess_Name_PId*>(ptrGenericTreeItem)->GetPId();
-	m_hProcessToRead = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, m_ptrId);
+	m_dwPId = static_cast<Tree_Item_Process_Name_PId*>(ptrGenericTreeItem)->GetPId();
+	m_hProcessToRead = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, m_dwPId);
 	if ((m_hProcessToRead == INVALID_HANDLE_VALUE) || (m_hProcessToRead == nullptr))
 	{
 		::MessageBox(m_ptrVMContentDisplay->GetHWND(),
@@ -95,7 +95,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 	//wxString wxstrFoo = wxString::Printf("%s", L"ký tự");
 	m_ptrVMContentDisplay->SetTitle(wxString::Format(wxT("%s từ %s"), m_ptrVMContentDisplay->m_OutputType == OUTPUT_TYPE_ASM ? wxT("Mã hợp ngữ") : wxT("Các dãy ký tự"), wxstrTitle));
 	wxstrTitle = m_ptrVMContentDisplay->GetTitle();
-	uint64_t uintLastExaminedAddress = 0;
+	UINT_PTR uintLastExaminedAddress = 0;
 	do
 	{
 		if (static_cast<Generic_Tree_Item*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiIdIterator))->GetType() != TREE_ITEM_TYPE::TREE_ITEM_TYPE_REGION)
@@ -122,10 +122,10 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 		for (size_t offset = 0; offset <= nRegionSize; offset += nReadSize)
 		{
 			if (this->TestDestroy()) return (wxThread::ExitCode)0;
-			std::unique_ptr<unsigned char>smptrCharBuffer(new unsigned char[nBufferSize]);
-			unsigned char* ptrCharBuffer = smptrCharBuffer.get();
+			std::unique_ptr<BYTE>smptrAutoFreedByteBuffer(new BYTE[nBufferSize]);
+			PBYTE ptrByteBuffer = smptrAutoFreedByteBuffer.get();
 			SIZE_T nNumOfBytesRead;
-			ReadProcessMemory(m_hProcessToRead, (PBYTE)BaseAddress + offset, ptrCharBuffer, nReadSize, &nNumOfBytesRead);
+			ReadProcessMemory(m_hProcessToRead, (PBYTE)BaseAddress + offset, ptrByteBuffer, nReadSize, &nNumOfBytesRead);
 			switch (m_ptrVMContentDisplay->m_OutputType)
 			{
 			case OUTPUT_TYPE_ASM:
@@ -144,12 +144,17 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 					wxLogDebug(wxT("ERROR 1: Failed to disassemble given code!"));
 					continue;
 				}
-				count = cs_disasm(handle, ptrCharBuffer, nReadSize, (uint64_t)BaseAddress, 0, &insn);
+				count = cs_disasm(handle, ptrByteBuffer, nReadSize, (UINT_PTR)BaseAddress, 0, &insn);
 				if (count > 0)
 				{
 					for (size_t line = 0; line < count; line++)
 					{
-						if (this->TestDestroy()) return (wxThread::ExitCode)0; //IMPORTANT TO KILL THE THREAD WHILE IN LONG DURATION OPERATION
+						if (this->TestDestroy())
+						{
+							cs_free(insn, count);
+							cs_close(&handle);
+							return (wxThread::ExitCode)0; //IMPORTANT TO KILL THE THREAD WHILE IN LONG DURATION OPERATION
+						}
 						strAssembly.append(wxString::Format(wxT("0x%p: %-12s\t%-s\r\n"), (void*)insn[line].address, insn[line].mnemonic,
 							insn[line].op_str));
 					}
@@ -172,10 +177,6 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 #endif
 #define PAGE_SIZE 0x1000
 				ULONG minimumLength;
-				BOOLEAN detectUnicode;
-				ULONG memoryTypeMask;
-				PUCHAR buffer;
-				SIZE_T bufferSize;
 				SIZE_T displayBufferCount;
 				wxString wxstrStrings;
 				minimumLength = 4;
@@ -199,7 +200,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 				for (SIZE_T i = 0; i < nReadSize; i++)
 				{
 					if (this->TestDestroy()) return (wxThread::ExitCode)0;
-					byte = ptrCharBuffer[i];
+					byte = ptrByteBuffer[i];
 					printable = PhCharIsPrintable[byte];
 
 					// To find strings Process Hacker uses a state table.
