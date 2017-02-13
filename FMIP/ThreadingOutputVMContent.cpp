@@ -121,7 +121,9 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 		LPCVOID BaseAddress = static_cast<Tree_Item_Region*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiIdIterator))->GetBaseAdress();
 		for (size_t offset = 0; offset <= nRegionSize; offset += nReadSize)
 		{
-			if (this->TestDestroy()) return (wxThread::ExitCode)0;
+			if (this->TestDestroy()) 
+				return (wxThread::ExitCode)0;
+
 			std::unique_ptr<BYTE>smptrAutoFreedByteBuffer(new BYTE[nBufferSize]);
 			PBYTE ptrByteBuffer = smptrAutoFreedByteBuffer.get();
 			SIZE_T nNumOfBytesRead;

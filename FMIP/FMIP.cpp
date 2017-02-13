@@ -35,7 +35,7 @@
 bool FMIP::OnInit()
 {
 #ifdef _NDEBUG
-	// If there is an instance of this program running, bring it to the foreground and exit.
+	// If there is an instance of the same version running, bring it to the foreground and terminate.
 	HWND hWnd = ::FindWindow(nullptr, AppTitle);
 	if (hWnd != NULL)
 	{
@@ -121,8 +121,8 @@ BOOL FMIP::IsProcessWoW64(const HANDLE hProcess)
 }
 
 /*
- This function finds a commited private region with initial protection attribute of XRW - the sign of code injection into the process.
- Returns the virtual address of the suspicious region or null address if does not find one.
+ This function finds a commited private region with protection attribute of XRW - the indication of being injected code into the process.
+ Returns the virtual address of the suspicious region or null address if it finds none.
 */
 LPCVOID FMIP::FindPrivateERWRegion(HANDLE hProcess, LPCVOID ptrRegionBase)
 {
@@ -150,7 +150,8 @@ LPCVOID FMIP::FindPrivateERWRegion(HANDLE hProcess, LPCVOID ptrRegionBase)
 }
 
 /*
- This function sends data between the 2 versions X86 and X64 of this program.
+ This function sends requests and relevant data from one version to the other version (X86 and X64) of this program.
+ It is used by other functions to request specific actions.
  At present, we don't use the result it returns.
 */
 BOOL RequestAction(HWND hwndDestWindow, HWND hwndSourceWindow, ACTION Action, LPVOID ptrIPCData, DWORD DataSize)
@@ -166,11 +167,17 @@ BOOL RequestAction(HWND hwndDestWindow, HWND hwndSourceWindow, ACTION Action, LP
 	return SendMessage(hwndDestWindow, WM_COPYDATA, (WPARAM)hwndSourceWindow, (LPARAM)&CopyDataStruct);
 }
 
+/*
+This function sends a request for making a tree item from X86 version to the X64 version.
+*/
 BOOL SendTreeItem(HWND hwndDestWindow, TREE_ITEM_PROPERTIES* ptrNodeProperties, DWORD DataSize)
 {
 	return RequestAction(hwndDestWindow, nullptr, ACTION_MAKE_TREE_ITEMS, ptrNodeProperties, DataSize);
 }
 
+/*
+This function sends a request for handling X86 version
+*/
 BOOL RequestX86Handling(HWND hwndDestWindow, HWND hwndSourceWindow, PROCESS_NAME_PID* ptrProcessNamePId, DWORD DataSize)
 {
 	return RequestAction(hwndDestWindow, hwndSourceWindow, ACTION_REQUEST_FOR_X86HANDLING, ptrProcessNamePId, DataSize);
