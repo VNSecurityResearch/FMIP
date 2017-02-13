@@ -35,6 +35,7 @@
 bool FMIP::OnInit()
 {
 #ifdef _NDEBUG
+	// If there is an instance of this program running, bring it to the foreground and exit.
 	HWND hWnd = ::FindWindow(nullptr, AppTitle);
 	if (hWnd != NULL)
 	{
@@ -42,10 +43,13 @@ bool FMIP::OnInit()
 		return false;
 	}
 #endif // _NDEBUG
+
+	// Set debug privilege so that we can examine other processes' memory
 	HANDLE hToken;
-	OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, &hToken);
+	OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, &hToken); 
 	FMIP::SetPrivilege(hToken, L"SeDebugPrivilege", TRUE);
 	::CloseHandle(hToken);
+
 	MainWindow* ptrWindow = new MainWindow(wxT("Tìm tiến trình nghi vấn bị tiêm mã độc"));
 	return true;
 }
@@ -116,6 +120,10 @@ BOOL FMIP::IsProcessWoW64(const HANDLE hProcess)
 	return bIsWow64;
 }
 
+/*
+ This function finds a commited private region with initial protection attribute of XRW - the sign of code injection into the process.
+ Returns the virtual address of the suspicious region or null address if does not find one.
+*/
 LPCVOID FMIP::FindPrivateERWRegion(HANDLE hProcess, LPCVOID ptrRegionBase)
 {
 	MEMORY_BASIC_INFORMATION mbi;
@@ -141,10 +149,16 @@ LPCVOID FMIP::FindPrivateERWRegion(HANDLE hProcess, LPCVOID ptrRegionBase)
 	return nullptr;
 }
 
+/*
+ This function sends data between the 2 versions X86 and X64 of this program.
+ At present, we don't use the result it returns.
+*/
 BOOL RequestAction(HWND hwndDestWindow, HWND hwndSourceWindow, ACTION Action, LPVOID ptrIPCData, DWORD DataSize)
 {
+	// if there is no destination window, do nothing
 	if (hwndDestWindow == nullptr)
 		return FALSE;
+
 	COPYDATASTRUCT CopyDataStruct;
 	CopyDataStruct.dwData = Action;
 	CopyDataStruct.cbData = DataSize;
