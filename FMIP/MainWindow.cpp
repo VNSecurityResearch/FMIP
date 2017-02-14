@@ -137,7 +137,7 @@ WXLRESULT MainWindow::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lP
 			HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwPid);
 			if ((hProcess != INVALID_HANDLE_VALUE) && (hProcess != nullptr))
 			{
-				FMIP::MakeTreeNodesForRemoteProcess((HWND)wParam, hProcess, ptrNodeProperty->PROCESSNAMEPID);
+				FMIP::MakeTreeNodesInRemoteInstance((HWND)wParam, hProcess, ptrNodeProperty->PROCESSNAMEPID);
 			}
 			::CloseHandle(hProcess);
 			break;

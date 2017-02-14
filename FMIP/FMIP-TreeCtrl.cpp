@@ -94,7 +94,6 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 				}
 				wxTreeItemData* ptrTreeItemProcessNamePId = new Tree_Item_Process_Name_PId(ptrTreeItemProperties->PROCESSNAMEPID.dwPId);
 				tiLastProcessNameId = this->AppendItem(tiRoot, wxString(ptrTreeItemProperties->PROCESSNAMEPID.wszProcessName), -1, -1, ptrTreeItemProcessNamePId);
-				//if (ptrTreeItemProperties->blPEInjection) this->SetItemTextColour(tiLastProcessNameId, wxColor(255, 0, 0));
 				break;
 			}
 
@@ -103,7 +102,6 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 				LPCVOID ptrAllocBaseTruncatedTo32 = (LPCVOID)(UINT_PTR)PtrToUlong(ptrTreeItemProperties->ptr32AllocationBase);
 				wxTreeItemData* ptrTreeItemParentRegion = new Tree_Item_Allocation_Base(ptrAllocBaseTruncatedTo32);
 				tiLastAllocationBase = this->AppendItem(tiLastProcessNameId, wxString::Format(wxT("0x%p"), ptrAllocBaseTruncatedTo32), -1, -1, ptrTreeItemParentRegion);
-				//if (ptrTreeItemProperties->blPEInjection) this->SetItemTextColour(tiLastAllocationBase, wxColor(255, 0, 0));
 				break;
 			}
 
@@ -112,7 +110,8 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 				LPCVOID ptrBaseAdrTruncatedTo32 = (LPCVOID)(UINT_PTR)(PtrToUlong(ptrTreeItemProperties->ptr32BaseAddress));
 				wxTreeItemData* ptrTreeItemRegion = new Tree_Item_Region(ptrBaseAdrTruncatedTo32, (SIZE_T)ptrTreeItemProperties->siztRegionSize);
 				tiTreeLastRegion = this->AppendItem(tiLastAllocationBase, wxString::Format(wxT("0x%p"), ptrBaseAdrTruncatedTo32), -1, -1, ptrTreeItemRegion);
-				//if (ptrTreeItemProperties->blPEInjection) this->SetItemTextColour(tiTreeLastRegion, wxColor(255, 0, 0));
+				if (ptrTreeItemProperties->blPEInjection)
+					static_cast<Tree_Item_Region*>(ptrTreeItemRegion)->SetColor(255, 0, 0);
 				break;
 			}
 

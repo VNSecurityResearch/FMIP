@@ -7,10 +7,11 @@
 #include "FMIP-TreeCtrl.h"
 #include <Capstone\headers\capstone.h>
 
-#define PEInjectionWarning wxT(" có PE tiêm trong tiến trình!")
+const LPCTSTR PEInjectionWarning = wxT(" có PE tiêm trong tiến trình!");
 #define AppTitle L"Tìm tiến trình nghi vấn bị tiêm mã độc"
 #define AppTitleWoW AppTitle##" X86"
 #define CM_TERMINATE WM_APP
+const int MaxFileName = 256 * 2; // length of WCHAR string in byte
 
 enum TREE_ITEM_TYPE
 {
@@ -34,8 +35,7 @@ struct TREE_ITEM_PARENT_INFO_TO_CHANGE
 
 struct PROCESS_NAME_PID
 {
-	//std::wstring strProcessName;
-	WCHAR wszProcessName[256];
+	WCHAR wszProcessName[MaxFileName]; 
 	DWORD dwPId;
 };
 
@@ -116,7 +116,7 @@ public:
 	static BOOL SetPrivilege(HANDLE hToken, LPCTSTR lpszPrivilege, BOOL bEnablePrivilege);
 	static LPCVOID FindPrivateERWRegion(HANDLE hProcess, LPCVOID ptrRegionBase);
 	static BOOL FillTreeCtrl(FMIP_TreeCtrl* ptrTreeCtrl);
-	static void MakeTreeNodesForRemoteProcess(HWND hwndDestWindow, HANDLE, const PROCESS_NAME_PID&);
+	static void MakeTreeNodesInRemoteInstance(HWND hwndDestWindow, HANDLE, const PROCESS_NAME_PID&);
 	~FMIP();
 };
 

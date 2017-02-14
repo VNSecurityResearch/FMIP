@@ -183,7 +183,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 				wxString wxstrStrings;
 				minimumLength = 4;
 				if (minimumLength < 4)
-					return "";
+					return (wxThread::ExitCode)1;
 				displayBufferCount = (PAGE_SIZE * 2) - 1;
 				std::wstring wstrDisplayBuffer(displayBufferCount + 1, L'\0');
 				UCHAR byte; // current byte
