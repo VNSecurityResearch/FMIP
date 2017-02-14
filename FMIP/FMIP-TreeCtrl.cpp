@@ -37,7 +37,7 @@ void FMIP_TreeCtrl::OnRightClick(wxTreeEvent& event)
 	wxTreeItemId TreeItemId = event.GetItem();
 	SelectItem(TreeItemId);
 	Generic_Tree_Item* ptrGenericTreeItem = static_cast<Generic_Tree_Item*>(this->GetItemData(TreeItemId));
-	if (ptrGenericTreeItem->GetType() == TREE_ITEM_TYPE_PROCESS_NAME_PID)
+	if (ptrGenericTreeItem->GetType() == PROCESS_NAME)
 	{
 		wxLogDebug(wxT("No context menu on TREE_ITEM_TYPE_PROCESS_NAME_PID"));
 		return;
@@ -80,12 +80,12 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 		TREE_ITEM_PROPERTIES* ptrTreeItemProperties = (TREE_ITEM_PROPERTIES*)ptrCopyDataStruct->lpData;
 		switch (ptrCopyDataStruct->dwData)
 		{
-		case ACTION::ACTION_MAKE_TREE_ITEMS:
+		case ACTION::MAKE_TREE_ITEM_IN_X64_INSTANCE:
 		{
 			wxString wxszItemText;
 			switch (ptrTreeItemProperties->TREEITEMTYPE)
 			{
-			case TREE_ITEM_TYPE::TREE_ITEM_TYPE_PROCESS_NAME_PID:
+			case TREE_ITEM_TYPE::PROCESS_NAME:
 			{
 				wxTreeItemId tiRoot = this->GetRootItem();
 				if (tiRoot == nullptr)
@@ -97,7 +97,7 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 				break;
 			}
 
-			case TREE_ITEM_TYPE::TREE_ITEM_TYPE_ALLOCATION_BASE:
+			case TREE_ITEM_TYPE::ALLOCATION_BASE:
 			{
 				LPCVOID ptrAllocBaseTruncatedTo32 = (LPCVOID)(UINT_PTR)PtrToUlong(ptrTreeItemProperties->ptr32AllocationBase);
 				wxTreeItemData* ptrTreeItemParentRegion = new Tree_Item_Allocation_Base(ptrAllocBaseTruncatedTo32);
@@ -105,13 +105,13 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 				break;
 			}
 
-			case TREE_ITEM_TYPE::TREE_ITEM_TYPE_REGION:
+			case TREE_ITEM_TYPE::REGION:
 			{
 				LPCVOID ptrBaseAdrTruncatedTo32 = (LPCVOID)(UINT_PTR)(PtrToUlong(ptrTreeItemProperties->ptr32BaseAddress));
 				wxTreeItemData* ptrTreeItemRegion = new Tree_Item_Region(ptrBaseAdrTruncatedTo32, (SIZE_T)ptrTreeItemProperties->siztRegionSize);
 				tiTreeLastRegion = this->AppendItem(tiLastAllocationBase, wxString::Format(wxT("0x%p"), ptrBaseAdrTruncatedTo32), -1, -1, ptrTreeItemRegion);
 				if (ptrTreeItemProperties->blPEInjection)
-					static_cast<Tree_Item_Region*>(ptrTreeItemRegion)->SetColor(255, 0, 0);
+					static_cast<Tree_Item_Region*>(ptrTreeItemRegion)->SetColor(255, 0, 0); // make a warning by displaying this region in red.
 				break;
 			}
 
@@ -121,17 +121,17 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 			break;
 		}
 
-		case ACTION::ACTION_CHANGE_TREE_ITEM_PARENT_COLOR:
+		case ACTION::CHANGE_LAST_TREE_ITEM_PARENT_DATA_IN_X64_INSTANCE:
 		{
-			TREE_ITEM_PARENT_INFO_TO_CHANGE* ptiParentInfoToChange = (TREE_ITEM_PARENT_INFO_TO_CHANGE*)ptrCopyDataStruct->lpData;
+			TREE_ITEM_PARENT_DATA_TO_CHANGE* ptiParentInfoToChange = (TREE_ITEM_PARENT_DATA_TO_CHANGE*)ptrCopyDataStruct->lpData;
 			wxTreeItemData* ptiData = nullptr;
 			switch (ptiParentInfoToChange->TreeItemParentType)
 			{
-			case TREE_ITEM_TYPE_PROCESS_NAME_PID:
+			case PROCESS_NAME:
 				ptiData = this->GetItemData(tiLastProcessNameId);
 				break;
 
-			case TREE_ITEM_TYPE_ALLOCATION_BASE:
+			case ALLOCATION_BASE:
 				ptiData = this->GetItemData(tiLastAllocationBase);
 				break;
 

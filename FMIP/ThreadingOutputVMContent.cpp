@@ -49,7 +49,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 		tiIdIterator = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemParent(tiIdIterator);
 		ptrGenericTreeItem = static_cast<Generic_Tree_Item*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiIdIterator));
 		TreeItemType = ptrGenericTreeItem->GetType();
-	} while (TreeItemType != TREE_ITEM_TYPE_PROCESS_NAME_PID);
+	} while (TreeItemType != PROCESS_NAME);
 	wxstrProcessNamePId = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemText(tiIdIterator);
 	//m_ptrVMContentDisplay->SetStatusText(strProcessNamePId);
 	m_dwPId = static_cast<Tree_Item_Process_Name_PId*>(ptrGenericTreeItem)->GetPId();
@@ -72,12 +72,12 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 	LPCVOID pcvoidRegionEnd = nullptr;
 	switch (TreeItemType)
 	{
-	case TREE_ITEM_TYPE_ALLOCATION_BASE:
+	case ALLOCATION_BASE:
 		pcvoidRegionStart = static_cast<Tree_Item_Allocation_Base*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiSelected))->GetAllocationBase();
 		wxstrTitle.Append(wxstrTitle.Format(L"0x%p [+]", pcvoidRegionStart));
 		tiIdIterator = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetFirstChild(tiSelected, tiIdValue);
 		break;
-	case TREE_ITEM_TYPE_REGION:
+	case REGION:
 		pcvoidRegionStart = static_cast<Tree_Item_Region*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiSelected))->GetBaseAdress();
 		wxstrTitle.Printf(L"0x%p", pcvoidRegionStart);
 		tiIdIterator = tiSelected;
@@ -98,7 +98,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 	UINT_PTR uintLastExaminedAddress = 0;
 	do
 	{
-		if (static_cast<Generic_Tree_Item*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiIdIterator))->GetType() != TREE_ITEM_TYPE::TREE_ITEM_TYPE_REGION)
+		if (static_cast<Generic_Tree_Item*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiIdIterator))->GetType() != TREE_ITEM_TYPE::REGION)
 			break;
 		//if (this->TestDestroy()) return (wxThread::ExitCode)0; // necessary?
 		SIZE_T nRegionSize = static_cast<Tree_Item_Region*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiIdIterator))->GetRegionSize();

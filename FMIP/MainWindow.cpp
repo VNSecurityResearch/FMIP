@@ -131,13 +131,13 @@ WXLRESULT MainWindow::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lP
 		TREE_ITEM_PROPERTIES* ptrNodeProperty = (TREE_ITEM_PROPERTIES*)ptrCopyDataStruct->lpData;
 		switch (ptrCopyDataStruct->dwData)
 		{
-		case ACTION::ACTION_REQUEST_FOR_X86HANDLING:
+		case ACTION::REQUEST_X86HANDLING_TO_X86_INSTANCE:
 		{
 			DWORD dwPid = ptrNodeProperty->PROCESSNAMEPID.dwPId;
 			HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwPid);
 			if ((hProcess != INVALID_HANDLE_VALUE) && (hProcess != nullptr))
 			{
-				FMIP::MakeTreeNodesInRemoteInstance((HWND)wParam, hProcess, ptrNodeProperty->PROCESSNAMEPID);
+				FMIP::MakeTreeItemsInRemoteInstance((HWND)wParam, hProcess, ptrNodeProperty->PROCESSNAMEPID);
 			}
 			::CloseHandle(hProcess);
 			break;
@@ -198,7 +198,7 @@ WXLRESULT MainWindow::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lP
 							lpNMCustomDraw->clrText = RGB(ptiColor->Red(), ptiColor->Green(), ptiColor->Blue());
 						else
 							lpNMCustomDraw->clrText = CLR_DEFAULT;
-						if (ptrGenericTreeItem->GetType() != TREE_ITEM_TYPE::TREE_ITEM_TYPE_PROCESS_NAME_PID)
+						if (ptrGenericTreeItem->GetType() != TREE_ITEM_TYPE::PROCESS_NAME)
 						{
 							wxFont fntSubItem(wxFontInfo().FaceName("Consolas"));
 							SelectObject(lpNMCustomDraw->nmcd.hdc, fntSubItem.GetHFONT());
