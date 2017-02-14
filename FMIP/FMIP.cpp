@@ -372,7 +372,7 @@ BOOL FMIP::FillTreeCtrl(FMIP_TreeCtrl* ptrTreeCtrl)
 		if (FMIP::IsProcessWoW64(hProcess) == TRUE) // the process to be examined (with hProcess) is a X86 one running under WoW64, so...
 		{
 			// send the information about the process to be examined to the handler in X86 instance.
-			RequestX86Handling(hwndX86Handler, hwndX64MakeTreeItemsHandler, &PROCESSNAMEPID, sizeof(PROCESS_NAME));
+			RequestX86Handling(hwndX86Handler, hwndX64MakeTreeItemsHandler, &PROCESSNAMEPID, sizeof(PROCESS_NAME_PID));
 		}
 		else // else, just make tree items with information about the process being examine.
 		{
