@@ -269,7 +269,7 @@ void MakeTreeItemsAboutAProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, co
 									// Found an indication of PE injection.
 									NodeProperties.blPEInjection = TRUE; // this region is is injected with a PE.
 									blIsPEInjectedInProcess = TRUE; // the currently examined process is injected with a PE.
-									if (hwndDestWindow != nullptr) // if there is a remote (X64) instance then tell it to  change the color of the last tree item displaying the the region's allocation base to red,...
+									if (hwndDestWindow != nullptr) // if there is a remote (X64) instance then tell it to  change the color of the last tree item displaying the region's allocation base to red,...
 									{
 										tiParentDataToChange.TreeItemParentType = ALLOCATION_BASE;
 										tiParentDataToChange.wxclColor.Set(255, 0, 0);
@@ -289,7 +289,7 @@ void MakeTreeItemsAboutAProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, co
 					{
 						NodeProperties.TREEITEMTYPE = REGION;
 						NodeProperties.ptr32BaseAddress = (VOID* POINTER_32)mbi.BaseAddress;
-						NodeProperties.siztRegionSize = mbi.RegionSize;
+						NodeProperties.dwRegionSize = mbi.RegionSize;
 						SendTreeItemToX64Instance(hwndDestWindow, &NodeProperties, sizeof(TREE_ITEM_PROPERTIES));
 					}
 					else // ...or else, display the region adress.
@@ -356,8 +356,7 @@ BOOL FMIP::FillTreeCtrl(FMIP_TreeCtrl* ptrTreeCtrl)
 		hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pe32.th32ProcessID);
 		if ((hProcess == INVALID_HANDLE_VALUE) || (hProcess == nullptr))
 		{
-			//::MessageBox(ptrTreeCtrl->GetParent()->GetHWND(), wxString::Format(L"Khong mo duoc tien trinh %s", pe32.szExeFile), L"FMIP", MB_OK);
-			wxLogDebug(wxString::Format(L"Khong mo duoc tien trinh %s", pe32.szExeFile));
+			wxLogDebug(wxString::Format(L"Unable to open process %s, please run as Administrator.", pe32.szExeFile));
 			continue;
 		}
 		PROCESS_NAME_PID PROCESSNAMEPID;
@@ -379,7 +378,7 @@ BOOL FMIP::FillTreeCtrl(FMIP_TreeCtrl* ptrTreeCtrl)
 			MakeTreeItemsInLocalInstance(ptrTreeCtrl, tiRoot, hProcess, PROCESSNAMEPID);
 		}
 #else
-		::MakeTreeItemsInLocalInstance(ptrTreeCtrl, tiRoot, hProcess, PROCESSNAMEPID);
+		MakeTreeItemsInLocalInstance(ptrTreeCtrl, tiRoot, hProcess, PROCESSNAMEPID);
 #endif
 		CloseHandle(hProcess);
 	} while (Process32Next(hSnapshot, &pe32));

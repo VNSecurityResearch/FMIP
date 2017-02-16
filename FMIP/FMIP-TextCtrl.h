@@ -7,7 +7,7 @@
 #include <wx/textctrl.h>
 #include "VMContentDisplay.h"
 
-class FMIP_TextCtrl:public wxTextCtrl
+class FMIP_TextCtrl :public wxTextCtrl
 {
 private:
 	VMContentDisplay* m_ptrVMContentDisplay;

@@ -72,8 +72,9 @@ MainWindow::MainWindow(const wxString& Title) : wxFrame(nullptr, wxID_ANY, Title
 #ifndef _WIN64
 	if (FMIP::IsProcessWoW64(GetCurrentProcess()) == TRUE)
 	{
-		SetTitle(AppTitleWoW);
+		SetTitle(AppTitleWoW); // if this is a WoW X86 instance, then change its title.
 #ifdef _NDEBUG
+		// create the X64 instance, run it and wait for it to complete, then terminate.
 		CreateThread(
 			NULL,                   // default security attributes
 			0,                      // use default stack size  
@@ -83,6 +84,7 @@ MainWindow::MainWindow(const wxString& Title) : wxFrame(nullptr, wxID_ANY, Title
 			nullptr);
 		return;
 #endif // _NDEBUG
+		// the rest of the code will not be executed.
 	}
 #endif // _WIN64
 	wxMenu* ptrMenuRefresh = new wxMenu;
@@ -96,7 +98,7 @@ MainWindow::MainWindow(const wxString& Title) : wxFrame(nullptr, wxID_ANY, Title
 	ptrMenuAbout->Bind(wxEVT_MENU_OPEN, &MainWindow::OnAbout, this);
 	ptrMenuRefresh->Bind(wxEVT_MENU_OPEN, &FMIP_TreeCtrl::OnRefresh, m_ptrFMIP_TreeCtrl);
 	CreateStatusBar(1, wxSTB_DEFAULT_STYLE, wxID_ANY);
-	m_ptrFMIP_TreeCtrl->OnRefresh(wxMenuEvent()); //wxQueueEvent(pMenuRefresh, new wxMenuEvent(wxEVT_MENU_OPEN));
+	m_ptrFMIP_TreeCtrl->OnRefresh(wxMenuEvent()); //wxQueueEvent(pMenuRefresh, new wxMenuEvent(wxEVT_MENU_OPEN)); // fill the tree control the first time.
 	m_ptrFMIP_TreeCtrl->Bind(wxEVT_TREE_ITEM_RIGHT_CLICK, &FMIP_TreeCtrl::OnRightClick, m_ptrFMIP_TreeCtrl);
 	//m_ptrFMIP_TreeCtrl->Bind(wxEVT_TREE_KEY_DOWN, &FMIP_TreeCtrl::OnKeyDown, m_ptrFMIP_TreeCtrl);
 	ptrVBox->Add(m_ptrFMIP_TreeCtrl, 1, wxEXPAND);
@@ -122,10 +124,10 @@ void MainWindow::OnAbout(wxMenuEvent& event)
 
 WXLRESULT MainWindow::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam)
 {
-	// this is the case only with the WoW64 X86 version to handle a request from the X64 version for querying virtual memory of a X86 process
 	switch (message)
 	{
-	case WM_COPYDATA:
+#ifndef _WIN64
+	case WM_COPYDATA: // this is the case only with the WoW64 X86 instance to handle a request from the X64 intance for querying virtual memory of a X86 process
 	{
 		COPYDATASTRUCT* ptrCopyDataStruct = (COPYDATASTRUCT*)lParam;
 		TREE_ITEM_PROPERTIES* ptrNodeProperty = (TREE_ITEM_PROPERTIES*)ptrCopyDataStruct->lpData;
@@ -148,9 +150,9 @@ WXLRESULT MainWindow::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lP
 		} // close switch (ptrCopyDataStruct->dwData)
 		return 0;
 	}
-
-	// this is to get rid of the idle state when a menu of the main window is clicked
-	case WM_ENTERIDLE:
+#endif // !_WIN64
+	
+	case WM_ENTERIDLE: // this is to get rid of the idle state when a menu of the main window is clicked
 	{
 		INPUT input;
 		WORD vkey = VK_ESCAPE;
@@ -171,14 +173,14 @@ WXLRESULT MainWindow::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lP
 		::PostQuitMessage(0);
 	}
 
-	case WM_NOTIFY:
+	case WM_NOTIFY: 
 	{
 		WXLRESULT Result = CDRF_DODEFAULT;
 		if (m_ptrFMIP_TreeCtrl == nullptr)
 			break;
 		if (((LPNMHDR)lParam)->hwndFrom == m_ptrFMIP_TreeCtrl->GetHWND())
 		{
-			if (((LPNMHDR)lParam)->code == NM_CUSTOMDRAW)
+			if (((LPNMHDR)lParam)->code == NM_CUSTOMDRAW) // custome draw handler: draw tree item with specified color
 			{
 				LPNMTVCUSTOMDRAW lpNMCustomDraw = (LPNMTVCUSTOMDRAW)lParam;
 				switch (lpNMCustomDraw->nmcd.dwDrawStage)

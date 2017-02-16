@@ -21,13 +21,13 @@ enum POPUP_MENU_ITEM
 	POPUP_MENU_ITEM_ASM,
 };
 
-FMIP_TreeCtrl::FMIP_TreeCtrl(wxWindow* parent, wxWindowID Id, long style) : wxTreeCtrl(parent, Id, wxDefaultPosition, wxDefaultSize, style) 
+FMIP_TreeCtrl::FMIP_TreeCtrl(wxWindow* parent, wxWindowID Id, long style) : wxTreeCtrl(parent, Id, wxDefaultPosition, wxDefaultSize, style)
 {
 }
 
 void FMIP_TreeCtrl::OnPopupClick(wxCommandEvent& event)
 {
-	
+
 	OUTPUT_TYPE	OutputType = event.GetId() == POPUP_MENU_ITEM_ASM ? OUTPUT_TYPE_ASM : OUTPUT_TYPE_STRING;
 	VMContentDisplay* pVMContentDisplay = new VMContentDisplay(static_cast<MainWindow*>(this->GetParent()), this, OutputType);
 }
@@ -68,6 +68,8 @@ void FMIP_TreeCtrl::OnRefresh(wxMenuEvent& event)
 //	}
 //}
 
+#ifdef _WIN64
+// this is only the case of the X64 instance to receive data about a tree item sent from the X86 instance, create one then append it to the tree control.
 WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam)
 {
 	// variable names: prefix ti stands for Tree Item
@@ -108,7 +110,7 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 			case TREE_ITEM_TYPE::REGION:
 			{
 				LPCVOID ptrBaseAdrTruncatedTo32 = (LPCVOID)(UINT_PTR)(PtrToUlong(ptrTreeItemProperties->ptr32BaseAddress));
-				wxTreeItemData* ptrTreeItemRegion = new Tree_Item_Region(ptrBaseAdrTruncatedTo32, (SIZE_T)ptrTreeItemProperties->siztRegionSize);
+				wxTreeItemData* ptrTreeItemRegion = new Tree_Item_Region(ptrBaseAdrTruncatedTo32, (SIZE_T)ptrTreeItemProperties->dwRegionSize);
 				tiTreeLastRegion = this->AppendItem(tiLastAllocationBase, wxString::Format(wxT("0x%p"), ptrBaseAdrTruncatedTo32), -1, -1, ptrTreeItemRegion);
 				if (ptrTreeItemProperties->blPEInjection)
 					static_cast<Tree_Item_Region*>(ptrTreeItemRegion)->SetColor(255, 0, 0); // make a warning by displaying this region in red.
@@ -149,3 +151,4 @@ WXLRESULT FMIP_TreeCtrl::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM
 	}
 	return wxTreeCtrl::MSWWindowProc(message, wParam, lParam);
 }
+#endif // _WIN64

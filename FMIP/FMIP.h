@@ -43,7 +43,7 @@ class Generic_Tree_Item :public wxTreeItemData
 {
 private:
 	TREE_ITEM_TYPE m_TreeItemType;
-	wxColor m_wxclColor = wxNullColour;
+	wxColor m_wxclColor = wxNullColour; // the customdraw handler will paint this tree item with default color. If it is set to another specific color, then the customdraw handler will paint the tree item accordingly.
 public:
 	//Generic_Tree_Item();
 	void SetType(const TREE_ITEM_TYPE& TreeItemType);
@@ -61,7 +61,6 @@ private:
 	DWORD m_dwPId;
 public:
 	Tree_Item_Process_Name_PId(DWORD PId);
-	//~Tree_Item_ptrrocess_Name_PId();
 	DWORD GetPId();
 };
 
@@ -93,9 +92,9 @@ struct TREE_ITEM_PROPERTIES
 {
 	PROCESS_NAME_PID PROCESSNAMEPID;
 	TREE_ITEM_TYPE TREEITEMTYPE;
-	VOID* POINTER_32 ptr32AllocationBase;
-	VOID* POINTER_32 ptr32BaseAddress;
-	SIZE_T siztRegionSize;
+	VOID* POINTER_32 ptr32AllocationBase; // notice: because this structure must be...
+	VOID* POINTER_32 ptr32BaseAddress;	  // ... the same size in both X86 instance and X64 intance...
+	DWORD dwRegionSize;					  // ... so its fields size must not be template (T) size.
 	BOOL blPEInjection = FALSE;
 };
 

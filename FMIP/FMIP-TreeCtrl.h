@@ -15,5 +15,7 @@ public:
 	void OnRefresh(wxMenuEvent&);
 	//void OnKeyDown(wxTreeEvent& event);
 	void OnPopupClick(wxCommandEvent& event);
+#ifdef _WIN64
 	WXLRESULT MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam);
+#endif _WIN64
 };	
