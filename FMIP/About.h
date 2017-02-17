@@ -16,8 +16,7 @@
  */
 
 /*
-/ Opensource project by Tung Nguyen Thanh
-/ 2007
+  This file defines class About - the dialog displaying information about this program.
 */
 
 #pragma once

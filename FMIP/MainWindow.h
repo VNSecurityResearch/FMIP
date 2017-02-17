@@ -16,8 +16,7 @@
  */
 
 /*
-/ Opensource project by Tung Nguyen Thanh
-/ 2007
+ This file defines class MainWindow - the main window of this program.
 */
 
 #pragma once

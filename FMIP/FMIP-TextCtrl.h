@@ -16,8 +16,7 @@
  */
 
 /*
-/ Opensource project by Tung Nguyen Thanh
-/ 2007
+ This file defines class FMIP_TextCtrl - the customized text control of this program.
 */
 
 #pragma once

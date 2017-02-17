@@ -16,8 +16,7 @@
  */
 
 /*
-/ Opensource project by Tung Nguyen Thanh
-/ 2007
+ This file implements the main window of this program.
 */
 
 #include <wx/wxprec.h>
@@ -104,18 +103,18 @@ MainWindow::MainWindow(const wxString& Title) : wxFrame(nullptr, wxID_ANY, Title
 		// the rest of the code will not be executed.
 	}
 #endif // _WIN64
-	wxMenu* ptrMenuRefresh = new wxMenu;
+	wxMenu* ptrMenuRescan = new wxMenu;
 	wxMenu* ptrMenuAbout = new wxMenu;
 	wxMenuBar* ptrMenuBar = new wxMenuBar;
-	ptrMenuBar->Append(ptrMenuRefresh, wxT("&Quét lại"));
+	ptrMenuBar->Append(ptrMenuRescan, wxT("&Quét lại"));
 	ptrMenuBar->Append(ptrMenuAbout, wxT("&Thông tin"));
 	SetMenuBar(ptrMenuBar);
 	wxBoxSizer* ptrVBox = new wxBoxSizer(wxVERTICAL);
 	m_ptrFMIP_TreeCtrl = new FMIP_TreeCtrl(this, wxID_ANY, wxTR_DEFAULT_STYLE | wxTR_HIDE_ROOT | wxTR_FULL_ROW_HIGHLIGHT | wxTR_NO_LINES | wxTR_TWIST_BUTTONS);
 	ptrMenuAbout->Bind(wxEVT_MENU_OPEN, &MainWindow::OnAbout, this);
-	ptrMenuRefresh->Bind(wxEVT_MENU_OPEN, &FMIP_TreeCtrl::OnRefresh, m_ptrFMIP_TreeCtrl);
+	ptrMenuRescan->Bind(wxEVT_MENU_OPEN, &FMIP_TreeCtrl::OnRescan, m_ptrFMIP_TreeCtrl);
 	CreateStatusBar(1, wxSTB_DEFAULT_STYLE, wxID_ANY);
-	m_ptrFMIP_TreeCtrl->OnRefresh(wxMenuEvent()); //wxQueueEvent(pMenuRefresh, new wxMenuEvent(wxEVT_MENU_OPEN)); // fill the tree control the first time.
+	m_ptrFMIP_TreeCtrl->OnRescan(wxMenuEvent()); //wxQueueEvent(pMenuRefresh, new wxMenuEvent(wxEVT_MENU_OPEN)); // fill the tree control the first time.
 	m_ptrFMIP_TreeCtrl->Bind(wxEVT_TREE_ITEM_RIGHT_CLICK, &FMIP_TreeCtrl::OnRightClick, m_ptrFMIP_TreeCtrl);
 	//m_ptrFMIP_TreeCtrl->Bind(wxEVT_TREE_KEY_DOWN, &FMIP_TreeCtrl::OnKeyDown, m_ptrFMIP_TreeCtrl);
 	ptrVBox->Add(m_ptrFMIP_TreeCtrl, 1, wxEXPAND);
@@ -197,7 +196,7 @@ WXLRESULT MainWindow::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lP
 			break;
 		if (((LPNMHDR)lParam)->hwndFrom == m_ptrFMIP_TreeCtrl->GetHWND())
 		{
-			if (((LPNMHDR)lParam)->code == NM_CUSTOMDRAW) // custome draw handler: draw tree item with specified color
+			if (((LPNMHDR)lParam)->code == NM_CUSTOMDRAW) // custome draw handler: draws tree item with specified color.
 			{
 				LPNMTVCUSTOMDRAW lpNMCustomDraw = (LPNMTVCUSTOMDRAW)lParam;
 				switch (lpNMCustomDraw->nmcd.dwDrawStage)

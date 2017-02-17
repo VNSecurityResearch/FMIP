@@ -16,8 +16,7 @@
  */
 
 /*
-/ Opensource project by Tung Nguyen Thanh
-/ 2007
+ This file defines class FMIP_TreeCtrl - the customized tree control of this program.
 */
 
 #pragma once
@@ -29,7 +28,7 @@ class FMIP_TreeCtrl :public wxTreeCtrl
 public:
 	FMIP_TreeCtrl(wxWindow*, wxWindowID, long);
 	void OnRightClick(wxTreeEvent&);
-	void OnRefresh(wxMenuEvent&);
+	void OnRescan(wxMenuEvent&);
 	//void OnKeyDown(wxTreeEvent& event);
 	void OnPopupClick(wxCommandEvent& event);
 #ifdef _WIN64

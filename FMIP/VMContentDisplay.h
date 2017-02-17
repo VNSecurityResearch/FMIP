@@ -16,8 +16,8 @@
  */
 
 /*
-/ Opensource project by Tung Nguyen Thanh
-/ 2007
+ This file defines class VMContentDisplay - the dialog with the customized text control,
+ in which, content of a VM region is outputted to.  
 */
 
 #pragma once

@@ -16,8 +16,7 @@
  */
 
 /*
-/ Opensource project by Tung Nguyen Thanh
-/ 2007
+ This file implements class About - the dialog displaying information about this program.
 */
 
 #include "wx/wxprec.h"
@@ -44,7 +43,7 @@ About::About(MainWindow* Parent, wxWindowID WindowID, const wxString& Title, POI
 	ptrPanel->SetBackgroundColour(wxColor(255, 255, 255));
 	wxBoxSizer* ptrPanelSizer = new wxBoxSizer(wxVERTICAL);
 	wxStaticBoxSizer* ptrStaticBox1 = new wxStaticBoxSizer(wxVERTICAL, ptrPanel, wxT("FMIP"));
-	ptrStaticBox1->Add(new wxStaticText(ptrStaticBox1->GetStaticBox(), wxID_ANY, wxT("Version 1.0.0.1\n3-42-V\n2016")));
+	ptrStaticBox1->Add(new wxStaticText(ptrStaticBox1->GetStaticBox(), wxID_ANY, wxT("Version 1.0.0.1\n3-42-V\n2016-2017")));
 	wxStaticBoxSizer* pStaticBox2 = new wxStaticBoxSizer(wxVERTICAL, ptrPanel, wxT("Các thành phần mã nguồn mở sử dụng trong chương trình:"));
 	pStaticBox2->Add(new wxStaticText(pStaticBox2->GetStaticBox(), wxID_ANY, wxT("Memory strings (Process Hacker)\nCapstone")));
 	ptrPanelSizer->Add(ptrStaticBox1, 1, wxGROW);

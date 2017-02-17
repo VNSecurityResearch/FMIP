@@ -15,10 +15,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
-/ Opensource project by Tung Nguyen Thanh
-/ 2007
-*/
+ /*
+  This file defines class ThreadingOutputVMContent - it implements a thread to output content of a VM region.
+  The purpose of this seperate thread is not to make the GUI (belonging to the primary thread) freezed even if the task takes a long time to complete.
+ */
 
 #pragma once
 #include <wx/thread.h>

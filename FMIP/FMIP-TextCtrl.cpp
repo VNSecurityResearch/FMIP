@@ -16,8 +16,7 @@
  */
 
 /*
-/ Opensource project by Tung Nguyen Thanh
-/ 2007
+ customized text control of this program.
 */
 
 #include "wx/wxprec.h"
@@ -74,9 +73,9 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 
 	case WM_PAINT:
 		/*
-		* In Windows 8 (or other version older than Windows 10), when the window is sized such that
-		* the state of the scroll bar changes to STATE_SYSTEM_UNAVAILABLE, the scroll bar automatically scrolls to the top.
-		* In that case, this is to restore the scroll bar to it's previous position.
+		 In Windows 8 (or other version older than Windows 10), when the window is sized such that
+		 the state of the scroll bar changes to STATE_SYSTEM_UNAVAILABLE, the scroll bar automatically scrolls to the top.
+		 In that case, this is to restore the scroll bar to it's previous position.
 		*/
 		if (m_blHScrollBarVisible)
 		{
@@ -148,8 +147,8 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 		case SB_LINERIGHT:
 		{
 			/*
-			* In Windows 8 (or other version older than Windows 10), the scroll bar can scroll past the max scrolling position.
-			* In that case, this is to keep the scroll bar postion within the correct scrolling range.
+			 In Windows 8 (or other version older than Windows 10), the scroll bar can scroll past the max scrolling position.
+			 In that case, this is to keep the scroll bar postion within the correct scrolling range.
 			*/
 			::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
 			UINT uintMaxScrlPosInWinOlderThan10 = m_ScrollInfo.nMax - (m_ScrollInfo.nPage - 1);
@@ -163,8 +162,8 @@ WXLRESULT FMIP_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 		case SB_PAGERIGHT:
 		{
 			/*
-			* In Windows 8 (or other version older than Windows 10), the scroll bar can scroll past the max scrolling position.
-			* In that case, this is to keep the scroll bar postion within the correct scrolling range.
+			 In Windows 8 (or other version older than Windows 10), the scroll bar can scroll past the max scrolling position.
+			 In that case, this is to keep the scroll bar postion within the correct scrolling range.
 			*/
 			::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
 			UINT uintScrBarMaxPosInSafeCase = m_ScrollInfo.nMax - (m_ScrollInfo.nPage);

@@ -16,8 +16,8 @@
  */
 
 /*
-/ Opensource project by Tung Nguyen Thanh
-/ 2007
+ This file implements class ThreadingOutputVMContent.
+ This class outputs content of a VM region either in Assembly or in Strings to a window.
 */
 
 #include "wx/wxprec.h"
@@ -203,7 +203,8 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 					return (wxThread::ExitCode)1;
 				displayBufferCount = (PAGE_SIZE * 2) - 1;
 				// no need for std::wstring because it costs more resources and we don't have to do much text manipulation.
-				PWCHAR wzsDisplayBuffer = new WCHAR[displayBufferCount + 1]; 
+				std::unique_ptr<WCHAR>smptrAutoFreedWszString(new WCHAR[displayBufferCount + 1]);
+				PWCHAR wzsDisplayBuffer = smptrAutoFreedWszString.get(); 
 				//
 				UCHAR byte; // current byte
 				UCHAR byte1; // previous byte

@@ -16,8 +16,7 @@
  */
 
 /*
-/ Opensource project by Tung Nguyen Thanh
-/ 2007
+ This file implements the customized tree control of this program.
 */
 
 #include <wx/wxprec.h>
@@ -67,7 +66,7 @@ void FMIP_TreeCtrl::OnRightClick(wxTreeEvent& event)
 	PopupMenu(&pPopupMenu);
 }
 
-void FMIP_TreeCtrl::OnRefresh(wxMenuEvent& event)
+void FMIP_TreeCtrl::OnRescan(wxMenuEvent& event)
 {
 	DeleteAllItems();
 	static_cast<MainWindow*>(this->GetParent())->SetStatusText(wxT("Đang quét các tiến trình..."));
