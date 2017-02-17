@@ -272,7 +272,7 @@ void MakeTreeItemsAboutAProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, co
 					ReadProcessMemory(hProcess, pcvoidRegionBase, (PVOID)ptrByteBuffer, mbi.RegionSize, &nNumOfBytesRead);
 					for (SIZE_T i = 0; i < mbi.RegionSize; i++) // assume i is the start of a DOS header.
 					{
-						// No need for std::regex because we don't have to do much text manipulation. Moreover, we're dealing with bytes, not chars or strings.
+						// No need for std::regex because we don't have to do much text manipulation. Moreover, we're dealing with bytes, not strings.
 						if (ptrByteBuffer[i] == 'M')
 						{
 							if (i + 1 >= mbi.RegionSize)
