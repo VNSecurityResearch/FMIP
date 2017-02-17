@@ -1,4 +1,21 @@
 ﻿/*
+ * Copyright (C) 2016-2017 Tung Nguyen Thanh.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
 / Opensource project by Tung Nguyen Thanh
 / 2007
 */
@@ -11,7 +28,7 @@
 #include "ThreadingOutputVMContent.h"
 #include "FMIP-TextCtrl.h"
 #include <memory>
-//#include "MemLeakDetection.h"
+
 #ifdef __WXMSW__
 #include <wx/msw/msvcrt.h>      // redefines the new() operator 
 #endif
@@ -49,7 +66,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 		tiIdIterator = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemParent(tiIdIterator);
 		ptrGenericTreeItem = static_cast<Generic_Tree_Item*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiIdIterator));
 		TreeItemType = ptrGenericTreeItem->GetType();
-	} while (TreeItemType != PROCESS_NAME);
+	} while (TreeItemType != PROCESS_NAME_WITH_PID);
 	wxstrProcessNamePId = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemText(tiIdIterator);
 	//m_ptrVMContentDisplay->SetStatusText(strProcessNamePId);
 	m_dwPId = static_cast<Tree_Item_Process_Name_PId*>(ptrGenericTreeItem)->GetPId();
@@ -155,7 +172,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 						{
 							cs_free(insn, count);
 							cs_close(&handle);
-							return (wxThread::ExitCode)0; //IMPORTANT TO KILL THE THREAD WHILE IN LONG DURATION OPERATION
+							return (wxThread::ExitCode)0; //IMPORTANT TO KILL THE THREAD DURING A LONG DURATION OPERATION.
 						}
 						strAssembly.append(wxString::Format(wxT("0x%p: %-12s\t%-s\r\n"), (void*)insn[line].address, insn[line].mnemonic,
 							insn[line].op_str));
@@ -185,7 +202,9 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 				if (minimumLength < 4)
 					return (wxThread::ExitCode)1;
 				displayBufferCount = (PAGE_SIZE * 2) - 1;
-				std::wstring wstrDisplayBuffer(displayBufferCount + 1, L'\0');
+				// no need for std::wstring because it costs more resources and we don't have to do much text manipulation.
+				PWCHAR wzsDisplayBuffer = new WCHAR[displayBufferCount + 1]; 
+				//
 				UCHAR byte; // current byte
 				UCHAR byte1; // previous byte
 				UCHAR byte2; // byte before previous byte
@@ -250,7 +269,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 					{
 						if (length < displayBufferCount)
 						{
-							wstrDisplayBuffer[length] = byte;
+							wzsDisplayBuffer[length] = byte;
 						}
 						length++;
 					}
@@ -263,7 +282,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 						else if (byte == 0)
 						{
 							length = 1;
-							wstrDisplayBuffer.at(0) = byte1;
+							wzsDisplayBuffer[0] = byte1;
 						}
 						else
 						{
@@ -276,7 +295,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 						{
 							if (length < displayBufferCount)
 							{
-								wstrDisplayBuffer[length] = byte;
+								wzsDisplayBuffer[length] = byte;
 							}
 							length++;
 						}
@@ -302,8 +321,8 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 						else
 						{
 							length = 2;
-							wstrDisplayBuffer.at(0) = byte1;
-							wstrDisplayBuffer.at(1) = byte;
+							wzsDisplayBuffer[0] = byte1;
+							wzsDisplayBuffer[1] = byte;
 						}
 					}
 					else if (!printable2 && printable1 && !printable)
@@ -314,7 +333,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 					{
 						if (length < displayBufferCount)
 						{
-							wstrDisplayBuffer[length] = byte;
+							wzsDisplayBuffer[length] = byte;
 						}
 						length++;
 					}
@@ -346,17 +365,18 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 						}
 						uintLastExaminedAddress = (uint64_t)BaseAddress + (i - bias - lengthInBytes);
 						displayLength = (ULONG)(min(length, displayBufferCount));
-						wstrDisplayBuffer[displayLength] = L'\0';
-						for (size_t i = 0; wstrDisplayBuffer[i] != L'\0'; i++)
+						wzsDisplayBuffer[displayLength] = L'\0';
+						// No need for std::regex since we don't have to do much text manipulation. Manipulating C wide chars in this case is more convenient and resource saving.
+						for (size_t i = 0; wzsDisplayBuffer[i] != L'\0'; i++)
 						{
-							if (wstrDisplayBuffer[i] == L'\r' || wstrDisplayBuffer[i] == '\n')
-								wstrDisplayBuffer[i] = L'\x1A';
+							if (wzsDisplayBuffer[i] == L'\r' || wzsDisplayBuffer[i] == '\n')
+								wzsDisplayBuffer[i] = L'\x1A';
 						}
-						wstrDisplayBuffer[displayLength] = L'\r';
-						wstrDisplayBuffer[displayLength + 1] = L'\n';
-						wstrDisplayBuffer[displayLength + 2] = L'\0';
+						wzsDisplayBuffer[displayLength] = L'\r';
+						wzsDisplayBuffer[displayLength + 1] = L'\n';
+						wzsDisplayBuffer[displayLength + 2] = L'\0';
 						wxstrStrings.append(wxString::Format(wxT("0x%p: "), (void*)uintLastExaminedAddress));
-						wxstrStrings.append(wstrDisplayBuffer.data());
+						wxstrStrings.append(wzsDisplayBuffer);
 						length = 0;
 					}
 				AfterCreateResult:
@@ -370,10 +390,10 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 			break;
 			default:
 				break;
-			} // switch (m_OutputType)
-		} // for (size_t offset = 0; offset < nRegionSize; offset += nReadSize)
+			} // switch (m_OutputType).
+		} // for (size_t offset = 0; offset < nRegionSize; offset += nReadSize).
 		if (tiIdIterator == tiSelected)
-			break; // this is not a Tree_Item_Allocation_Base, so just process this Tree_Item_Region and exit the loop
+			break; // this is not a Tree_Item_Allocation_Base, so just process this Tree_Item_Region and exit the loop.
 	} while ((tiIdIterator = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetNextSibling(tiIdIterator)) != nullptr);
 	if (uintLastExaminedAddress == 0)
 		m_ptrVMContentDisplay->SetTitle(wxString::Format(wxT("Không có %s từ 0x%p đến 0x%p"), m_ptrVMContentDisplay->m_OutputType == OUTPUT_TYPE_ASM ? wxT("mã hợp ngữ") : wxT("các dãy ký tự"),

@@ -1,7 +1,26 @@
 ﻿/*
-/ Opensource project by Tung Nguyen Thanh
-/ 2007
-*/
+ * Copyright (C) 2016-2017 Tung Nguyen Thanh.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ This file defines:
+ - The entry point of the program: function OnInit.
+ - The public methods of class FMIP.
+ - And other functions that the methods of class FMIP call to.
+ */
 
 #include <wx/wxprec.h>
 #ifndef WX_PRECOMP
@@ -32,10 +51,10 @@
 #include <wx/msw/msvcrt.h>      // redefines the new() operator 
 #endif
 
-bool FMIP::OnInit()
+bool FMIP::OnInit() // Entry point of the program.
 {
 #ifdef _NDEBUG
-	// If there is an instance of the same instance running, bring it to the foreground and terminate.
+	// If there is an instance of the same instance running, bring it to the foreground and then terminate.
 	HWND hWnd = ::FindWindow(nullptr, AppTitle);
 	if (hWnd != NULL)
 	{
@@ -184,12 +203,12 @@ BOOL SendTreeItemToX64Instance(HWND hwndDestWindow, TREE_ITEM_PROPERTIES* ptrNod
 /*
 This function sends a request from the X64 instance to the X86 instance for handling a X86 Wow process.
 */
-BOOL RequestX86Handling(HWND hwndDestWindow, HWND hwndSourceWindow, PROCESS_NAME_PID* ptrProcessNamePId, DWORD DataSize)
+BOOL RequestX86Handling(HWND hwndDestWindow, HWND hwndSourceWindow, PROCESS_NAME_AND_PID* ptrProcessNamePId, DWORD DataSize)
 {
 	return SendRequestToRemoteInstance(hwndDestWindow, hwndSourceWindow, REQUEST_X86HANDLING_TO_X86_INSTANCE, ptrProcessNamePId, DataSize);
 }
 
-void MakeTreeItemsAboutAProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const wxTreeItemId& tiRoot, HANDLE hProcess, const PROCESS_NAME_PID& ProcessNamePId)
+void MakeTreeItemsAboutAProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, const wxTreeItemId& tiRoot, HANDLE hProcess, const PROCESS_NAME_AND_PID& ProcessNamePId)
 {
 	LPCVOID pcvoidRegionBase = (LPCVOID)0x10000; // start scanning from user-mode VM partition. 
 	LPCVOID pcvoidAllocationBase = nullptr;
@@ -210,7 +229,7 @@ void MakeTreeItemsAboutAProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, co
 		if (hwndDestWindow != nullptr) // if there is a remote (X64) instance then tell it to append a tree item to display the process' name and PId,...
 		{
 			wxString wxszItemText;
-			NodeProperties.TREEITEMTYPE = PROCESS_NAME;
+			NodeProperties.TREEITEMTYPE = PROCESS_NAME_WITH_PID;
 			NodeProperties.PROCESSNAMEPID.dwPId = ProcessNamePId.dwPId;
 			wxszItemText = ProcessNamePId.wszProcessName;
 			wxszItemText.append(wxString::Format(wxT(" (PId: %d X86)"), ProcessNamePId.dwPId));
@@ -249,10 +268,11 @@ void MakeTreeItemsAboutAProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, co
 					// Check if this process has an indication of PE injection.
 					SIZE_T nNumOfBytesRead;
 					std::unique_ptr<BYTE>smptrAutoFreedByteBuffer(new BYTE[mbi.RegionSize]);
-					PBYTE ptrByteBuffer = smptrAutoFreedByteBuffer.get();
+					PBYTE ptrByteBuffer = smptrAutoFreedByteBuffer.get(); 
 					ReadProcessMemory(hProcess, pcvoidRegionBase, (PVOID)ptrByteBuffer, mbi.RegionSize, &nNumOfBytesRead);
 					for (SIZE_T i = 0; i < mbi.RegionSize; i++) // assume i is the start of a DOS header.
 					{
+						// No need for std::regex because we don't have to do much text manipulation. Moreover, we're dealing with bytes, not chars or strings.
 						if (ptrByteBuffer[i] == 'M')
 						{
 							if (i + 1 >= mbi.RegionSize)
@@ -311,7 +331,7 @@ void MakeTreeItemsAboutAProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, co
 		if (blIsPEInjectedInProcess == TRUE) 
 			if (hwndDestWindow != nullptr) // if there is a remote (X64) instance then tell it to change the color of the last tree item displaying the process name and PId to red,...
 			{
-				tiParentDataToChange.TreeItemParentType = PROCESS_NAME;
+				tiParentDataToChange.TreeItemParentType = PROCESS_NAME_WITH_PID;
 				tiParentDataToChange.wxclColor.Set(255, 0, 0);
 				SendRequestToRemoteInstance(hwndDestWindow, nullptr, CHANGE_LAST_TREE_ITEM_PARENT_DATA_IN_X64_INSTANCE, &tiParentDataToChange, sizeof(TREE_ITEM_PARENT_DATA_TO_CHANGE));
 			}
@@ -323,12 +343,12 @@ void MakeTreeItemsAboutAProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, co
 		}
 	}
 
-void MakeTreeItemsInLocalInstance(wxTreeCtrl* ptrTreeCtrl, const wxTreeItemId& tiRoot, HANDLE hProcess, const PROCESS_NAME_PID&  ProcessNamePId)
+void MakeTreeItemsInLocalInstance(wxTreeCtrl* ptrTreeCtrl, const wxTreeItemId& tiRoot, HANDLE hProcess, const PROCESS_NAME_AND_PID&  ProcessNamePId)
 {
 	MakeTreeItemsAboutAProcess(nullptr, ptrTreeCtrl, tiRoot, hProcess, ProcessNamePId);
 }
 
-void FMIP::MakeTreeItemsInRemoteInstance(HWND hwndDestWindow, HANDLE hProcess, const PROCESS_NAME_PID&  ProcessNamePId)
+void FMIP::MakeTreeItemsInRemoteInstance(HWND hwndDestWindow, HANDLE hProcess, const PROCESS_NAME_AND_PID&  ProcessNamePId)
 {
 	MakeTreeItemsAboutAProcess(hwndDestWindow, nullptr, nullptr, hProcess, ProcessNamePId);
 }
@@ -359,7 +379,7 @@ BOOL FMIP::FillTreeCtrl(FMIP_TreeCtrl* ptrTreeCtrl)
 			wxLogDebug(wxString::Format(L"Unable to open process %s, please run as Administrator.", pe32.szExeFile));
 			continue;
 		}
-		PROCESS_NAME_PID PROCESSNAMEPID;
+		PROCESS_NAME_AND_PID PROCESSNAMEPID;
 		PROCESSNAMEPID.dwPId = pe32.th32ProcessID;
 		wxString strProcessName(pe32.szExeFile);
 		DWORD dwLength = strProcessName.length();
@@ -371,7 +391,7 @@ BOOL FMIP::FillTreeCtrl(FMIP_TreeCtrl* ptrTreeCtrl)
 		if (FMIP::IsProcessWoW64(hProcess) == TRUE) // the process to be examined (with hProcess) is a X86 one running under WoW64, so...
 		{
 			// send the information about the process to be examined to the handler in X86 instance.
-			RequestX86Handling(hwndX86Handler, hwndX64MakeTreeItemsHandler, &PROCESSNAMEPID, sizeof(PROCESS_NAME_PID));
+			RequestX86Handling(hwndX86Handler, hwndX64MakeTreeItemsHandler, &PROCESSNAMEPID, sizeof(PROCESS_NAME_AND_PID));
 		}
 		else // else, just make tree items with information about the process being examine.
 		{
@@ -412,7 +432,7 @@ Generic_Tree_Item::~Generic_Tree_Item()
 
 Tree_Item_Process_Name_PId::Tree_Item_Process_Name_PId(DWORD PId)
 {
-	SetType(PROCESS_NAME);
+	SetType(PROCESS_NAME_WITH_PID);
 	this->m_dwPId = PId;
 }
 

@@ -1,6 +1,27 @@
 ﻿/*
-/ Opensource project by Tung Nguyen Thanh
-/ 2007
+ * Copyright (C) 2016-2017 Tung Nguyen Thanh.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ This file defines:
+ - C NULL terminated strings, constants.
+ - Structures and enumeration types used in the program. 
+ - Classes related to tree item.
+ - Class FMIP, the primary class of this program.
+ - Printable character table that the string searching code refers to. 
 */
 
 #pragma once
@@ -8,14 +29,14 @@
 #include <Capstone\headers\capstone.h>
 
 //const LPCTSTR PEInjectionWarning = wxT(" có PE tiêm trong tiến trình!");
-#define AppTitle L"Tìm tiến trình nghi vấn bị tiêm mã độc"
-#define AppTitleWoW AppTitle##" X86"
-#define CM_TERMINATE WM_APP
+#define AppTitle		L"Tìm tiến trình nghi vấn bị tiêm mã độc"
+#define AppTitleWoW		AppTitle##" X86"
+#define CM_TERMINATE	WM_APP
 const int MaxFileName = 256 * 2; // length of WCHAR string in byte
 
 enum TREE_ITEM_TYPE
 {
-	PROCESS_NAME,
+	PROCESS_NAME_WITH_PID,
 	ALLOCATION_BASE,
 	REGION
 };
@@ -33,7 +54,7 @@ struct TREE_ITEM_PARENT_DATA_TO_CHANGE
 	wxColor wxclColor;
 };
 
-struct PROCESS_NAME_PID
+struct PROCESS_NAME_AND_PID
 {
 	WCHAR wszProcessName[MaxFileName]; 
 	DWORD dwPId;
@@ -43,7 +64,9 @@ class Generic_Tree_Item :public wxTreeItemData
 {
 private:
 	TREE_ITEM_TYPE m_TreeItemType;
-	wxColor m_wxclColor = wxNullColour; // the customdraw handler will paint this tree item with default color. If it is set to another specific color, then the customdraw handler will paint the tree item accordingly.
+	// the customdraw handler will paint this tree item with default color. If it is set to another specific color, then the customdraw handler will paint the tree item accordingly.
+	wxColor m_wxclColor = wxNullColour; 
+	//
 public:
 	//Generic_Tree_Item();
 	void SetType(const TREE_ITEM_TYPE& TreeItemType);
@@ -90,11 +113,11 @@ public:
 
 struct TREE_ITEM_PROPERTIES
 {
-	PROCESS_NAME_PID PROCESSNAMEPID;
+	PROCESS_NAME_AND_PID PROCESSNAMEPID;
 	TREE_ITEM_TYPE TREEITEMTYPE;
 	VOID* POINTER_32 ptr32AllocationBase; // notice: because this structure must be...
-	VOID* POINTER_32 ptr32BaseAddress;	  // ... the same size in both X86 instance and X64 intance...
-	DWORD dwRegionSize;					  // ... so its fields size must not be template (T) size.
+	VOID* POINTER_32 ptr32BaseAddress;	  // ... exactly of the same size in both the X86 instance and the X64 intance...
+	DWORD dwRegionSize;					  // ... so its field sizes must be fixed to guarantee consistency.
 	BOOL blPEInjection = FALSE;
 };
 
@@ -115,7 +138,7 @@ public:
 	static BOOL SetPrivilege(HANDLE hToken, LPCTSTR lpszPrivilege, BOOL bEnablePrivilege);
 	static LPCVOID FindPrivateERWRegion(HANDLE hProcess, LPCVOID ptrRegionBase);
 	static BOOL FillTreeCtrl(FMIP_TreeCtrl* ptrTreeCtrl);
-	static void MakeTreeItemsInRemoteInstance(HWND hwndDestWindow, HANDLE, const PROCESS_NAME_PID&);
+	static void MakeTreeItemsInRemoteInstance(HWND hwndDestWindow, HANDLE, const PROCESS_NAME_AND_PID&);
 	~FMIP();
 };
 
