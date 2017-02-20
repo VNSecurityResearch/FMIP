@@ -16,12 +16,12 @@
  */
 
 /*
- This file defines:
- - C NULL terminated strings, constants.
- - Structures and enumeration types used in the program. 
- - Classes related to tree item.
- - Class FMIP, the primary class of this program.
- - Printable character table that the string searching code refers to. 
+ This file:
+ - defines C NULL terminated strings, constants.
+ - defines structures and enumeration types used in the program. 
+ - declares classes related to tree items.
+ - declares lass FMIP, the primary class of this program.
+ - defines a printable character table that the string searching code refers to. 
 */
 
 #pragma once

@@ -368,7 +368,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 						displayLength = (ULONG)(min(length, displayBufferCount));
 						wzsDisplayBuffer[displayLength] = L'\0';
 						// No need for std::regex since we don't have to do much text manipulation. Manipulating C wide chars in this case is more convenient and resource saving.
-						for (size_t i = 0; wzsDisplayBuffer[i] != L'\0'; i++)
+						for (size_t i = 0; i<displayLength; i++)
 						{
 							if (wzsDisplayBuffer[i] == L'\r' || wzsDisplayBuffer[i] == '\n')
 								wzsDisplayBuffer[i] = L'\x1A';

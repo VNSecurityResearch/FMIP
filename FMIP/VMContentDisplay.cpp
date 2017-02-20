@@ -16,8 +16,8 @@
  */
 
 /*
- This file implements class VMContentDisplay - the dialog with the customized text control,
- in which, content of a VM region is outputted to.  
+ This file implements class VMContentDisplay - the dialog with the customized text control
+ to which content of a VM region is outputted.  
 */
 
 #include <wx/wxprec.h>

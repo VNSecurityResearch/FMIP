@@ -16,7 +16,7 @@
  */
 
 /*
- This file defines class FMIP_TreeCtrl - the customized tree control of this program.
+ This file declares class FMIP_TreeCtrl - the customized tree control of this program.
 */
 
 #pragma once

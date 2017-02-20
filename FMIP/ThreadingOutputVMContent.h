@@ -16,8 +16,8 @@
  */
 
  /*
-  This file defines class ThreadingOutputVMContent - it implements a thread to output content of a VM region.
-  The purpose of this seperate thread is not to make the GUI (belonging to the primary thread) freezed even if the task takes a long time to complete.
+  This file declares class ThreadingOutputVMContent - it implements a thread to output content of a VM region.
+  The purpose of this seperate thread is not to make the GUI (belonging to the primary thread) freezed while the task busy doing its job.
  */
 
 #pragma once

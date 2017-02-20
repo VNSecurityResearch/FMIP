@@ -16,10 +16,11 @@
  */
 
 /*
- This file defines:
- - The entry point of the program: function OnInit.
- - The public methods of class FMIP.
- - And other functions that the methods of class FMIP call to.
+ This file implements:
+ - the entry point of the program: function OnInit.
+ - class FMIP.
+ - classes related to tree item
+ - other functions that the methods of class FMIP call to.
  */
 
 #include <wx/wxprec.h>

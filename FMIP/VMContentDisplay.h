@@ -16,7 +16,7 @@
  */
 
 /*
- This file defines class VMContentDisplay - the dialog with the customized text control,
+ This file declares class VMContentDisplay - the dialog with the customized text control,
  in which, content of a VM region is outputted to.  
 */
 

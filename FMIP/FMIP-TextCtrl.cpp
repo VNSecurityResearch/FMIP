@@ -16,7 +16,7 @@
  */
 
 /*
- customized text control of this program.
+ This file implements class FMIP_TextCtrl - the customized text control of this program.
 */
 
 #include "wx/wxprec.h"

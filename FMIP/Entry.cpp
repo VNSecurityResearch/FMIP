@@ -16,7 +16,7 @@
  */
 
 /*
- This file implements the entry point of the program defined in class FMIP.
+ This file starts this program by calling the entry point (function OnInit) in class FMIP.
 */
 
 #include <wx/wxprec.h>

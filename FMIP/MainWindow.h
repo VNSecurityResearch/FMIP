@@ -16,7 +16,7 @@
  */
 
 /*
- This file defines class MainWindow - the main window of this program.
+ This file declares class MainWindow - the main window of this program.
 */
 
 #pragma once

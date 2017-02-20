@@ -16,7 +16,7 @@
  */
 
 /*
- This file defines class FMIP_TextCtrl - the customized text control of this program.
+ This file declares class FMIP_TextCtrl - the customized text control of this program.
 */
 
 #pragma once
