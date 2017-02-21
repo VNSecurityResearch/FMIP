@@ -44,8 +44,10 @@ ThreadingOutputVMContent::ThreadingOutputVMContent(VMContentDisplay* pVMContentD
 
 ThreadingOutputVMContent::~ThreadingOutputVMContent()
 {
-	wxCriticalSectionLocker CSLocker(m_ptrVMContentDisplay->m_ptrAttachedThreadLocker);
-	m_ptrVMContentDisplay->m_ptrAttachedThread = nullptr;
+	{
+		wxCriticalSectionLocker CSLocker(m_ptrVMContentDisplay->m_ptrAttachedThreadLocker);
+		m_ptrVMContentDisplay->m_ptrAttachedThread = nullptr;
+	}
 	wxQueueEvent(m_ptrVMContentDisplay, new wxThreadEvent(EVT_THREAD_COMPLETED));
 	OutputDebugString(L"Destroy	ThreadingOutputVMContent\n");
 }
@@ -58,18 +60,19 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 	}
 	wxTreeItemId tiSelected = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetSelection();
 	wxString wxstrProcessNamePId;
-	wxTreeItemId tiIdIterator = tiSelected;
+	wxTreeItemId tiProcessNamePIdFinder = tiSelected;
 	TREE_ITEM_TYPE TreeItemType;
 	Generic_Tree_Item* ptrGenericTreeItem;
+	// Get the name and PId of the process.
 	do
 	{
-		tiIdIterator = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemParent(tiIdIterator);
-		ptrGenericTreeItem = static_cast<Generic_Tree_Item*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiIdIterator));
+		tiProcessNamePIdFinder = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemParent(tiProcessNamePIdFinder);
+		ptrGenericTreeItem = static_cast<Generic_Tree_Item*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiProcessNamePIdFinder));
 		TreeItemType = ptrGenericTreeItem->GetType();
 	} while (TreeItemType != PROCESS_NAME_WITH_PID);
-	wxstrProcessNamePId = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemText(tiIdIterator);
-	//m_ptrVMContentDisplay->SetStatusText(strProcessNamePId);
+	wxstrProcessNamePId = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemText(tiProcessNamePIdFinder);
 	m_dwPId = static_cast<Tree_Item_Process_Name_PId*>(ptrGenericTreeItem)->GetPId();
+	//
 	m_hProcessToRead = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, m_dwPId);
 	if ((m_hProcessToRead == INVALID_HANDLE_VALUE) || (m_hProcessToRead == nullptr))
 	{
@@ -77,11 +80,9 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 			L"Không đọc được nội dung của tiến trình này. Thường là do tiến trình đã kết thúc. Hãy nhấn Quét lại trên trình đơn.", AppTitle, MB_ICONINFORMATION | MB_OK);
 		return (wxThread::ExitCode)1;
 	}
-	wxString wxstrStatusText = wxstrProcessNamePId;// m_ptrVMContentDisplay->GetStatusText();
+	wxString wxstrStatusText = wxstrProcessNamePId;
 	m_ptrVMContentDisplay->m_ptrStatusBar->SetStatusText(wxstrStatusText.Append(wxT(" --> Đang xử lý...")));
-	//wxTreeItemId SelectedTreeItemId = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetSelection();
 	wxTreeItemIdValue tiIdValue;
-	//tiIdIterator = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetFirstChild(tiSelected, tiIdValue);
 	ptrGenericTreeItem = static_cast<Generic_Tree_Item*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiSelected));
 	TreeItemType = ptrGenericTreeItem->GetType();
 	wxString wxstrTitle;
@@ -92,34 +93,24 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 	case ALLOCATION_BASE:
 		pcvoidRegionStart = static_cast<Tree_Item_Allocation_Base*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiSelected))->GetAllocationBase();
 		wxstrTitle.Append(wxstrTitle.Format(L"0x%p [+]", pcvoidRegionStart));
-		tiIdIterator = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetFirstChild(tiSelected, tiIdValue);
+		tiProcessNamePIdFinder = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetFirstChild(tiSelected, tiIdValue);
 		break;
 	case REGION:
 		pcvoidRegionStart = static_cast<Tree_Item_Region*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiSelected))->GetBaseAdress();
 		wxstrTitle.Printf(L"0x%p", pcvoidRegionStart);
-		tiIdIterator = tiSelected;
+		tiProcessNamePIdFinder = tiSelected;
 		break;
 	}
-	/*if (tiIdIterator == nullptr)
-	{
-	tiIdIterator = tiSelected;
-	wxstrAddress.Printf("0x%p", static_cast<Tree_Item_Region*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiIdIterator))->GetBaseAdress());
-	}
-	else
-	{
-	wxstrAddress.Append(wxstrAddress.Format("0x%p [+]", static_cast<Tree_Item_Allocation_Base*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiSelected))->GetAllocationBase()));
-	}*/
-	//wxString wxstrFoo = wxString::Printf("%s", L"ký tự");
 	m_ptrVMContentDisplay->SetTitle(wxString::Format(wxT("%s từ %s"), m_ptrVMContentDisplay->m_OutputType == OUTPUT_TYPE_ASM ? wxT("Mã hợp ngữ") : wxT("Các dãy ký tự"), wxstrTitle));
 	wxstrTitle = m_ptrVMContentDisplay->GetTitle();
 	UINT_PTR uintLastExaminedAddress = 0;
 	do
 	{
-		if (static_cast<Generic_Tree_Item*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiIdIterator))->GetType() != TREE_ITEM_TYPE::REGION)
+		if (static_cast<Generic_Tree_Item*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiProcessNamePIdFinder))->GetType() != TREE_ITEM_TYPE::REGION)
 			break;
 		//if (this->TestDestroy()) return (wxThread::ExitCode)0; // necessary?
-		SIZE_T nRegionSize = static_cast<Tree_Item_Region*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiIdIterator))->GetRegionSize();
-		pcvoidRegionEnd = (PBYTE)(static_cast<Tree_Item_Region*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiIdIterator))->GetBaseAdress()) + nRegionSize - 1;
+		SIZE_T nRegionSize = static_cast<Tree_Item_Region*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiProcessNamePIdFinder))->GetRegionSize();
+		pcvoidRegionEnd = (PBYTE)(static_cast<Tree_Item_Region*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiProcessNamePIdFinder))->GetBaseAdress()) + nRegionSize - 1;
 		SIZE_T nBufferSize = 1024 * 512; // 512KB
 		SIZE_T nReadSize = nRegionSize;
 		if (nRegionSize > nBufferSize)
@@ -135,7 +126,7 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 				nReadSize = nBufferSize;
 			}
 		}
-		LPCVOID BaseAddress = static_cast<Tree_Item_Region*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiIdIterator))->GetBaseAdress();
+		LPCVOID BaseAddress = static_cast<Tree_Item_Region*>(m_ptrVMContentDisplay->m_ptrTreeCtrl->GetItemData(tiProcessNamePIdFinder))->GetBaseAdress();
 		for (size_t offset = 0; offset <= nRegionSize; offset += nReadSize)
 		{
 			if (this->TestDestroy()) 
@@ -393,9 +384,9 @@ wxThread::ExitCode ThreadingOutputVMContent::Entry()
 				break;
 			} // switch (m_OutputType).
 		} // for (size_t offset = 0; offset < nRegionSize; offset += nReadSize).
-		if (tiIdIterator == tiSelected)
+		if (tiProcessNamePIdFinder == tiSelected)
 			break; // this is not a Tree_Item_Allocation_Base, so just process this Tree_Item_Region and exit the loop.
-	} while ((tiIdIterator = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetNextSibling(tiIdIterator)) != nullptr);
+	} while ((tiProcessNamePIdFinder = m_ptrVMContentDisplay->m_ptrTreeCtrl->GetNextSibling(tiProcessNamePIdFinder)) != nullptr);
 	if (uintLastExaminedAddress == 0)
 		m_ptrVMContentDisplay->SetTitle(wxString::Format(wxT("Không có %s từ 0x%p đến 0x%p"), m_ptrVMContentDisplay->m_OutputType == OUTPUT_TYPE_ASM ? wxT("mã hợp ngữ") : wxT("các dãy ký tự"),
 			pcvoidRegionStart, pcvoidRegionEnd));

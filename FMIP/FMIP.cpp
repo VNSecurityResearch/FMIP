@@ -427,10 +427,6 @@ TREE_ITEM_TYPE Generic_Tree_Item::GetType() const
 	return m_TreeItemType;
 }
 
-Generic_Tree_Item::~Generic_Tree_Item()
-{
-}
-
 Tree_Item_Process_Name_PId::Tree_Item_Process_Name_PId(DWORD PId)
 {
 	SetType(PROCESS_NAME_WITH_PID);
@@ -468,8 +464,4 @@ LPCVOID Tree_Item_Region::GetBaseAdress()
 SIZE_T Tree_Item_Region::GetRegionSize()
 {
 	return SIZE_T(m_siztRegionSize);
-}
-
-FMIP::~FMIP()
-{
 }

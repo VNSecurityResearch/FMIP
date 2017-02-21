@@ -36,9 +36,9 @@ const int MaxFileName = 256 * 2; // length of WCHAR string in byte
 
 enum TREE_ITEM_TYPE
 {
-	PROCESS_NAME_WITH_PID,
-	ALLOCATION_BASE,
-	REGION
+	PROCESS_NAME_WITH_PID,	// label of the tree item is name and PId of a process.
+	ALLOCATION_BASE,		// label of the tree item is an allocation base virtual memory address.
+	REGION					// label of the tree item is a virtual memory address of a region.
 };
 
 enum ACTION
@@ -60,6 +60,16 @@ struct PROCESS_NAME_AND_PID
 	DWORD dwPId;
 };
 
+struct TREE_ITEM_PROPERTIES
+{
+	PROCESS_NAME_AND_PID PROCESSNAMEPID;
+	TREE_ITEM_TYPE TREEITEMTYPE;
+	VOID* POINTER_32 ptr32AllocationBase; // notice: because this structure must be...
+	VOID* POINTER_32 ptr32BaseAddress;	  // ... exactly of the same size in both the X86 instance and the X64 intance...
+	DWORD dwRegionSize;					  // ... so its field sizes must be fixed to guarantee consistency.
+	BOOL blPEInjection = FALSE;
+};
+
 class Generic_Tree_Item :public wxTreeItemData
 {
 private:
@@ -73,10 +83,11 @@ public:
 	void SetColor(unsigned char, unsigned char, unsigned char);
 	wxColor* GetColor();
 	TREE_ITEM_TYPE GetType() const;
-	virtual ~Generic_Tree_Item() = 0;
+	//virtual ~Generic_Tree_Item() = 0;
 
 };
 
+// This class is the data associated with a tree item of type PROCESS_NAME_WITH_PID.
 class Tree_Item_Process_Name_PId :public Generic_Tree_Item
 {
 private:
@@ -87,6 +98,7 @@ public:
 	DWORD GetPId();
 };
 
+// This class is the data associated with a tree item of type ALLOCATION_BASE.
 class Tree_Item_Allocation_Base :public Generic_Tree_Item
 {
 private:
@@ -96,6 +108,7 @@ public:
 	LPCVOID GetAllocationBase();
 };
 
+// This class is the data associated with a tree item of type REGION.
 class Tree_Item_Region :public Generic_Tree_Item
 {
 private:
@@ -111,16 +124,6 @@ public:
 	SIZE_T GetRegionSize();
 };
 
-struct TREE_ITEM_PROPERTIES
-{
-	PROCESS_NAME_AND_PID PROCESSNAMEPID;
-	TREE_ITEM_TYPE TREEITEMTYPE;
-	VOID* POINTER_32 ptr32AllocationBase; // notice: because this structure must be...
-	VOID* POINTER_32 ptr32BaseAddress;	  // ... exactly of the same size in both the X86 instance and the X64 intance...
-	DWORD dwRegionSize;					  // ... so its field sizes must be fixed to guarantee consistency.
-	BOOL blPEInjection = FALSE;
-};
-
 //namespace FMIP
 //{
 //	BOOL IsProcessWoW64(HANDLE hProcess);
@@ -130,6 +133,7 @@ struct TREE_ITEM_PROPERTIES
 //	void MakeTreeNodesForRemoteProcess(HWND hwndDestWindow, HANDLE, const PROCESS_NAME_PID&);
 //}
 
+// The primary class representing the program.
 class FMIP : public wxApp
 {
 public:
@@ -139,7 +143,6 @@ public:
 	static LPCVOID FindPrivateERWRegion(HANDLE hProcess, LPCVOID ptrRegionBase);
 	static BOOL FillTreeCtrl(FMIP_TreeCtrl* ptrTreeCtrl);
 	static void MakeTreeItemsInRemoteInstance(HWND hwndDestWindow, HANDLE, const PROCESS_NAME_AND_PID&);
-	~FMIP();
 };
 
 __declspec(selectany)
