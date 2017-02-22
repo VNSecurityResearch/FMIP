@@ -15,9 +15,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- This file implements class About - the dialog displaying information about this program.
-*/
+ /*
+  This file implements class About - the dialog displaying information about this program.
+ */
 
 #include "wx/wxprec.h"
 #ifndef WX_PRECOMP
@@ -39,7 +39,7 @@ About::About(MainWindow* Parent, wxWindowID WindowID, const wxString& Title, POI
 	wxBoxSizer* InnerBottomVSizer;
 	InnerBottomVSizer = new wxBoxSizer(wxVERTICAL);
 	wxPanel* ptrPanel = new wxPanel(this);
-	ptrPanel->Bind(wxEVT_LEFT_UP, &About::OnLeftMouseUp, this);
+	ptrPanel->Bind(wxEVT_LEFT_DOWN, &About::OnLeftMouseDown, this);
 	ptrPanel->SetBackgroundColour(wxColor(255, 255, 255));
 	wxBoxSizer* ptrPanelSizer = new wxBoxSizer(wxVERTICAL);
 	wxStaticBoxSizer* ptrStaticBox1 = new wxStaticBoxSizer(wxVERTICAL, ptrPanel, wxT("FMIP"));
@@ -51,8 +51,8 @@ About::About(MainWindow* Parent, wxWindowID WindowID, const wxString& Title, POI
 	ptrPanel->SetSizer(ptrPanelSizer);
 	InnerTopVSizer->Add(ptrPanel, 1, wxALL | wxEXPAND);
 	OutmostVSizer->Add(InnerTopVSizer, 1, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 3);
-	m_ptrButtonOK = new wxButton(this, wxID_OK);	
-	m_ptrButtonOK->Bind(wxEVT_LEFT_UP, &About::OnLeftMouseUp, this);
+	m_ptrButtonOK = new wxButton(this, wxID_OK);
+	m_ptrButtonOK->SetDefault();
 	InnerBottomVSizer->Add(m_ptrButtonOK);
 	m_ptrButtonOK->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &About::OnButtonClick, this);
 	OutmostVSizer->Add(InnerBottomVSizer, 0, wxALL | wxALIGN_RIGHT, 10);
@@ -72,10 +72,9 @@ void About::OnButtonClick(wxCommandEvent& evt)
 	this->Destroy();
 }
 
-void About::OnLeftMouseUp(wxMouseEvent & evtMouse)
+void About::OnLeftMouseDown(wxMouseEvent& evtMouse)
 {
-	m_ptrButtonOK->SetDefault();
-	evtMouse.Skip();
+	// Do nothing is the solution to make the button OK default.
 }
 
 WXLRESULT About::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam)
@@ -84,7 +83,10 @@ WXLRESULT About::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam)
 	{
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) != WA_INACTIVE)
-			m_ptrButtonOK->SetDefault(); // = ::SendMessage(m_ptrButtonOK->GetHWND(), BM_SETSTYLE, BS_DEFPUSHBUTTON | BS_TEXT, TRUE);
+		{
+			m_ptrButtonOK->SetFocus();
+			m_ptrButtonOK->SetDefault(); // ::SendMessage(m_ptrButtonOK->GetHWND(), BM_SETSTYLE, BS_DEFPUSHBUTTON | BS_TEXT, TRUE);
+		}
 		else
 			::SendMessage(m_ptrButtonOK->GetHWND(), BM_SETSTYLE, BS_PUSHBUTTON | BS_TEXT, TRUE);
 		break;

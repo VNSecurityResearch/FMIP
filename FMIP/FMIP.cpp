@@ -227,7 +227,7 @@ void MakeTreeItemsAboutAProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, co
 		NodeProperties.blPEInjection = FALSE;
 		VirtualQueryEx(hProcess, pcvoidRegionBase, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
 		pcvoidRegionBase = mbi.AllocationBase;
-		if (hwndDestWindow != nullptr) // if there is a remote (X64) instance then tell it to append a tree item to display the process' name and PId,...
+		if (hwndDestWindow != nullptr) // if there is a remote (X64) instance then tell it to append a tree item to display the process name and PId,...
 		{
 			wxString wxszItemText;
 			NodeProperties.TREEITEMTYPE = PROCESS_NAME_WITH_PID;

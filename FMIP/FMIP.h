@@ -36,9 +36,9 @@ const int MaxFileName = 256 * 2; // length of WCHAR string in byte
 
 enum TREE_ITEM_TYPE
 {
-	PROCESS_NAME_WITH_PID,	// label of the tree item is name and PId of a process.
-	ALLOCATION_BASE,		// label of the tree item is an allocation base virtual memory address.
-	REGION					// label of the tree item is a virtual memory address of a region.
+	PROCESS_NAME_WITH_PID,	// A tree item of this type has a process name with PId as its label.
+	ALLOCATION_BASE,		// A tree item of this type has a allocation base VM address as its label.
+	REGION					// A tree item of this type has a VM base address of VM region as its label.
 };
 
 enum ACTION

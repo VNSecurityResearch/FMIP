@@ -42,7 +42,7 @@ VMContentDisplay::VMContentDisplay(MainWindow* Parent, FMIP_TreeCtrl* ptrTreeCtr
 	//TextAttr.SetFont(wxFontInfo().FaceName("Consolas"));
 	SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_MENU));
 	m_ptrTextCtrl->SetDefaultStyle(TextAttr);
-	m_ptrTextCtrl->Bind(wxEVT_LEFT_UP, &VMContentDisplay::OnLeftMouseUp, this);
+	m_ptrTextCtrl->Bind(wxEVT_LEFT_DOWN, &VMContentDisplay::OnLeftMouseDown, this);
 	pVBox->Add(m_ptrTextCtrl, 1, wxLEFT | wxRIGHT | wxTOP | wxEXPAND, 3);
 	m_ptrButtonOK = new wxButton(this, wxID_OK);
 	m_hWndButtonOK = m_ptrButtonOK->GetHWND();
@@ -52,7 +52,6 @@ VMContentDisplay::VMContentDisplay(MainWindow* Parent, FMIP_TreeCtrl* ptrTreeCtr
 	SetSizer(pVBox);
 	Bind(wxEVT_CLOSE_WINDOW, &VMContentDisplay::OnClose, this);
 	m_ptrButtonOK->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &VMContentDisplay::OnOKClick, this);
-	m_ptrButtonOK->Bind(wxEVT_LEFT_UP, &VMContentDisplay::OnLeftMouseUp, this);
 	//Layout(); when this needed?
 	this->Show(true);
 	ThreadingOutputVMContent* pThreadingOutputVMContent = new ThreadingOutputVMContent(this);
@@ -122,10 +121,9 @@ void VMContentDisplay::OnOKClick(wxCommandEvent& WXUNUSED(evt))
 	this->Destroy();
 }
 
-void VMContentDisplay::OnLeftMouseUp(wxMouseEvent& MouseEvt)
+void VMContentDisplay::OnLeftMouseDown(wxMouseEvent& MouseEvt)
 {
-	m_ptrButtonOK->SetDefault();
-	MouseEvt.Skip();
+	// Do nothing is the solution to make the button OK default.
 }
 
 WXLRESULT VMContentDisplay::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam)
@@ -134,7 +132,10 @@ WXLRESULT VMContentDisplay::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPA
 	{
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) != WA_INACTIVE)
+		{
+			m_ptrButtonOK->SetFocus();
 			m_ptrButtonOK->SetDefault(); // = ::SendMessage(m_ptrButtonOK->GetHWND(), BM_SETSTYLE, BS_DEFPUSHBUTTON | BS_TEXT, TRUE);
+		}
 		else
 			::SendMessage(m_hWndButtonOK, BM_SETSTYLE, BS_PUSHBUTTON | BS_TEXT, TRUE);
 		break;

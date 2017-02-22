@@ -58,7 +58,7 @@ public:
 	void OnAttachedThreadStart(wxThreadEvent& evt);
 	void OnClose(wxCloseEvent& evt);
 	void OnOKClick(wxCommandEvent&);
-	void OnLeftMouseUp(wxMouseEvent& MouseEvt);
+	void OnLeftMouseDown(wxMouseEvent& MouseEvt);
 	wxCriticalSection m_ptrAttachedThreadLocker;
 	WXLRESULT MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam);
 };
