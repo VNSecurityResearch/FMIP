@@ -1,54 +1,54 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="About.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Entry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MainWindow.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="ThreadingOutputVMContent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VMContentDisplay.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MIPF.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="About.cpp">
+      <Filter>Source Files\GUI</Filter>
     </ClCompile>
     <ClCompile Include="MIPF-TextCtrl.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\GUI</Filter>
     </ClCompile>
     <ClCompile Include="MIPF-TreeCtrl.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="VMContentDisplay.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Entry.cpp">
+      <Filter>Source Files\NonGUI workers</Filter>
+    </ClCompile>
+    <ClCompile Include="MIPF.cpp">
+      <Filter>Source Files\NonGUI workers</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadingOutputVMContent.cpp">
+      <Filter>Source Files\NonGUI workers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="About.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\GUI</Filter>
     </ClInclude>
     <ClInclude Include="MainWindow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ThreadingOutputVMContent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VMContentDisplay.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MIPF.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\GUI</Filter>
     </ClInclude>
     <ClInclude Include="MIPF-TextCtrl.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\GUI</Filter>
     </ClInclude>
     <ClInclude Include="MIPF-TreeCtrl.h">
+      <Filter>Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="VMContentDisplay.h">
+      <Filter>Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="MIPF.h">
+      <Filter>Header Files\NonGUI workers</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadingOutputVMContent.h">
+      <Filter>Header Files\NonGUI workers</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -129,6 +129,18 @@
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{03834abc-a525-442f-97e0-94f508df0298}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GUI">
+      <UniqueIdentifier>{669cd37a-1bb5-45bc-bd2b-d49a9e08edc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\NonGUI workers">
+      <UniqueIdentifier>{79f39cbb-b99e-4c39-9991-aa18b2a5ed44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GUI">
+      <UniqueIdentifier>{8d3db6be-bf0d-4899-a840-bc2143aab9db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\NonGUI workers">
+      <UniqueIdentifier>{5f0b7fd0-1247-4578-9bd9-dea1249eb215}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

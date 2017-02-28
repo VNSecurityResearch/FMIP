@@ -27,6 +27,7 @@
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
+
 #include "MIPF.h"
 #include "MainWindow.h"
 #include <TlHelp32.h>
@@ -276,16 +277,21 @@ void MakeTreeItemsAboutAProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, co
 						// No need for std::regex because we don't have to do much text manipulation. Moreover, we're dealing with bytes, not strings.
 						if (ptrByteBuffer[i] == 'M')
 						{
-							if (i + 1 >= mbi.RegionSize)
+							if (i + sizeof(IMAGE_DOS_HEADER) >= mbi.RegionSize)
 								break; // impossible to be a DOS header in this region, stop scanning for PE signature.
 							if (ptrByteBuffer[i + 1] == 'Z')
 							{
-								if (i + 0x3c >= mbi.RegionSize)
-									break; // impossible to be a DOS header in this region, stop scanning for PE signature.
-								DWORD dwPEOffset = *(PDWORD)&ptrByteBuffer[i + 0x3c];
-								if (i + dwPEOffset + 1 >= mbi.RegionSize)
-									break; // impossible to be a PE header in this region, stop scanning for PE signature.
-								if (ptrByteBuffer[i + dwPEOffset] == 'P' && ptrByteBuffer[i + dwPEOffset + 1] == 'E')
+								//if (i + 0x3c >= mbi.RegionSize)
+								//	break; // impossible to be a DOS header in this region, stop scanning for PE signature.
+								//DWORD dwPEOffset = *(PDWORD)&ptrByteBuffer[i + 0x3c];
+								//if (i + dwPEOffset + 1 >= mbi.RegionSize)
+								//	break; // impossible to be a PE header in this region, stop scanning for PE signature.
+								//if (ptrByteBuffer[i + dwPEOffset] == 'P' && ptrByteBuffer[i + dwPEOffset + 1] == 'E')
+								//{
+								//}
+								PIMAGE_DOS_HEADER ptrPEDosHeader = (PIMAGE_DOS_HEADER)(ptrByteBuffer + i);
+								PCSTR szPESignature = (PCSTR)((PBYTE)ptrPEDosHeader + (DWORD)ptrPEDosHeader->e_lfanew);
+								if (szPESignature[0] == 'P' && szPESignature[1] == 'E')
 								{
 									// Found an indication of PE injection.
 									NodeProperties.blPEInjection = TRUE; // this region is is injected with a PE.

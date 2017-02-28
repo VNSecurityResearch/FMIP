@@ -119,6 +119,7 @@ MainWindow::MainWindow(const wxString& Title) : wxFrame(nullptr, wxID_ANY, Title
 	//m_ptrMIPF_TreeCtrl->Bind(wxEVT_TREE_KEY_DOWN, &MIPF_TreeCtrl::OnKeyDown, m_ptrMIPF_TreeCtrl);
 	ptrVBox->Add(m_ptrMIPF_TreeCtrl, 1, wxEXPAND);
 	SetSizer(ptrVBox);
+	SetIcon(wxIcon(L"wxICON_AAA"));
 	Show(true);
 }
 
