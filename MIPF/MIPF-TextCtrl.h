@@ -32,11 +32,12 @@ private:
 	SCROLLBARINFO m_ScrollBarInfo;
 	BOOL m_blHScrollBarVisible;
 	int m_intLastCheckFirstVisibleLine = 0;
-	wxMenu* m_ptrPopupMenu;
 public:
 	MIPF_TextCtrl(VMContentDisplay*);
 	void AppendText(const wxString& Text);
 	void OnPopupClick(wxCommandEvent& event);
+	void OnContextMenu(wxContextMenuEvent& event);
 	//BOOL CanScroll(HWND, LONG);
 	WXLRESULT MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam);
+	//DECLARE_EVENT_TABLE()
 };

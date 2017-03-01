@@ -31,6 +31,10 @@
 #include <wx/msw/msvcrt.h>      // redefines the new() operator 
 #endif
 
+//BEGIN_EVENT_TABLE(MIPF_TextCtrl, wxTextCtrl)
+//	EVT_CONTEXT_MENU(MIPF_TextCtrl::OnContextMenu)
+//END_EVENT_TABLE()
+
 MIPF_TextCtrl::MIPF_TextCtrl(VMContentDisplay* ptrParent) :wxTextCtrl(ptrParent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize,
 	wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH2 | wxTE_DONTWRAP | wxTE_PROCESS_ENTER)
 {
@@ -40,6 +44,7 @@ MIPF_TextCtrl::MIPF_TextCtrl(VMContentDisplay* ptrParent) :wxTextCtrl(ptrParent,
 	m_ScrollInfo.fMask = SIF_RANGE | SIF_TRACKPOS | SIF_PAGE | SIF_POS;
 	::GetScrollBarInfo(m_hWnd, OBJID_HSCROLL, &m_ScrollBarInfo);
 	m_blHScrollBarVisible = m_ScrollBarInfo.rgstate[0] == 0 ? TRUE : FALSE;
+	Bind(wxEVT_CONTEXT_MENU, &MIPF_TextCtrl::OnContextMenu, this);
 }
 
 void MIPF_TextCtrl::AppendText(const wxString & Text)
@@ -65,12 +70,6 @@ void MIPF_TextCtrl::OnPopupClick(wxCommandEvent & event)
 //	::GetScrollBarInfo(hWnd, OBJID_HSCROLL, &ScrollBarInfo);
 //	return (ScrollBarInfo.rgstate[0] != STATE_SYSTEM_INVISIBLE && ScrollBarInfo.rgstate[0] != STATE_SYSTEM_UNAVAILABLE) ? TRUE : FALSE;
 //}
-
-enum POPUP_MENU_ITEM
-{
-	COPY,
-	SELECT_ALL,
-};
 
 WXLRESULT MIPF_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam)
 {
@@ -198,7 +197,7 @@ WXLRESULT MIPF_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 		break;
 	}
 
-	case WM_RBUTTONUP:
+	/*case WM_RBUTTONUP:
 	{
 		m_ptrPopupMenu = new wxMenu;
 		m_ptrPopupMenu->Append(COPY, wxT("&Copy"));
@@ -206,12 +205,27 @@ WXLRESULT MIPF_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 		m_ptrPopupMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, &MIPF_TextCtrl::OnPopupClick, this);
 		PopupMenu(m_ptrPopupMenu);
 	}
-		return 0;
+		return 0;*/
 
 	default:
 		break;
 	}
-	WXLRESULT wxLResult = CallWindowProc((WNDPROC)m_oldWndProc, m_hWnd, nMsg, wParam, lParam);
+	WXLRESULT wxLResult = wxTextCtrl::MSWWindowProc(nMsg, wParam, lParam);// CallWindowProc((WNDPROC)m_oldWndProc, m_hWnd, nMsg, wParam, lParam);
 	::HideCaret(m_hWnd);
 	return wxLResult;
+}
+
+enum POPUP_MENU_ITEM
+{
+	COPY,
+	SELECT_ALL,
+};
+
+void MIPF_TextCtrl::OnContextMenu(wxContextMenuEvent & event)
+{
+	wxMenu PopupMenu;// = new wxMenu;
+	PopupMenu.Append(COPY, wxT("&Copy"));
+	PopupMenu.Append(SELECT_ALL, wxT("&Select All"));
+	PopupMenu.Bind(wxEVT_COMMAND_MENU_SELECTED, &MIPF_TextCtrl::OnPopupClick, this);
+	wxWindowBase::PopupMenu(&PopupMenu);
 }
