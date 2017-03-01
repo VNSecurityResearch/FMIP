@@ -16,7 +16,8 @@
  */
 
 /*
- This file declares class MIPF_TextCtrl - the customized text control of this program.
+ GUI class:
+ This file implements class MIPF_TextCtrl - the customized text control in VMContentDisplay.
 */
 
 #pragma once
@@ -27,14 +28,15 @@ class MIPF_TextCtrl :public wxTextCtrl
 {
 private:
 	VMContentDisplay* m_ptrVMContentDisplay;
-	HWND m_hWndThis = nullptr;
 	SCROLLINFO m_ScrollInfo;
 	SCROLLBARINFO m_ScrollBarInfo;
 	BOOL m_blHScrollBarVisible;
 	int m_intLastCheckFirstVisibleLine = 0;
+	wxMenu* m_ptrPopupMenu;
 public:
 	MIPF_TextCtrl(VMContentDisplay*);
 	void AppendText(const wxString& Text);
+	void OnPopupClick(wxCommandEvent& event);
 	//BOOL CanScroll(HWND, LONG);
 	WXLRESULT MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam);
 };

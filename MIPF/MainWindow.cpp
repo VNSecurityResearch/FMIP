@@ -16,6 +16,7 @@
  */
 
 /*
+ GUI class:
  This file implements the main window of this program.
 */
 
@@ -23,9 +24,11 @@
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
+
 #include "MainWindow.h"
 #include "About.h"
 #include "MIPF.h"
+
 #ifdef __WXMSW__
 #include <wx/msw/msvcrt.h>      // redefines the new() operator 
 #endif

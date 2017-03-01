@@ -15,13 +15,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- This file implements:
- - the entry point of the program: function OnInit.
- - class MIPF.
- - classes related to tree item
- - other functions that the methods of class MIPF call to.
- */
+ /*
+  This file implements:
+  - the entry point of the program: function OnInit.
+  - class MIPF.
+  - classes related to tree item
+  - other functions that the methods of class MIPF call to.
+  */
 
 #include <wx/wxprec.h>
 #ifndef WX_PRECOMP
@@ -139,8 +139,8 @@ BOOL MIPF::IsProcessWoW64(const HANDLE hProcess)
 }
 
 /*
- This function scans from the VA given as the second argument 
- until it finds a commited private region with protection attribute of XRW 
+ This function scans from the VA given as the second argument
+ until it finds a commited private region with protection attribute of XRW
  - the indication of being injected code into the process: then it returns the virtual address of the suspicious region;
  or until it finishes the user-mode VM partition: then it returns null address, that means it finds none.
 */
@@ -159,7 +159,7 @@ LPCVOID MIPF::FindPrivateERWRegion(HANDLE hProcess, LPCVOID ptrRegionBase)
 			// current protection is XR but initial protection is RW
 			// that means after having written code into the process, the injector changes the protection of the region
 			// to bypass security tools hunting for private memory regions with XRW protection.
-			if (mbi.AllocationProtect == PAGE_READWRITE && mbi.Protect == PAGE_EXECUTE_READ) 
+			if (mbi.AllocationProtect == PAGE_READWRITE && mbi.Protect == PAGE_EXECUTE_READ)
 			{
 				return mbi.BaseAddress;
 			}
@@ -270,14 +270,14 @@ void MakeTreeItemsAboutAProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, co
 					// Check if this process has an indication of PE injection.
 					SIZE_T nNumOfBytesRead;
 					std::unique_ptr<BYTE>smptrAutoFreedByteBuffer(new BYTE[mbi.RegionSize]);
-					PBYTE ptrByteBuffer = smptrAutoFreedByteBuffer.get(); 
+					PBYTE ptrByteBuffer = smptrAutoFreedByteBuffer.get();
 					ReadProcessMemory(hProcess, pcvoidRegionBase, (PVOID)ptrByteBuffer, mbi.RegionSize, &nNumOfBytesRead);
 					for (SIZE_T i = 0; i < mbi.RegionSize; i++) // assume i is the start of a DOS header.
 					{
 						// No need for std::regex because we don't have to do much text manipulation. Moreover, we're dealing with bytes, not strings.
 						if (ptrByteBuffer[i] == 'M')
 						{
-							if (i + sizeof(IMAGE_DOS_HEADER) >= mbi.RegionSize)
+							if (i + sizeof(IMAGE_DOS_HEADER) + sizeof(IMAGE_NT_HEADERS32) >= mbi.RegionSize)
 								break; // impossible to be a DOS header in this region, stop scanning for PE signature.
 							if (ptrByteBuffer[i + 1] == 'Z')
 							{
@@ -286,13 +286,23 @@ void MakeTreeItemsAboutAProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, co
 								//DWORD dwPEOffset = *(PDWORD)&ptrByteBuffer[i + 0x3c];
 								//if (i + dwPEOffset + 1 >= mbi.RegionSize)
 								//	break; // impossible to be a PE header in this region, stop scanning for PE signature.
-								//if (ptrByteBuffer[i + dwPEOffset] == 'P' && ptrByteBuffer[i + dwPEOffset + 1] == 'E')
-								//{
-								//}
+								//if (ptrByteBuffer[i + dwPEOffset] == 'P' && ptrByteBuffer[i + dwPEOffset + 1] == 'E'){}
+								//if (szPESignature[0] == 'P' && szPESignature[1] == 'E'){}
 								PIMAGE_DOS_HEADER ptrPEDosHeader = (PIMAGE_DOS_HEADER)(ptrByteBuffer + i);
-								PCSTR szPESignature = (PCSTR)((PBYTE)ptrPEDosHeader + (DWORD)ptrPEDosHeader->e_lfanew);
-								if (szPESignature[0] == 'P' && szPESignature[1] == 'E')
+								PVOID ptrImageNTHeader = (PVOID)((PBYTE)ptrPEDosHeader + ptrPEDosHeader->e_lfanew);
+								if (((PIMAGE_NT_HEADERS32)ptrImageNTHeader)->Signature != 0x4550) // Not "PE".
+									continue;
+								/*if (MIPF::IsProcessWoW64(hProcess))
 								{
+									if ((i + ((PIMAGE_NT_HEADERS32)ptrImageNTHeader)->OptionalHeader.SizeOfHeaders) >= mbi.RegionSize)
+										break;
+								}
+								else
+								{
+									if ((i + ((PIMAGE_NT_HEADERS)ptrImageNTHeader)->OptionalHeader.SizeOfHeaders) >= mbi.RegionSize)
+										break;
+								}*/
+								//{
 									// Found an indication of PE injection.
 									NodeProperties.blPEInjection = TRUE; // this region is is injected with a PE.
 									blIsPEInjectedInProcess = TRUE; // the currently examined process is injected with a PE.
@@ -308,7 +318,7 @@ void MakeTreeItemsAboutAProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, co
 										static_cast<Tree_Item_Allocation_Base*>(ptiData)->SetColor(255, 0, 0);
 									}
 									break; // stop scanning for PE signature in this region.
-								}
+								//}
 							}
 						}
 					}
@@ -334,8 +344,8 @@ void MakeTreeItemsAboutAProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, co
 			NodeProperties.blPEInjection = FALSE; // assume that the next region is not injected with a PE.
 			pcvoidRegionBase = MIPF::FindPrivateERWRegion(hProcess, pcvoidRegionBase);
 		} while (pcvoidRegionBase != nullptr); // keep searching until reaching the end of user-mode VM partition.
-		
-		if (blIsPEInjectedInProcess == TRUE) 
+
+		if (blIsPEInjectedInProcess == TRUE)
 			if (hwndDestWindow != nullptr) // if there is a remote (X64) instance then tell it to change the color of the last tree item displaying the process name and PId to red,...
 			{
 				tiParentDataToChange.TreeItemParentType = PROCESS_NAME_WITH_PID;
@@ -347,8 +357,8 @@ void MakeTreeItemsAboutAProcess(HWND hwndDestWindow, wxTreeCtrl* ptrTreeCtrl, co
 				wxTreeItemData* ptiData = ptrTreeCtrl->GetItemData(tiLastProcessNameId);
 				static_cast<Tree_Item_Process_Name_PId*>(ptiData)->SetColor(255, 0, 0);
 			}
-		}
 	}
+}
 
 void MakeTreeItemsInLocalInstance(wxTreeCtrl* ptrTreeCtrl, const wxTreeItemId& tiRoot, HANDLE hProcess, const PROCESS_NAME_AND_PID&  ProcessNamePId)
 {
@@ -408,10 +418,10 @@ BOOL MIPF::FillTreeCtrl(MIPF_TreeCtrl* ptrTreeCtrl)
 		MakeTreeItemsInLocalInstance(ptrTreeCtrl, tiRoot, hProcess, PROCESSNAMEPID);
 #endif
 		CloseHandle(hProcess);
-	} while (Process32Next(hSnapshot, &pe32));
-	CloseHandle(hSnapshot);
-	return TRUE;
-}
+		} while (Process32Next(hSnapshot, &pe32));
+		CloseHandle(hSnapshot);
+		return TRUE;
+	}
 
 void Generic_Tree_Item::SetType(const TREE_ITEM_TYPE& TreeItemType)
 {

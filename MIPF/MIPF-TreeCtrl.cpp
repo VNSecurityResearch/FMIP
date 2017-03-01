@@ -16,7 +16,8 @@
  */
 
 /*
- This file implements the customized tree control of this program.
+ GUI class:
+ This file implements the customized tree control in MainWindow.
 */
 
 #include <wx/wxprec.h>
@@ -31,22 +32,15 @@
 #include <wx/msw/msvcrt.h>      // redefines the new() operator 
 #endif
 
-enum POPUP_MENU_ITEM
-{
-	POPUP_MENU_ITEM_STRING,
-	POPUP_MENU_ITEM_ASM,
-};
-
 MIPF_TreeCtrl::MIPF_TreeCtrl(wxWindow* parent, wxWindowID Id, long style) : wxTreeCtrl(parent, Id, wxDefaultPosition, wxDefaultSize, style)
 {
 }
 
-void MIPF_TreeCtrl::OnPopupClick(wxCommandEvent& event)
+enum POPUP_MENU_ITEM
 {
-
-	OUTPUT_TYPE	OutputType = event.GetId() == POPUP_MENU_ITEM_ASM ? OUTPUT_TYPE_ASM : OUTPUT_TYPE_STRING;
-	VMContentDisplay* pVMContentDisplay = new VMContentDisplay(static_cast<MainWindow*>(this->GetParent()), this, OutputType);
-}
+	STRINGS,
+	ASM,
+};
 
 void MIPF_TreeCtrl::OnRightClick(wxTreeEvent& event)
 {
@@ -59,11 +53,18 @@ void MIPF_TreeCtrl::OnRightClick(wxTreeEvent& event)
 		return;
 	}
 	// Popup menu
-	wxMenu pPopupMenu;// = new wxMenu;
-	pPopupMenu.Append(POPUP_MENU_ITEM_STRING, wxT("Các dãy ký tự (strings)"));
-	pPopupMenu.Append(POPUP_MENU_ITEM_ASM, wxT("Mã hợp ngữ (assembly)"));
-	pPopupMenu.Bind(wxEVT_COMMAND_MENU_SELECTED, &MIPF_TreeCtrl::OnPopupClick, this);
-	PopupMenu(&pPopupMenu);
+	wxMenu ptrPopupMenu;// = new wxMenu;
+	ptrPopupMenu.Append(STRINGS, wxT("Các dãy ký tự (&strings)"));
+	ptrPopupMenu.Append(ASM, wxT("Mã hợp ngữ (&assembly)"));
+	ptrPopupMenu.Bind(wxEVT_COMMAND_MENU_SELECTED, &MIPF_TreeCtrl::OnPopupClick, this);
+	PopupMenu(&ptrPopupMenu);
+}
+
+void MIPF_TreeCtrl::OnPopupClick(wxCommandEvent& event)
+{
+
+	OUTPUT_TYPE	OutputType = event.GetId() == ASM ? OUTPUT_TYPE_ASM : OUTPUT_TYPE_STRING;
+	VMContentDisplay* pVMContentDisplay = new VMContentDisplay(static_cast<MainWindow*>(this->GetParent()), this, OutputType);
 }
 
 void MIPF_TreeCtrl::OnRescan(wxMenuEvent& event)

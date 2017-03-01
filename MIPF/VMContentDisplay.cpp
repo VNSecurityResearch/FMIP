@@ -16,6 +16,7 @@
  */
 
 /*
+ GUI class:
  This file implements class VMContentDisplay - the dialog with the customized text control
  to which content of a VM region is outputted.  
 */
@@ -24,9 +25,11 @@
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
+
 #include "MIPF.h"
 #include "ThreadingOutputVMContent.h"
 #include "MIPF-TextCtrl.h"
+
 #ifdef __WXMSW__
 #include <wx/msw/msvcrt.h>      // redefines the new() operator 
 #endif
@@ -42,7 +45,6 @@ VMContentDisplay::VMContentDisplay(MainWindow* Parent, MIPF_TreeCtrl* ptrTreeCtr
 	//TextAttr.SetFont(wxFontInfo().FaceName("Consolas"));
 	SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_MENU));
 	m_ptrTextCtrl->SetDefaultStyle(TextAttr);
-	m_ptrTextCtrl->Bind(wxEVT_LEFT_DOWN, &VMContentDisplay::OnLeftMouseDown, this);
 	pVBox->Add(m_ptrTextCtrl, 1, wxLEFT | wxRIGHT | wxTOP | wxEXPAND, 3);
 	m_ptrButtonOK = new wxButton(this, wxID_OK);
 	m_hWndButtonOK = m_ptrButtonOK->GetHWND();
@@ -121,9 +123,9 @@ void VMContentDisplay::OnOKClick(wxCommandEvent& WXUNUSED(evt))
 	this->Destroy();
 }
 
-void VMContentDisplay::OnLeftMouseDown(wxMouseEvent& MouseEvt)
+void VMContentDisplay::OnPopupClick(wxCommandEvent & event)
 {
-	// Do nothing is the solution to make the button OK default.
+	wxLogDebug(L"Popup clicked");
 }
 
 WXLRESULT VMContentDisplay::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam)
@@ -133,7 +135,7 @@ WXLRESULT VMContentDisplay::MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPA
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) != WA_INACTIVE)
 		{
-			m_ptrButtonOK->SetFocus();
+			//m_ptrButtonOK->SetFocus();
 			m_ptrButtonOK->SetDefault(); // = ::SendMessage(m_ptrButtonOK->GetHWND(), BM_SETSTYLE, BS_DEFPUSHBUTTON | BS_TEXT, TRUE);
 		}
 		else

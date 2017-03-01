@@ -24,6 +24,7 @@
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
+
 #include "MIPF.h"
 #include "ThreadingOutputVMContent.h"
 #include "MIPF-TextCtrl.h"

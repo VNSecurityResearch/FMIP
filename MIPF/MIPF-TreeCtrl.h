@@ -16,7 +16,8 @@
  */
 
 /*
- This file declares class MIPF_TreeCtrl - the customized tree control of this program.
+ GUI class:
+ This file declares class MIPF_TreeCtrl - the customized tree control in MainWindow.
 */
 
 #pragma once

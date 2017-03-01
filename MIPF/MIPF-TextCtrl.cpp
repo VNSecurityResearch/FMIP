@@ -16,14 +16,17 @@
  */
 
 /*
- This file implements class MIPF_TextCtrl - the customized text control of this program.
+ GUI class:
+ This file implements class MIPF_TextCtrl - the customized text control in VMContentDisplay.
 */
 
 #include "wx/wxprec.h"
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
+
 #include "MIPF-TextCtrl.h"
+
 #ifdef __WXMSW__
 #include <wx/msw/msvcrt.h>      // redefines the new() operator 
 #endif
@@ -32,11 +35,10 @@ MIPF_TextCtrl::MIPF_TextCtrl(VMContentDisplay* ptrParent) :wxTextCtrl(ptrParent,
 	wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH2 | wxTE_DONTWRAP | wxTE_PROCESS_ENTER)
 {
 	m_ptrVMContentDisplay = ptrParent;
-	m_hWndThis = this->GetHWND();
 	m_ScrollInfo.cbSize = sizeof(SCROLLINFO);
 	m_ScrollBarInfo.cbSize = sizeof(SCROLLBARINFO);
 	m_ScrollInfo.fMask = SIF_RANGE | SIF_TRACKPOS | SIF_PAGE | SIF_POS;
-	::GetScrollBarInfo(m_hWndThis, OBJID_HSCROLL, &m_ScrollBarInfo);
+	::GetScrollBarInfo(m_hWnd, OBJID_HSCROLL, &m_ScrollBarInfo);
 	m_blHScrollBarVisible = m_ScrollBarInfo.rgstate[0] == 0 ? TRUE : FALSE;
 }
 
@@ -50,6 +52,12 @@ void MIPF_TextCtrl::AppendText(const wxString & Text)
 	::SendMessage(GetHWND(), EM_REPLACESEL, 0, (LPARAM)Text.t_str());
 }
 
+void MIPF_TextCtrl::OnPopupClick(wxCommandEvent & event)
+{
+	wxLogDebug(L"Popup clicked");
+	event.Skip();
+}
+
 //BOOL MIPF_TextCtrl::CanScroll(HWND hWnd, LONG Direction)
 //{
 //	SCROLLBARINFO ScrollBarInfo;
@@ -58,16 +66,22 @@ void MIPF_TextCtrl::AppendText(const wxString & Text)
 //	return (ScrollBarInfo.rgstate[0] != STATE_SYSTEM_INVISIBLE && ScrollBarInfo.rgstate[0] != STATE_SYSTEM_UNAVAILABLE) ? TRUE : FALSE;
 //}
 
+enum POPUP_MENU_ITEM
+{
+	COPY,
+	SELECT_ALL,
+};
+
 WXLRESULT MIPF_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam)
 {
 	switch (nMsg)
 	{
 	case WM_SIZE:
-		::GetScrollBarInfo(m_hWndThis, OBJID_HSCROLL, &m_ScrollBarInfo);
+		::GetScrollBarInfo(m_hWnd, OBJID_HSCROLL, &m_ScrollBarInfo);
 		if (m_ScrollBarInfo.rgstate[0] == 0)
 		{
 			m_blHScrollBarVisible = TRUE;
-			m_intLastCheckFirstVisibleLine = ::SendMessage(m_hWndThis, EM_GETFIRSTVISIBLELINE, 0, 0);
+			m_intLastCheckFirstVisibleLine = ::SendMessage(m_hWnd, EM_GETFIRSTVISIBLELINE, 0, 0);
 		}
 		break;
 
@@ -79,15 +93,15 @@ WXLRESULT MIPF_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 		*/
 		if (m_blHScrollBarVisible)
 		{
-			::GetScrollBarInfo(m_hWndThis, OBJID_HSCROLL, &m_ScrollBarInfo);
+			::GetScrollBarInfo(m_hWnd, OBJID_HSCROLL, &m_ScrollBarInfo);
 			m_blHScrollBarVisible = m_ScrollBarInfo.rgstate[0] == 0 ? TRUE : FALSE;
 			if (m_ScrollBarInfo.rgstate[0] == STATE_SYSTEM_UNAVAILABLE)
 			{
 				wxTextCtrl::MSWWindowProc(nMsg, wParam, lParam);
-				int intFirstVisibleLine = ::SendMessage(m_hWndThis, EM_GETFIRSTVISIBLELINE, 0, 0);
+				int intFirstVisibleLine = ::SendMessage(m_hWnd, EM_GETFIRSTVISIBLELINE, 0, 0);
 				if (intFirstVisibleLine != m_intLastCheckFirstVisibleLine)
 					if ((::GetAsyncKeyState(VK_HOME) & 0x8000) != 0x8000)
-						::SendMessage(m_hWndThis, EM_LINESCROLL, 0, m_intLastCheckFirstVisibleLine - intFirstVisibleLine);
+						::SendMessage(m_hWnd, EM_LINESCROLL, 0, m_intLastCheckFirstVisibleLine - intFirstVisibleLine);
 
 				return 0;
 			}
@@ -101,44 +115,44 @@ WXLRESULT MIPF_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 		switch (wParam)
 		{
 		case VK_UP:
-			::SendMessage(m_hWndThis, WM_VSCROLL, SB_LINEUP, NULL);
-			break;
+			::SendMessage(m_hWnd, WM_VSCROLL, SB_LINEUP, NULL);
+			return 0;
 
 		case VK_DOWN:
-			::SendMessage(m_hWndThis, WM_VSCROLL, SB_LINEDOWN, NULL);
-			break;
+			::SendMessage(m_hWnd, WM_VSCROLL, SB_LINEDOWN, NULL);
+			return 0;
 
 		case VK_LEFT:
-			::SendMessage(m_hWndThis, WM_HSCROLL, SB_LINELEFT, NULL);
-			break;
+			::SendMessage(m_hWnd, WM_HSCROLL, SB_LINELEFT, NULL);
+			return 0;
 
 		case VK_RIGHT:
-			::SendMessage(m_hWndThis, WM_HSCROLL, SB_LINERIGHT, NULL);
-			break;
+			::SendMessage(m_hWnd, WM_HSCROLL, SB_LINERIGHT, NULL);
+			return 0;
 
 		case VK_PRIOR:
-			::SendMessage(m_hWndThis, WM_VSCROLL, SB_PAGEUP, NULL);
-			break;
+			::SendMessage(m_hWnd, WM_VSCROLL, SB_PAGEUP, NULL);
+			return 0;
 
 		case VK_NEXT:
-			::SendMessage(m_hWndThis, WM_VSCROLL, SB_PAGEDOWN, NULL);
-			break;
+			::SendMessage(m_hWnd, WM_VSCROLL, SB_PAGEDOWN, NULL);
+			return 0;
 
 		case VK_HOME:
-			::SendMessage(m_hWndThis, WM_VSCROLL, SB_TOP, NULL);
-			::SendMessage(m_hWndThis, WM_HSCROLL, SB_LEFT, NULL);
-			break;
+			::SendMessage(m_hWnd, WM_VSCROLL, SB_TOP, NULL);
+			::SendMessage(m_hWnd, WM_HSCROLL, SB_LEFT, NULL);
+			return 0;
 
 		case VK_END:
-			::SendMessage(m_hWndThis, WM_VSCROLL, SB_BOTTOM, NULL);
-			::SendMessage(m_hWndThis, WM_HSCROLL, SB_LEFT, NULL);
-			break;
+			::SendMessage(m_hWnd, WM_VSCROLL, SB_BOTTOM, NULL);
+			::SendMessage(m_hWnd, WM_HSCROLL, SB_LEFT, NULL);
+			return 0;
 
 		default:
 			break;
 		}
-		return 0;
 	}
+	break;
 
 	case WM_HSCROLL:
 	{
@@ -150,7 +164,7 @@ WXLRESULT MIPF_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 			 In Windows 8 (or other version older than Windows 10), the scroll bar can scroll past the max scrolling position.
 			 In that case, this is to keep the scroll bar postion within the correct scrolling range.
 			*/
-			::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
+			::GetScrollInfo(m_hWnd, SB_HORZ, &m_ScrollInfo);
 			UINT uintMaxScrlPosInWinOlderThan10 = m_ScrollInfo.nMax - (m_ScrollInfo.nPage - 1);
 			UINT uintMaxScrlPosInWin10 = m_ScrollInfo.nMax - (m_ScrollInfo.nPage);
 			if (m_ScrollInfo.nPos == uintMaxScrlPosInWinOlderThan10 || m_ScrollInfo.nPos == uintMaxScrlPosInWin10)
@@ -165,15 +179,15 @@ WXLRESULT MIPF_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 			 In Windows 8 (or other version older than Windows 10), the scroll bar can scroll past the max scrolling position.
 			 In that case, this is to keep the scroll bar postion within the correct scrolling range.
 			*/
-			::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
+			::GetScrollInfo(m_hWnd, SB_HORZ, &m_ScrollInfo);
 			UINT uintScrBarMaxPosInSafeCase = m_ScrollInfo.nMax - (m_ScrollInfo.nPage);
 			if (m_ScrollInfo.nPos + m_ScrollInfo.nPage <= uintScrBarMaxPosInSafeCase)
 				break;
 			else
 				while ((UINT)m_ScrollInfo.nPos < uintScrBarMaxPosInSafeCase)
 				{
-					::SendMessage(m_hWndThis, WM_HSCROLL, SB_LINERIGHT, NULL);
-					::GetScrollInfo(m_hWndThis, SB_HORZ, &m_ScrollInfo);
+					::SendMessage(m_hWnd, WM_HSCROLL, SB_LINERIGHT, NULL);
+					::GetScrollInfo(m_hWnd, SB_HORZ, &m_ScrollInfo);
 				}
 			return 0;
 		}
@@ -184,10 +198,20 @@ WXLRESULT MIPF_TextCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lP
 		break;
 	}
 
+	case WM_RBUTTONUP:
+	{
+		m_ptrPopupMenu = new wxMenu;
+		m_ptrPopupMenu->Append(COPY, wxT("&Copy"));
+		m_ptrPopupMenu->Append(SELECT_ALL, wxT("&Select All"));
+		m_ptrPopupMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, &MIPF_TextCtrl::OnPopupClick, this);
+		PopupMenu(m_ptrPopupMenu);
+	}
+		return 0;
+
 	default:
 		break;
 	}
-	WXLRESULT wxLResult = wxTextCtrl::MSWWindowProc(nMsg, wParam, lParam);
-	::HideCaret(m_hWndThis);
+	WXLRESULT wxLResult = CallWindowProc((WNDPROC)m_oldWndProc, m_hWnd, nMsg, wParam, lParam);
+	::HideCaret(m_hWnd);
 	return wxLResult;
 }

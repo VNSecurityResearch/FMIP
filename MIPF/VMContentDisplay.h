@@ -16,7 +16,8 @@
  */
 
 /*
- This file declares class VMContentDisplay - the dialog with the customized text control,
+ GUI class:
+ This file declares class VMContentDisplay - the dialog with a customized text control,
  in which, content of a VM region is outputted to.  
 */
 
@@ -58,7 +59,7 @@ public:
 	void OnAttachedThreadStart(wxThreadEvent& evt);
 	void OnClose(wxCloseEvent& evt);
 	void OnOKClick(wxCommandEvent&);
-	void OnLeftMouseDown(wxMouseEvent& MouseEvt);
+	void OnPopupClick(wxCommandEvent& event);
 	wxCriticalSection m_ptrAttachedThreadLocker;
 	WXLRESULT MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam);
 };

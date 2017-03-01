@@ -16,6 +16,7 @@
  */
 
 /*
+ GUI class:
  This file declares class MainWindow - the main window of this program.
 */
 
